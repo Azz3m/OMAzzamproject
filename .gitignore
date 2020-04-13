@@ -1,0 +1,12 @@
+node_modules
+dist
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+/media
+/static
+__pycache__/
+__pyCache__/
+omazzamproject/

@@ -1,0 +1,62 @@
+{% extends 'base.html'%}
+
+{% block content %}
+
+
+
+
+<h3> the title of the video is : <br />{{video.video_title}}<br />
+  <strong>CATEGORY of the video is :<h1>// {{video.video_category}}//</h1>  </strong></h3>
+  <div class="col-sm-12">
+    <h3>
+      <div class="page-header">
+        <h1><small class="pull-right">{{ size }} comments</small> Comments </h1>
+        <br />
+      </div>
+    </h3>
+  </div><!-- /col-sm-12 -->
+
+
+{% for item in comments_details %}
+
+      {% if forloop.counter == size%}
+    <div class="col-sm-4">
+      <div class="card-group">
+        <div class="card" >
+          <a href="{{ item.3|slice:"2:-2" }}">{{ forloop.counter }}<img src="{{item.2|slice:"2:-2"}}"  /></a>
+
+          <div class="card-body">
+            <h5 class="card-title"><a href="{{ item.3|slice:"2:-2" }}">{{item.1|slice:"2:-2"}}</a></h5>
+            <p class="card-text">{{ item.0|slice:"2:-2" }}</p>
+            <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-2" }}</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+      {% else %}
+
+      <div class="col-sm-4">
+        <div class="card-group">
+          <div class="card" >
+            <a href="{{ item.3|slice:"2:-1" }}">{{ forloop.counter }}<img src="{{item.2|slice:"2:-1"}}"  /></a>
+
+            <div class="card-body">
+            <h5 class="card-title"><a href="{{ item.3|slice:"2:-1" }}">{{item.1|slice:"2:-1"}}</a></h5>
+            <p class="card-text">{{ item.0|slice:"2:-1" }}</p>
+            <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-1" }}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+
+
+{% endfor %}
+
+
+
+
+
+
+{% endblock %}

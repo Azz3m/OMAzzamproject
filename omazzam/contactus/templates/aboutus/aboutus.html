@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block content %}
+  {% load staticfiles %}
+    <div class="container">
+        <div class="row">
+			<ol class="col-12 breadcrumb">
+				<li class="breadcrumb-item"><a href="{% url 'home'%}">Home</a></li>
+				<li class="breadcrumb-item active">About</li>
+				<li></li>
+			</ol>
+            <div class="col-12">
+               <h3>About Us</h3>
+               <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-sm-6">
+                <h2>Our History</h2>
+                <p>Started in 2017, Opinion Mining in Youtube quickly become neccerly need .</p>
+                <p>The website traces its humble beginnings to <em> fetch the comments from a video publiched on Youtube</em>, a successful chain started by our CEO, Mr. Peter Pan, that featured for the first time the world's best website .</p>
+            </div>
+            <div class="col col-sm">
+            </div>
+        </div>
+
+<!-- Tabs-->
+        <div class="row row-content">
+            <div class="col-12 ">
+                <h2>Corporate Leadership</h2>
+                <ul class="nav nav-tabs">
+                  <li class="nav-item">
+                    <a class="nav-link active" href="#azzam"
+                     role="tab" data-toggle="tab">Eng.Azzam Ali, Developer</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#bassam"
+                     role="tab" data-toggle="tab">Bassam Alkurdy ,supervisior </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#gady"
+                     role="tab" data-toggle="tab">Gady Alhamad , مشرفة</a>
+                  </li>
+                </ul>
+                 <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade show active" id="azzam">
+                      <img src="{% static 'IMG/EngAzzam.jpg' %}" class="image-fluid" height="150" width="150" />
+                      <h3>Eng.Azzam Ali <small> Developer</small></h3>
+                      <p class="d-none d-sm-block">Our Developer, Azzam, credits his hardworking using bootstrap4 and Django v 2.2 to make this website.</p>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane fade" id="bassam">
+                      <img src="{% static 'IMG/DrBassam.jpg' %}" class="image-fluid" height="150" width="150" />
+                      <h3>Dr.Bassam Alkurdy <small> supervisior</small></h3>
+                      <p class="d-none d-sm-block"></em></p>
+
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane fade" id="gady">
+                      <img src="{% static 'IMG/EngGady.jpg' %}" class="image-fluid" height="150" width="150" />
+                      <h3>Eng.Gady Alhamad <small> assistant </small></h3>
+                      <p class="d-none d-sm-block"></em></p>
+
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="alberto">
+
+                          <h3>Alberto Somayya <small>Executive Chef</small></h3>
+                          <p class="d-none d-sm-block">Award winning three-star Michelin chef with wide International experience having worked closely with whos-who in the culinary world, he specializes in creating mouthwatering Indo-Italian fusion experiences. He says, <em>Put together the cuisines from the two craziest cultures, and you get a winning hit! Amma Mia!</em></p>
+
+                    </div>
+
+
+
+                  </div>
+
+              </div>
+       </div>
+
+       <div class="row row-content">
+         <div class="col-12 col-sm-9">
+           <h2>Facts &amp; Figures</h2>
+
+            <div class="table-responsive">
+           <table class="table table-striped">
+             <thead class="thead-dark">
+               <tr>
+                 <th>
+                   &nbsp;
+                 </th>
+                 <th>
+                  2013
+                 </th>
+                 <th>
+                  2014
+                 </th>
+                 <th>
+                  2015
+                 </th>
+               </tr>
+             </thead>
+             <tbody>
+                            <tr>
+                                <th>Employees</th>
+                                <td>15</td>
+                                <td>30</td>
+                                <td>40</td>
+                            </tr>
+                            <tr>
+                                <th>Guests Served</th>
+                                <td>15000</td>
+                                <td>45000</td>
+                                <td>100,000</td>
+                            </tr>
+                            <tr>
+                                <th>Special Events</th>
+                                <td>3</td>
+                                <td>20</td>
+                                <td>45</td>
+                            </tr>
+                            <tr>
+                                <th>Annual Turnover</th>
+                                <td>$251,325</td>
+                                <td>$1,250,375</td>
+                                <td>~$3,000,000</td>
+                            </tr>
+                        </tbody>
+           </table>
+         </div>
+
+
+           <div class="col-12 col-sm-6">
+                           <div class="card">
+                               <h3 class="card-header bg-primary text-white">Facts At a Glance</h3>
+                               <div class="card-body">
+                                   <dl class="row">
+                                       <dt class="col-6">Started</dt>
+                                       <dd class="col-6">3 Feb. 2013</dd>
+                                       <dt class="col-6">Major Stake Holder</dt>
+                                       <dd class="col-6">HK Fine Foods Inc.</dd>
+                                       <dt class="col-6">Last Year's Turnover</dt>
+                                       <dd class="col-6">$1,250,375</dd>
+                                       <dt class="col-6">Employees</dt>
+                                       <dd class="col-6">40</dd>
+                                   </dl>
+
+                               </div>
+                           </div>
+                       </div>
+                       <div class="col-12">
+               <div class="card card-body bg-light">
+                   <blockquote class="blockquote">
+                       <p class="mb-0">You better know people's opinion about videos on youtube because.</p>
+                       <footer class="blockquote-footer">Azzam Ali,
+                           <cite title="Source Title">The Wit and Wisdom of Yogi Berra,
+                           P. Pepe, Diversion Books, 2014</cite>
+                       </footer>
+                   </blockquote>
+               </div>
+           </div>
+
+
+       </div>
+
+       </div>
+
+    </div>
+
+
+
+{% endblock %}

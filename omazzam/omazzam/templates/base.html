@@ -1,0 +1,144 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="shortcut icon" href="{% static 'IMG/logo.jpg' %}" type="image/x-icon" >
+    <link rel="icon" href="{% static 'IMG/logo.jpg' %}" sizes="32x32" >
+    <link rel="icon" href="{% static 'IMG/logo.jpg' %}" sizes="48x48" >
+    <link rel="icon" href="{% static 'IMG/logo.jpg' %}" sizes="96x96" >
+    <link rel="icon" href="{% static 'IMG/logo.jpg' %}" sizes="144x144" >
+
+    <!-- Bootstrap CSS -->
+    <!-- build:css css/main.css -->
+    <link rel="stylesheet" href="{% static 'node_modules/bootstrap/dist/css/bootstrap.min.css'%}">
+    <link rel="stylesheet" href="{% static 'node_modules/font-awesome/css/font-awesome.css'%}">
+    <link rel="stylesheet" href="{% static 'node_modules/bootstrap-social/bootstrap-social.css'%}">
+    <link rel="stylesheet" href="{% static 'CSS/style.css'%}">
+    <!-- endbuild -->
+    <!-- build:js js/main.js -->
+    <script src="{% static 'JS/scripts.js'%}"></script>
+    <!-- endbuild -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS. -->
+  	<!-- build:js js/main.js -->
+    <script src="{% static 'node_modules/jquery/dist/jquery.min.js'%}"></script>
+    <script src="{% static 'node_modules/popper.js/dist/umd/popper.min.js'%}"></script>
+    <script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.min.js'%}"></script>
+
+   <title>Opinion Mining By Eng.Azzam Ali</title>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark navbar-expand-sm fixed-top">
+     <div class="container">
+       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#Navbar">
+         <span class="navbar-toggler-icon"></span>
+       </button>
+       <a class="navbar-brand mr-auto" href="{% url 'home' %}">  <img src="{% static 'IMG/logo.jpg' %}" class="image-fluid" height="80" width="110" /></a>
+        &nbsp; &nbsp;
+       <div class="collapse navbar-collapse" id="Navbar">
+         <ul class="navbar-nav mr-auto">
+           {% url 'home' as home %}
+           {% url 'aboutus' as aboutus %}
+           {% url 'contactus' as contactus %}
+           <li {% if request.path == home %} class="active" {% endif %} class="nav-item"><a class="nav-link" href="{% url 'home' %}"><span class="fa fa-home fa-lg"> </span> Home</a></li>
+           <li {% if request.path == aboutus %} class="active" {% endif %}class="nav-item"><a class="nav-link" href="{% url 'aboutus' %}"><span class="fa fa-info fa-lg"> </span> About</a></li>
+           <li {% if request.path == contactus %} class="active" {% endif %}class="nav-item"><a class="nav-link" href="{% url 'contactus' %}"><span class="fa fa-address-card fa-lg"></span> Contact</a></li>
+         </ul>
+         <ul class="navbar-nav ml-auto">
+           {% url 'signup' as signup %}
+           {% url 'login' as login %}
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link" href="javascript:{document.getElementById('logout').submit()}"><span class="fa fa-sign-out"></span>logout</a></li>
+
+            <form id='logout' method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <input type="hidden" />
+            </form>
+            {% else %}
+
+              <li {% if request.path == signup %} class="active" {% endif %}class="nav-item"> <a class="nav-link" href="{% url 'signup' %}"><span class="fa fa-user-plus"></span> Signup</a></li>
+
+
+              <li {% if request.path == login %} class="active" {% endif %}class="nav-item"><a class="nav-link" href="{% url 'login' %}"><span class="fa fa-sign-in"></span> Login </a></li>
+
+
+
+            {% endif %}
+          </ul>
+       </div>
+     </div>
+  </nav>
+
+    <header class="jumbotron">
+        <div class="container">
+            <div class="row row-header">
+                <div class="col-12 col-sm-6">
+                    <h1>Youtube Option Mining</h1>
+                    <p>We take inspiration from the World's best technologies, and create a unique website.</p>
+                </div>
+                <div class="col-12 col-sm align-self-center">
+
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+      <div class="row row-content">
+
+          {% block content%}
+          {% endblock %}
+      </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-4 offset-1 col-sm-2">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'aboutus' %}">About</a></li>
+                        <li><a href="{% url 'contactus' %}">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-7 col-sm-5">
+                    <h5>Our Address</h5>
+                    <address>
+		              Baniyas, Tartus<br>
+		              Syria<br>
+		              <i class="fa fa-phone fa-lg"></i>: <a href="tel:+963991576641">
+                  <span>+963-991576641</span></a><br>
+		              <i class="fa fa-envelope fa-lg"></i>: <a href="mailto:Azzamazezali@gmail.com">Azzamazezali@gmail.com</a>
+		           </address>
+                </div>
+                <div class="col-12 col-sm-4 align-self-center">
+               <div class="text-center">
+                        <a class="btn btn-social-icon btn-google" href="http://google.com/+"><i class="fa fa-google-plus fa-lg"></i></a>
+                        <a class="btn btn-social-icon btn-facebook" href="http://www.facebook.com/profile.php?id="><i class="fa fa-facebook fa-lg"></i></a>
+                        <a class="btn btn-social-icon btn-linkedin" href="http://www.linkedin.com/in/"><i class="fa fa-linkedin fa-lg"></i></a>
+                        <a class="btn btn-social-icon btn-twitter" href="http://twitter.com/"><i class="fa fa-twitter fa-lg"></i></a>
+                        <a class="btn btn-social-icon btn-google" href="http://youtube.com/"><i class="fa fa-youtube fa-lg"></i></a>
+                        <a class="btn btn-social-icon " href="mailto:Azzamazezali@gmail.com"><i class="fa fa-envelope-o fa-lg"></i></a>
+                    </div>
+                </div>
+           </div>
+           <div class="row justify-content-center">
+                <div class="col-auto address">
+                    <p>© Opinion Mining By Eng.Azzam Ali {% now 'Y' %}</p>
+                </div>
+           </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
