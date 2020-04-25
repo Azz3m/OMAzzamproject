@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 import urllib.parse,urllib.error,urllib.request
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 import json
 from .models import Comment,Videoinformation,Usersearcher,video_data_url_builder,comments_data_url_builder
-
+import re
 
 
 
@@ -108,24 +108,91 @@ def home(request):
 
 
 
-def commentsdetail(request,comment_id):
-    comment = get_object_or_404(Comment,pk=comment_id)
-    video_id = comment.video_object_id
-    video = get_object_or_404(Videoinformation,pk=video_id)
-    #texts = json.loads(comment.textDisplay)
-    size =  comment.numberOfComments
-    texts = comment.textDisplay.split(',')
-    authors = comment.authorDisplayName.split(',')
-    images = comment.authorProfileImageUrl.split(',')
-    channelsURL = comment.authorChannelUrl.split(',')
-    dates = comment.updatedAt.split(',')
-    comments_details = zip(texts,authors,images,channelsURL,dates)
-    return render(request,'comments/comments.html',{'comments_details':comments_details,'size':size,"video":video,"comment_id":comment_id,"comments":comment.textDisplay})
-
-def getId(request,comment_id):
+def commentsDetail(request,comment_id):
     try:
+        tag_list = list()
         comment = get_object_or_404(Comment,pk=comment_id)
-        comments = Comment.objects
-        return render(request,'comments\commentsTest.html',{'comment_id':comment_id,'comments':comments,'comment':comment})
+        video_id = comment.video_object_id
+        video = get_object_or_404(Videoinformation,pk=video_id)
+        usersearcher = get_object_or_404(Usersearcher,video_object_id=video_id)
+        tags = video.tags.split(',')
+
+        for tag in tags:
+            tag = tag.replace("[","")
+            tag = tag.replace("]","")
+            tag = tag.replace(" '","")
+            tag = tag.replace("'","")
+
+            tag_list.append(tag)
+        if len(tag_list)>1:
+            tags_indicator = True
+        else:
+            if "NO-TAGS" in tag_list:
+                tags_indicator = False
+            else:
+                tags_indicator = True
+        #texts = json.loads(comment.textDisplay)
+        size =  comment.numberOfComments
+        texts = comment.textDisplay.split(',')
+        authors = comment.authorDisplayName.split(',')
+        images = comment.authorProfileImageUrl.split(',')
+        channelsURL = comment.authorChannelUrl.split(',')
+        dates = comment.updatedAt.split(',')
+        comments_details = zip(texts,authors,images,channelsURL,dates)
+        watching_url = usersearcher.watching_url
+        return render(request,'comments/comments.html',{'status':"success",'comment':comment,'comments_details':comments_details,'size':size,"video":video,"comment_id":comment_id,"comments":comment.textDisplay,"watching_url":watching_url,"tag_list":tag_list,"tags_indicator":tags_indicator})
     except :
-        return JsonResponse({'comment_id':"not found"})
+        return render(request,'comments/comments.html',{'status':"please enter a valid comment_object_id "})
+
+
+
+def tagInsertor(request,comment_id):
+    video_tags = list()
+    temp = list()
+    def repeative_characters_removal(text):
+        repeative_chars_pattern = re.compile(r'(\w)\1*',flags=re.UNICODE)
+        shaped_string = repeative_chars_pattern.sub(r'\1',text).strip()
+        return shaped_string
+    if request.method == 'POST':
+        tag_list = list()
+
+        comment = get_object_or_404(Comment,pk=comment_id)
+        video_id = comment.video_object_id
+        video = get_object_or_404(Videoinformation,pk=video_id)
+        video_tags = video.tags.split(',')
+        if request.POST['tags']:
+            tags = request.POST['tags']
+            print(tags)
+            if tags=="":
+                video.tags = ["NO-TAGS"]
+                video.save()
+
+                return JsonResponse({'success':tag_list})
+            else:
+                print(type(tags))
+                temp = tags.split(',')
+                for tag in temp:
+                    tag = tag.replace("[","")
+                    tag = tag.replace("]","")
+                    tag = tag.replace(" '","")
+                    tag = tag.replace("'","")
+                    tag = tag.lower()
+                    tag =repeative_characters_removal(tag)
+                    if tag not in video_tags:
+                        tag_list.append(tag)
+                    else:
+                        pass
+
+                video.tags = tag_list
+                video.save()
+
+                return JsonResponse({'success':tag_list})
+        else:
+            video.tags = ["NO-TAGS"]
+            video.save()
+
+            return JsonResponse({'success':tag_list})
+
+    else:
+        print("fail")
+        return JsonResponse({'fail':'error'})

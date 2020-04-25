@@ -13,6 +13,7 @@ import re
 
 class Langclassifier(models.Model):
 
+
     #instance variables of the model
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     video_Object = models.OneToOneField(Videoinformation, on_delete=models.CASCADE)
@@ -42,7 +43,7 @@ class Langclassifier(models.Model):
 
     #patterns for the regular expressions
     only_chars_pattern = re.compile(r'[\u0600-\u06ff]|[\u0750-\u077f]|[\ufb50-\ufbc1]|[\ufbd3-\ufd3f]|[\ufd50-\ufd8f]|[\ufd92-\ufdc7]|[\ufe70-\ufefc]|[\uFDF0-\uFDFD]|[a-zA-Z]',flags=re.UNICODE)
-    special_chars_pattern =  re.compile(r"[-()\"#\[\]/@;:<>{}\'+=~|.!?,]",flags=re.UNICODE)
+    special_chars_pattern =  re.compile(r"[-()\"#\[\]/@;:<>{}\'+=~|.!?’,]",flags=re.UNICODE)
     emoji_pattern = re.compile(r'([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF])|(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])|[\U00010000-\U0010ffff]', flags=re.UNICODE)
     only_digits_pattern = re.compile(r'[0-9]',flags=re.UNICODE)
     repeative_chars_pattern = re.compile(r'(\w)\1*',flags=re.UNICODE)
@@ -152,6 +153,13 @@ class Langclassifier(models.Model):
         else:
             return "not_found", "not_found"
 
+    def reshaping(self,list):
+
+        temp = list.replace("'","")
+        temp = temp.replace("[","")
+        temp = temp.replace("]","")
+        return temp
+
     def comments_lang_classifier(self,user,comment_id):
 
         #vaibles to hold the data
@@ -192,51 +200,8 @@ class Langclassifier(models.Model):
 
 
 
-        print("we found Comment object under : ", comment_obj)
-        if Langclassifier.objects.filter(comment_objID=comment_id).exists():
 
-            print ("we found comment_classifier object")
-
-            #vaibles to hold the data
-            #print("setting up variables for comments_classifier processor  .....")
-            print("setting up variables for comments_classifier processor  ....." )
-            print("Try getting  Videoinformation object .... ")
-            video_information_object = get_object_or_404(Videoinformation,pk=comment_obj.video_object_id)
-            print("successfully got Videoinformation object  under : ", comment_obj.videoInfo)
-
-
-            print("fecthcing comment_classifier's object ......")
-            self.user = user
-            self.video_Object = video_information_object
-            self.comment_object = comment_obj
-            self.video_ObjectID = video_information_object.id
-            self.comment_objID = comment_obj.id
-            self.emoji_comment_dic = Langclassifier.objects.only("emoji_comment_dic").get(comment_objID=comment_id).emoji_comment_dic
-            self.pure_emoji_dic = Langclassifier.objects.only("pure_emoji_dic").get(comment_objID=comment_id).pure_emoji_dic
-            self.emoji_pure_arabic_dic = Langclassifier.objects.only("emoji_pure_arabic_dic").get(comment_objID=comment_id).emoji_pure_arabic_dic
-            self.emoji_pure_english_dic = Langclassifier.objects.only("emoji_pure_english_dic").get(comment_objID=comment_id).emoji_pure_english_dic
-            self.emoji_mixed_lang_dic = Langclassifier.objects.only("emoji_mixed_lang_dic").get(comment_objID=comment_id).emoji_mixed_lang_dic
-            self.emoji_arabic_with_others_dic = Langclassifier.objects.only("emoji_arabic_with_others_dic").get(comment_objID=comment_id).emoji_arabic_with_others_dic
-            self.emoji_english_with_others_dic = Langclassifier.objects.only("emoji_english_with_others_dic").get(comment_objID=comment_id).emoji_english_with_others_dic
-            self.emoji_ar_en_dic = Langclassifier.objects.only("emoji_ar_en_dic").get(comment_objID=comment_id).emoji_ar_en_dic
-            self.emoji_exceptions_dic =Langclassifier.objects.only("emoji_exceptions_dic").get(comment_objID=comment_id).emoji_exceptions_dic
-            self.emoji_other_language_dic =Langclassifier.objects.only("emoji_other_language_dic").get(comment_objID=comment_id).emoji_other_language_dic
-            self.emoji_useless_comment_dic =Langclassifier.objects.only("emoji_useless_comment_dic").get(comment_objID=comment_id).emoji_useless_comment_dic
-            self.pure_arabic_dic =Langclassifier.objects.only("pure_arabic_dic").get(comment_objID=comment_id).pure_arabic_dic
-            self.pure_english_dic =Langclassifier.objects.only("pure_english_dic").get(comment_objID=comment_id).pure_english_dic
-            self.mixed_lang_dic =Langclassifier.objects.only("mixed_lang_dic").get(comment_objID=comment_id).mixed_lang_dic
-            self.exceptions_dic =Langclassifier.objects.only("exceptions_dic").get(comment_objID=comment_id).exceptions_dic
-            self.other_language_dic =Langclassifier.objects.only("other_language_dic").get(comment_objID=comment_id).other_language_dic
-            self.useless_comment_dic =Langclassifier.objects.only("useless_comment_dic").get(comment_objID=comment_id).useless_comment_dic
-            self.arabic_with_others_dic =Langclassifier.objects.only("arabic_with_others_dic").get(comment_objID=comment_id).arabic_with_others_dic
-            self.english_with_others_dic =Langclassifier.objects.only("english_with_others_dic").get(comment_objID=comment_id).english_with_others_dic
-            self.ar_en_dic =Langclassifier.objects.only("ar_en_dic").get(comment_objID=comment_id).ar_en_dic
-            comment_classifier=self
-
-            print("setting up finishs successfully....")
-            return {"state":"found","comment_classifier":comment_classifier}
-
-        elif comment_obj_indexer == "found":
+        if comment_obj_indexer == "found":
             print("classifier object not found : Try to create a new object .....")
             comment_obj = get_object_or_404(Comment,pk=comment_id)
             print("we found comment object under : ", comment_obj)
@@ -244,14 +209,39 @@ class Langclassifier(models.Model):
             comments_list = comment_obj.textDisplay.split(',')
 
 
+            authors_list  = comment_obj.authorDisplayName
+            urls_list  = comment_obj.authorChannelUrl
+            images_list  = comment_obj.authorProfileImageUrl
+            dates_list  = comment_obj.updatedAt
+
+            authors_list =self.reshaping(authors_list)
+            urls_list =self.reshaping(urls_list)
+            images_list =self.reshaping(images_list)
+            dates_list =self.reshaping(dates_list)
+            authors_list  = authors_list.split(',')
+            urls_list  = urls_list.split(',')
+            images_list  = images_list.split(',')
+            dates_list  = dates_list.split(',')
+
+
+
+
             i=0
             print("comments_classifier based on languages & emojis started .....")
-
+            index = -1
             for single_comment in comments_list:
                 i+=1
-                print(str(i)+"  processing comment : ",single_comment)
+                index += 1
+                single_comment =self.reshaping(single_comment)
                 single_comment = single_comment.lower()
                 single_comment = self.repeative_characters_removal(single_comment)
+                single_comment = single_comment.replace("’","")
+                print(str(i)+"  processing comment : ",single_comment)
+
+                author = authors_list[index]
+                url = urls_list[index]
+                img = images_list[index]
+                date = dates_list[index]
 
                 if len(single_comment.split(" "))>2:
                     if self.emoji_detector(single_comment) == False:
@@ -264,76 +254,75 @@ class Langclassifier(models.Model):
                             if indicator == True:
 
                                 if self.pure_english_detector(shaped_string) == True :
-                                    pure_english_dic[i] = single_comment
+                                    pure_english_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                     #print(str(i) + " *** pure_english **** " , single_comment)
                                 if self.pure_arabic_detector(shaped_string) == True :
-                                    pure_arabic_dic[i] = araby.strip_tashkeel(single_comment)
+                                    pure_arabic_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":araby.strip_tashkeel(single_comment),"i":i}
                                     #print(str(i) + " ***  pure_arabic **** " , single_comment)
                                 if self.mixed_ar_en_detector(shaped_string) == True :
-                                    mixed_lang_dic[i] = single_comment
+                                    mixed_lang_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                     #print(str(i) + " *** mixed_ar_en_detector *** " , single_comment)
                                 if self.mixed_ar_en_detector(shaped_string) == False and self.pure_arabic_detector(shaped_string) == False and self.pure_english_detector(shaped_string) == False:
-
-                                    other_language_dic[i] = single_comment
+                                    other_language_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
 
                                     #print(str(i) +"other language detected : " , single_comment)
                                 ##print(str(i) + " *** cause a problem *** " , single_comment)
                             else :
-                                useless_comment_dic[i] = single_comment
+                                useless_comment_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
 
                         except:
 
                             indicator , temp =self.lang_detector_among_one_word(araby.strip_tashkeel(single_comment))
                             if indicator == "mixed":
-                                ar_en_dic[i] = temp
+                                ar_en_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                             elif indicator == "eng_with_other":
-                                english_with_others_dic[i] = temp
+                                english_with_others_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                             elif indicator == "ar_with_other":
-                                arabic_with_others_dic[i] = temp
+                                arabic_with_others_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                             else:
-                                other_language_dic[i] = single_comment
+                                other_language_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                             #print(str(i) + " (error in detection language) Need more processing ",single_comment)
 
                             #print(str(i) +"useless comment ")
 
                     else:
-                        emoji_comment_dic[i] = single_comment
+                        emoji_comment_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                         emoji_indictor ,emoji_temp = self.pure_emoji(single_comment)
                         if emoji_indictor == "found":
-                            pure_emoji_dic[i] = single_comment
+                            pure_emoji_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                         else:
                             if self.txt_with_emoji_processing(single_comment) == True:
                                 emoji_removed = re.sub(self.emoji_pattern,"",single_comment).strip()
                                 try:
 
                                     if self.pure_english_detector(emoji_removed) == True :
-                                        emoji_pure_english_dic[i] = single_comment
+                                        emoji_pure_english_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                         #print(str(i) + " *** pure_english **** " , single_comment)
                                     if self.pure_arabic_detector(emoji_removed) == True :
-                                        emoji_pure_arabic_dic[i] = araby.strip_tashkeel(single_comment)
+                                        emoji_pure_arabic_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":araby.strip_tashkeel(single_comment),"i":i}
                                         #emoji_pure_arabic_dic[i] = single_comment
                                         #print(str(i) + " ***  pure_arabic **** " , single_comment)
                                     if self.mixed_ar_en_detector(emoji_removed) == True :
-                                        emoji_mixed_lang_dic[i] = single_comment
+                                        emoji_mixed_lang_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                         #print(str(i) + " *** mixed_ar_en_detector *** " , single_comment)
                                     if self.mixed_ar_en_detector(emoji_removed) == False and self.pure_arabic_detector(emoji_removed) == False and self.pure_english_detector(emoji_removed) == False:
-                                        emoji_other_language_dic[i] = single_comment
+                                        emoji_other_language_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
 
 
 
                                         #print(str(i) +"other language detected : " , single_comment)
                                     ##print(str(i) + " *** cause a problem *** " , single_comment)
                                 except :
-                                    emoji_exceptions_dic[i] = single_comment
+                                    emoji_exceptions_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                     indicator , temp = self.lang_detector_among_one_word(single_comment)
                                     if indicator == "mixed":
-                                        ar_en_dic[i] = temp
+                                        ar_en_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                     elif indicator == "eng_with_other":
-                                        english_with_others_dic[i] = temp
+                                        english_with_others_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                     elif indicator == "ar_with_other":
-                                        arabic_with_others_dic[i] = temp
+                                        arabic_with_others_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                     else:
-                                        other_language_dic[i] = single_comment
+                                        other_language_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
 
 
 
@@ -352,16 +341,16 @@ class Langclassifier(models.Model):
                             #single_comment = strip_emoji(single_comment)
                             try:
                                 if self.pure_english_detector(shaped_string) == True :
-                                    pure_english_dic[i] = single_comment
+                                    pure_english_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                     #print(str(i) + " *** pure_english **** " , single_comment)
                                 if self.pure_arabic_detector(shaped_string) == True :
-                                    pure_arabic_dic[i] = araby.strip_tashkeel(single_comment)
+                                    pure_arabic_dic[i] ={"author":author,"url":url,"img":img,"date":date,"single_comment":araby.strip_tashkeel(single_comment),"i":i}
                                     #print(str(i) + " ***  pure_arabic **** " , single_comment)
                                 if self.mixed_ar_en_detector(shaped_string) == True :
-                                    mixed_lang_dic[i] = single_comment
+                                    mixed_lang_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                     #print(str(i) + " *** mixed_ar_en_detector *** " , single_comment)
                                 if self.mixed_ar_en_detector(shaped_string) == False and self.pure_arabic_detector(shaped_string) == False and self.pure_english_detector(shaped_string) == False:
-                                    other_language_dic[i] = single_comment
+                                    other_language_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
 
 
                                     #print(str(i) +"other language detected : " , single_comment)
@@ -370,39 +359,39 @@ class Langclassifier(models.Model):
 
                                 indicator , temp = self.lang_detector_among_one_word(single_comment)
                                 if indicator == "mixed":
-                                    ar_en_dic[i] = temp
+                                    ar_en_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                 elif indicator == "eng_with_other":
-                                    english_with_others_dic[i] = temp
+                                    english_with_others_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                 elif indicator == "ar_with_other":
-                                    arabic_with_others_dic[i] = temp
+                                    arabic_with_others_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                 else:
-                                    other_language_dic[i] = single_comment
+                                    other_language_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                         else:
-                            useless_comment_dic[i] = single_comment
+                            useless_comment_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                             #print(str(i) +"useless comment " , single_comment)
 
 
                     else:
-                        emoji_comment_dic[i] = single_comment
+                        emoji_comment_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                         emoji_indictor ,emoji_temp = self.pure_emoji(single_comment)
                         if emoji_indictor == "found":
-                            pure_emoji_dic[i] = single_comment
+                            pure_emoji_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                         else:
                             if self.txt_with_emoji_processing(single_comment) == True:
                                 emoji_removed = re.sub(self.emoji_pattern,"",single_comment).strip()
                                 try:
 
                                     if self.pure_english_detector(emoji_removed) == True :
-                                        emoji_pure_english_dic[i] = single_comment
+                                        emoji_pure_english_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                         #print(str(i) + " *** pure_english **** " , single_comment)
                                     if self.pure_arabic_detector(emoji_removed) == True :
-                                        emoji_pure_arabic_dic[i] = araby.strip_tashkeel(single_comment)
+                                        emoji_pure_arabic_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":araby.strip_tashkeel(single_comment),"i":i}
                                         #print(str(i) + " ***  pure_arabic **** " , single_comment)
                                     if self.mixed_ar_en_detector(emoji_removed) == True :
-                                        emoji_mixed_lang_dic[i] = single_comment
+                                        emoji_mixed_lang_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
                                         #print(str(i) + " *** mixed_ar_en_detector *** " , single_comment)
                                     if self.mixed_ar_en_detector(emoji_removed) == False and self.pure_arabic_detector(emoji_removed) == False and self.pure_english_detector(emoji_removed) == False:
-                                        emoji_other_language_dic[i] = single_comment
+                                        emoji_other_language_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
 
 
                                         #print(str(i) +"other language detected : " , single_comment)
@@ -411,13 +400,13 @@ class Langclassifier(models.Model):
 
                                     indicator , temp = self.lang_detector_among_one_word(single_comment)
                                     if indicator == "mixed":
-                                        ar_en_dic[i] = temp
+                                        ar_en_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                     elif indicator == "eng_with_other":
-                                        english_with_others_dic[i] = temp
+                                        english_with_others_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                     elif indicator == "ar_with_other":
-                                        arabic_with_others_dic[i] = temp
+                                        arabic_with_others_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":temp,"i":i}
                                     else:
-                                        emoji_other_language_dic[i] = single_comment
+                                        emoji_other_language_dic[i] = {"author":author,"url":url,"img":img,"date":date,"single_comment":single_comment,"i":i}
 
 
 
@@ -470,10 +459,30 @@ class Langclassifier(models.Model):
     def __str__(self):
         return " username: " +self.user.username + " /// video_title: " + self.video_Object.video_title + " /// key_api: " + self.comment_object.key_api
 
-class Comment_classifier(models.Model):
+class Commentclassifier(models.Model):
+        #instance variables of the model
+        user = models.ForeignKey(User, on_delete=models.CASCADE)
+        video_Object = models.OneToOneField(Videoinformation, on_delete=models.CASCADE)
+        comment_object = models.OneToOneField(Comment, on_delete=models.CASCADE)
+        video_ObjectID =  models.IntegerField()
+        comment_objID = models.IntegerField()
 
-    def __str__(self):
-        return " username: " +self.user.username + " /// video_title: " + self.video_Object.video_title + " /// key_api: " + self.comment_object.key_api
+
+
+        def comments_classifier(self,user,lang_classifier_obj_id):
+            lang_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
+            video_information_object = lang_classifier_obj.video_Object
+            comment_obj = lang_classifier_obj.comment_object
+            self.user = user
+            self.video_Object = video_information_object
+            self.comment_object = comment_obj
+            self.video_ObjectID = video_information_object.id
+            self.comment_objID = comment_obj.id
+
+            return self
+
+        def __str__(self):
+            return " username: " +self.user.username + " /// video_title: " + self.video_Object.video_title + " /// key_api: " + self.comment_object.key_api
 
 
 

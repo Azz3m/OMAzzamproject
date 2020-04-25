@@ -1,26 +1,138 @@
 {% extends 'base.html'%}
-
+{% load staticfiles %}
 {% block content %}
 
+<div class="container">
+   <div class="row">
+       <ol class="col-12 breadcrumb">
+           <li class="breadcrumb-item"><a href="{% url 'home'%}">Home</a></li>
+           <li class="breadcrumb-item active">{{video.video_title}}</li>
+       </ol>
+       <div class="col-12">
+          <h3>Video Details :</h3>
+          <hr>
+       </div>
+   </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12 col-md-7">
+      <iframe width="500px" height="320px" src="{{watching_url}}">     </iframe>
+      <hr />
+      <table class="table-responsive table table-bordered">
+        <caption class="text-center" style="caption-side: top;">
+          Video statistics
+        </caption>
+        <thead>
+          <tr>
+            <th scope="row">video's ID</th>
+            <td>{{video.video_ID}}</td>
+            <th scope="row">channel's title</th>
+            <td>{{video.channel_title}}</td>
+
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">video's category</th>
+            <td>{{video.video_category}}</td>
+            <th scope="row">channel's title</th>
+            <td>{{video.channel_title}}</td>
+          </tr>
+          <tr>
+            <th scope="row">likes</th>
+            <td>{{video.statics_like_counts}}</td>
+            <th scope="row">dislikes</th>
+            <td>{{video.statics_dislike_counts}}</td>
+          </tr>
+          <tr>
+            <th scope="row" title="comments including replies">overall comments</th>
+            <td>{{video.statics_comments_counts}}</td>
+            <th scope="row" title="only directs comments without including the replies">direct comments</th>
+            <td>{{comment.numberOfComments}}</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+    <div class="col-12 col-md-5">
 
 
 
-<h3> the title of the video is : <br />{{video.video_title}}<br />
-  <strong>CATEGORY of the video is :<h1>// {{video.video_category}}//</h1>  </strong></h3>
-  <div class="col-sm-12">
-    <h3>
-      <div class="page-header">
-        <h1><small class="pull-right">{{ size }} comments</small> Comments </h1>
-        <br />
-      </div>
-    </h3>
-  </div><!-- /col-sm-12 -->
+      {% if tags_indicator %}
+        <h3 class="text-center">Tags of this video </h3>
+        <h5 class="text-center">
+        {% for tag in tag_list %}
+
+          <span id="tag" class="badge badge-pill badge-secondary" >{{tag}}</span>
+        {% endfor %}
+        </h5>
+
+        {% else %}
+        <h1 class="text-center"><span class="badge badge-danger">This video has no tags</span></h1>
+          {% endif %}
+    <!-- Tag -->
+
+    <!-- Tag -->
+
+    <form id="form" class="border border-light p-5" >
+      {% csrf_token %}
+
+      <label>Tags Insertions</label>
+      <input autofocus id="form-tags-1" class="taginput" name="tags-1" type="text" value="{% if tags_indicator %}
+              {% for tag in tag_list %}
+              {{tag}},
+              {% endfor %}
+              {% else %}
+              {% endif %}"/>
+      <br />
+      <button id="submit" class="btn btn-primary btn-block"  type="submit">Add/UPDATE Tags</button>
+      <br />
+      <p align="center">
+          © Opinion Mining By Eng.Azzam Ali {% now 'Y' %}
+      </p>
+
+      </form>
+      <script type="text/javascript">
+
+      $('#submit').click(function(){
+      var tags_list;
+      tags_list = $('#form-tags-1').val();
+
+      $.ajaxSetup({
+          headers: { "X-CSRFToken": '{{csrf_token}}' }
+        });
+      $.ajax(
+      {
+          type:"POST",
+          url: "{% url 'tagviewer' comment.id%}",
+          data:{
+                   tags: tags_list
+      },
+      success: function( data )
+      {
+          console.log("success");
+    } }) });
+
+      </script>
+    </div>
+  </div>
+</div>
 
 
+
+</div>
+
+<div class="col-12">
+  <hr />
+  <div class="page-header">
+      <h1><small class="pull-right">{{ size }} comments</small> Comments </h1>
+  </div>
+</div>
 {% for item in comments_details %}
 
       {% if forloop.counter == size%}
-    <div class="col-sm-4">
+    <class="col-sm-4">
       <div class="card-group">
         <div class="card" >
           <a href="{{ item.3|slice:"2:-2" }}">{{ forloop.counter }}<img src="{{item.2|slice:"2:-2"}}"  /></a>
@@ -49,14 +161,8 @@
         </div>
       </div>
       {% endif %}
-
-
-
 {% endfor %}
-
-
-
-
-
-
+{% for item in comments.items %}
+{{item}}
+{% endfor %}
 {% endblock %}

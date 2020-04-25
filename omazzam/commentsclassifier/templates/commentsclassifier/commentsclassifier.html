@@ -1,34 +1,8 @@
 {% extends 'base.html'%}
 
 {% block content %}
-<h1> {{status}}</h1>
-<h1> This is commentsclassifier app : {{total_processed}}</h1>
 
-<h1>pure_arabic_dic :</h1> <h1>{{pure_arabic_dic|length}} </h1><br />{{pure_arabic_dic}}<br />
-<h1>pure_english_dic :</h1><h1>{{pure_english_dic|length}}</h1><br />{{pure_english_dic}}<br />
-<h1>mixed_lang_dic :</h1><h1>{{mixed_lang_dic|length}}</h1> <br />{{mixed_lang_dic}}<br />
-<h1>exceptions_dic :</h1> <h1>{{exceptions_dic|length}}</h1><br />{{exceptions_dic}}<br />
-<h1>other_language_dic :</h1>{{other_language_dic|length}}<h1></h1> <br />{{other_language_dic}}<br />
-<h1>useless_comment_dic :</h1><h1>{{useless_comment_dic|length}}</h1> <br />{{useless_comment_dic}}<br />
-<h1>arabic_with_others_dic :</h1> <h1>{{arabic_with_others_dic|length}}</h1><br />{{arabic_with_others_dic}}<br />
-<h1>english_with_others_dic :</h1> <h1>{{english_with_others_dic|length}}</h1><br />{{english_with_others_dic}}<br />
-<h1>ar_en_dic :</h1> <h1>{{ar_en_dic|length}}</h1><br />{{ar_en_dic}}<br />
-<br />
-<p>
-  <h1> this emoji Processing sections : </h1>
-</p>
-<h1>emoji_comment_dic dictionary :</h1><h1>{{emoji_comment_dic|length}}</h1><br /> {{emoji_comment_dic}}<br />
-<h1>pure_emoji_dic dictionary :</h1><h1>{{pure_emoji_dic|length}}</h1><br /> {{pure_emoji_dic}}<br />
-<h1>emoji_pure_arabic_dic :</h1> <h1>{{emoji_pure_arabic_dic|length}}</h1><br />{{emoji_pure_arabic_dic}}<br />
-<h1>emoji_pure_english_dic :</h1><h1>{{emoji_pure_english_dic|length}}</h1> <br />{{emoji_pure_english_dic}}<br />
-<h1>emoji_mixed_lang_dic :</h1><h1>{{emoji_mixed_lang_dic|length}}</h1> <br />{{emoji_mixed_lang_dic}}<br />
-<h1>emoji_arabic_with_others_dic :</h1><h1>{{emoji_arabic_with_others_dic|length}}</h1> <br />{{emoji_arabic_with_others_dic}}<br />
-<h1>emoji_english_with_others_dic :</h1><h1>{{emoji_english_with_others_dic|length}}</h1> <br />{{emoji_english_with_others_dic}}<br />
-<h1>emoji_ar_en_dic :</h1><h1>{{emoji_ar_en_dic|length}}</h1> <br />{{emoji_ar_en_dic}}<br />
-<h1>emoji_exceptions_dic :</h1><h1>{{emoji_exceptions_dic|length}}</h1> <br />{{emoji_exceptions_dic}}<br />
-<h1>emoji_other_language_dic :</h1><h1>{{emoji_other_language_dic|length}}</h1> <br />{{emoji_other_language_dic}}<br />
-<h1>emoji_useless_comment_dic :</h1><h1>{{emoji_useless_comment_dic|length}}</h1> <br />{{emoji_useless_comment_dic}}<br />
-
+{{comment_classifier_obj}}
 
 
 

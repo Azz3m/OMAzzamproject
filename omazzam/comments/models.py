@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 import urllib.parse,urllib.error,urllib.request
 import json
+import re
 #Ignore SSL Certificate
 import ssl
 ctx = ssl.create_default_context()
@@ -71,8 +72,14 @@ class Videoinformation(models.Model):
         	44 : 'Trailers',
     }
     video_category = models.CharField(max_length=255)
+    repeative_chars_pattern = re.compile(r'(\w)\1*',flags=re.UNICODE)
+
+    def repeative_characters_removal(self,text):
+        shaped_string = self.repeative_chars_pattern.sub(r'\1',text).strip()
+        return shaped_string
 
     def video_object_creator(self,user,video_detail_url,video_ID_parameter):
+        tag_list = list()
         self.user = user
         # fetching video's details
         print('*****************  0   ********************************  0  *********************** *******  \n')
@@ -95,10 +102,16 @@ class Videoinformation(models.Model):
         self.channel_ID = video_details_processing_recieved.get('items')[0]['snippet']['channelId']
         self.channel_title = video_details_processing_recieved.get('items')[0]['snippet']['channelTitle']
         try:
-            self.tags = video_details_processing_recieved.get('items')[0]['snippet']['tags']
+            tags_list = video_details_processing_recieved.get('items')[0]['snippet']['tags']
+            temp = tags_list
+            for tag in temp:
+                tag = tag.lower()
+                tag = self.repeative_characters_removal(tag)
+                tag_list.append(tag)
+            self.tags = tag_list
         except:
             print("This video has no tags")
-            self.tags = "NO TAGS"
+            self.tags = ["NO-TAGS"]
         self.video_desciption = video_details_processing_recieved.get('items')[0]['snippet']['description']
         self.statics_view_counts = video_details_processing_recieved.get('items')[0]['statistics']['viewCount']
         self.statics_like_counts =  video_details_processing_recieved.get('items')[0]['statistics']['likeCount']
@@ -281,7 +294,6 @@ class Usersearcher(models.Model):
     def user_search_object_creator(self,user,video_object,comment_object,video_detail_url,comment_url):
         self.user = user
         self.videoInfo = video_object
-
         self.video_object_id = video_object.id
         self.comment_object_id = comment_object.id
         self.video_ID = video_object.video_ID

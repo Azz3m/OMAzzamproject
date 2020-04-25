@@ -1,0 +1,438 @@
+{% extends 'base.html'%}
+{% load staticfiles %}
+{% block content %}
+{{total_processed}}
+<div class="container">
+   <div class="col-12 text-center">
+       <ol class="col-12 text-center breadcrumb">
+           <li class="breadcrumb-item"><a href="{% url 'home'%}">Home</a></li>
+           <li class="breadcrumb-item active">{{video_Object.video_title}}</li>
+       </ol>
+       <div class="col-12 text-center">
+          <h3>Language classifier for :{{video_Object.video_title}}  </h3>
+          <hr>
+          {{status}}
+       </div>
+   </div>
+
+</div>
+
+{% if pure_arabic_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">pure_arabic</span></h1></div>
+<br />
+{% for key,item in pure_arabic_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+
+{% if pure_english_dic|length > 0 %}
+<div class="col-12 text-center">
+  <h1 ><span class="badge badge-danger">pure_english</span></h1>
+</div>
+
+<br />
+{% for key,item in pure_english_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if mixed_lang_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">mixed_lang</span></h1></div>
+<br />
+{% for key,item in mixed_lang_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+
+{% if exceptions_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">exceptions</span></h1></div>
+<br />
+{% for key,item in exceptions_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+
+{% if other_language_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">other_language</span></h1></div>
+<br />
+{% for key,item in other_language_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if useless_comment_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">useless_comment</span></h1></div>
+<br />
+{% for key,item in useless_comment_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+{% if arabic_with_others_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">arabic_with_others</span></h1></div>
+<br />
+{% for key,item in arabic_with_others_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+
+
+{% if ar_en_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">english_with_others</span></h1></div>
+<br />
+{% for key,item in ar_en_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+{% if ar_en_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">ar_en</span></h1></div>
+<br />
+{% for key,item in ar_en_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+
+{% if emoji_comment_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">this emoji Processing sections  </span></h1></div>
+
+{% endif %}
+
+{% if pure_emoji_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">pure_emoji </span></h1></div>
+<br />
+{% for key,item in pure_emoji_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if emoji_pure_arabic_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_pure_arabic</span></h1></div>
+<br />
+{% for key,item in emoji_pure_arabic_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+
+{% if emoji_pure_english_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_pure_english</span></h1></div>
+<br />
+{% for key,item in emoji_pure_english_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if emoji_mixed_lang_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_mixed_lang</span></h1></div>
+<br />
+{% for key,item in emoji_mixed_lang_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if emoji_arabic_with_others_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_arabic_with_others</span></h1></div>
+<br />
+{% for key,item in emoji_arabic_with_others_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if emoji_english_with_others_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_english_with_others</span></h1></div>
+<br />
+{% for key,item in emoji_english_with_others_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if emoji_ar_en_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_ar_en</span></h1></div>
+<br />
+{% for key,item in emoji_ar_en_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if emoji_exceptions_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_exceptions</span></h1></div>
+<br />
+{% for key,item in emoji_exceptions_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+
+{% if emoji_other_language_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_other_language</span></h1></div>
+<br />
+{% for key,item in emoji_other_language_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+{% if emoji_useless_comment_dic|length > 0 %}
+<div class="col-12 text-center"><h1 ><span class="badge badge-danger">emoji_useless_comment_dic</span></h1></div>
+<br />
+{% for key,item in emoji_useless_comment_dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+{% endif %}
+
+
+
+
+
+
+{% endblock %}
