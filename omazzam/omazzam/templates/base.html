@@ -23,10 +23,10 @@
     <link rel="stylesheet" type="text/css" href="{% static 'CSS/style.css'%}">
     <link rel="stylesheet" type="text/css" href="{% static 'CSS/jquery-ui.css'%}">
     <link rel="stylesheet" type="text/css"href="{% static 'CSS/jquerysctipttop.css'%}" >
+    <link rel="stylesheet" type="text/css"href="{% static 'CSS/jquery.tag-editor.css'%}" >
     <!-- endbuild -->
     <!-- build:js js/main.js -->
 
-  <!--  <script type="text/javascript" src="{% static 'JS/angular.min.js'%}"></script> -->
 
     <!-- endbuild -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS. -->
@@ -34,7 +34,7 @@
     <script type="text/javascript" src="{% static 'node_modules/jquery/dist/jquery.min.js'%}"></script>
     <script type="text/javascript" src="{% static 'node_modules/popper.js/dist/umd/popper.min.js'%}"></script>
     <script type="text/javascript" src="{% static 'node_modules/bootstrap/dist/js/bootstrap.min.js'%}"></script>
-    <script type="text/javascript" src="{% static 'JS/insertiontag.js'%}"></script>
+
 
     <script type="text/javascript" src="{% static 'JS/jquery-ui.min.js'%}"></script>
 
@@ -43,29 +43,28 @@
 
 </head>
 
-<body>
-
+<body ng-app="omazzam" ng-controller="omazzamController">
   <nav class="navbar navbar-dark navbar-expand-sm fixed-top">
      <div class="container">
        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#Navbar">
          <span class="navbar-toggler-icon"></span>
        </button>
-       <a class="navbar-brand mr-auto" href="{% url 'home' %}">  <img src="{% static 'IMG/logo.jpg' %}" class="image-fluid" height="80" width="110" /></a>
+       <a  class="navbar-brand mr-auto" href="{% url 'home' %}">  <img src="{% static 'IMG/logo.jpg' %}" class="image-fluid" height="80" width="110" /></a>
         &nbsp; &nbsp;
        <div class="collapse navbar-collapse" id="Navbar">
-         <ul class="navbar-nav mr-auto">
+         <ol class="navbar-nav mr-auto">
            {% url 'home' as home %}
            {% url 'aboutus' as aboutus %}
            {% url 'contactus' as contactus %}
-           <li {% if request.path == home %} class="active" {% endif %} class="nav-item"><a class="nav-link" href="{% url 'home' %}"><span class="fa fa-home fa-lg"> </span> Home</a></li>
-           <li {% if request.path == aboutus %} class="active" {% endif %}class="nav-item"><a class="nav-link" href="{% url 'aboutus' %}"><span class="fa fa-info fa-lg"> </span> About</a></li>
-           <li {% if request.path == contactus %} class="active" {% endif %}class="nav-item"><a class="nav-link" href="{% url 'contactus' %}"><span class="fa fa-address-card fa-lg"></span> Contact</a></li>
-         </ul>
-         <ul class="navbar-nav ml-auto">
+           <li ng-click="clickMe()"{% if request.path == home %} class="active" {% endif %} class="nav-item"><a  class="nav-link" href="{% url 'home' %}"><span class="fa fa-home fa-lg"> </span> Home</a></li>
+           <li ng-click="clickMe()"{% if request.path == aboutus %} class="active" {% endif %}class="nav-item"><a  class="nav-link" href="{% url 'aboutus' %}"><span class="fa fa-info fa-lg"> </span> About</a></li>
+           <li ng-click="clickMe()"{% if request.path == contactus %} class="active" {% endif %}class="nav-item"><a  class="nav-link" href="{% url 'contactus' %}"><span class="fa fa-address-card fa-lg"></span> Contact</a></li>
+         </ol>
+         <ol class="navbar-nav ml-auto">
            {% url 'signup' as signup %}
            {% url 'login' as login %}
             {% if user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link" href="javascript:{document.getElementById('logout').submit()}"><span class="fa fa-sign-out"></span>logout</a></li>
+                <li ng-click="clickMe()"class="nav-item"><a  class="nav-link" href="javascript:{document.getElementById('logout').submit()}"><span class="fa fa-sign-out"></span>logout</a></li>
 
             <form id='logout' method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
@@ -73,15 +72,15 @@
             </form>
             {% else %}
 
-              <li {% if request.path == signup %} class="active" {% endif %}class="nav-item"> <a class="nav-link" href="{% url 'signup' %}"><span class="fa fa-user-plus"></span> Signup</a></li>
+              <li ng-click="clickMe()"{% if request.path == signup %} class="active" {% endif %}class="nav-item"> <a  class="nav-link" href="{% url 'signup' %}"><span class="fa fa-user-plus"></span> Signup</a></li>
 
 
-              <li {% if request.path == login %} class="active" {% endif %}class="nav-item"><a class="nav-link" href="{% url 'login' %}"><span class="fa fa-sign-in"></span> Login </a></li>
+              <li ng-click="clickMe()"{% if request.path == login %} class="active" {% endif %}class="nav-item"><a  class="nav-link" href="{% url 'login' %}"><span class="fa fa-sign-in"></span> Login </a></li>
 
 
 
             {% endif %}
-          </ul>
+          </ol>
        </div>
      </div>
   </nav>
@@ -104,6 +103,8 @@
     <div class="container">
       <div class="row row-content">
 
+
+                <loading name="loader"></loading>
           {% block content%}
           {% endblock %}
       </div>
@@ -114,20 +115,20 @@
             <div class="row">
                 <div class="col-4 offset-1 col-sm-2">
                     <h5>Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'home' %}">Home</a></li>
-                        <li><a href="{% url 'aboutus' %}">About</a></li>
-                        <li><a href="{% url 'contactus' %}">Contact</a></li>
-                    </ul>
+                    <ol class="list-unstyled">
+                        <li ng-click="clickMe()" ><a  href="{% url 'home' %}">Home</a></li>
+                        <li ng-click="clickMe()"><a  href="{% url 'aboutus' %}">About</a></li>
+                        <li ng-click="clickMe()"><a  href="{% url 'contactus' %}">Contact</a></li>
+                    </ol>
                 </div>
                 <div class="col-7 col-sm-5">
                     <h5>Our Address</h5>
-                    <address>
+                    <a ddress>
 		              Baniyas, Tartus<br>
 		              Syria<br>
-		              <i class="fa fa-phone fa-lg"></i>: <a href="tel:+963991576641">
+		              <i class="fa fa-phone fa-lg"></i>: <a  href="tel:+963991576641">
                   <span>+963-991576641</span></a><br>
-		              <i class="fa fa-envelope fa-lg"></i>: <a href="mailto:Azzamazezali@gmail.com">Azzamazezali@gmail.com</a>
+		              <i class="fa fa-envelope fa-lg"></i>: <a  href="mailto:Azzamazezali@gmail.com">Azzamazezali@gmail.com</a>
 		           </address>
                 </div>
                 <div class="col-12 col-sm-4 align-self-center">
@@ -148,6 +149,15 @@
            </div>
         </div>
     </footer>
+
+        <script type="text/javascript" src="{% static 'JS/angular.min.js'%}"></script>
+         <script type="text/javascript" src="{% static 'JS/src/loader.js'%}"></script>
+
+
+
+
+
+
 
 </body>
 

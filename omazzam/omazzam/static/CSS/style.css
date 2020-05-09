@@ -88,14 +88,9 @@ body {
     pointer-events: none;
     color: #aaa;
 }
-.loader{
-position: absolute;
-margin-left: auto;
-margin-right: auto;
-left: 0;
-right: 0;
-z-index: 1;
-}
+
+
+
 /* tags insertion */
 
 .tagsinput,.tagsinput *{box-sizing:border-box}
@@ -114,3 +109,25 @@ z-index: 1;
 .tagsinput div input:-moz-placeholder{color:#ccc;opacity:1}
 .tagsinput div input::-moz-placeholder{color:#ccc;opacity:1}
 .tagsinput div input:-ms-input-placeholder{color:#ccc;opacity:1}
+
+
+/* angluar loader */
+#loaderDiv {
+   position: fixed;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
+   z-index: 1100;
+   background-color: white;
+   opacity: .9;
+}
+
+.ajax-loader {
+   position: absolute;
+   left: 50%;
+   top: 50%;
+   margin-left: -32px; /* -1 * image width / 2 */
+   margin-top: -32px; /* -1 * image height / 2 */
+   display: block;
+}

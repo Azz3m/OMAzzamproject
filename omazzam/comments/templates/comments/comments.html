@@ -4,120 +4,228 @@
 
 <div class="container">
    <div class="row">
-       <ol class="col-12 breadcrumb">
+     <div class="col-12">
+       <ol class="breadcrumb">
            <li class="breadcrumb-item"><a href="{% url 'home'%}">Home</a></li>
            <li class="breadcrumb-item active">{{video.video_title}}</li>
        </ol>
-       <div class="col-12">
-          <h3>Video Details :</h3>
-          <hr>
-       </div>
-   </div>
+     </div>
+     <div class="col-12">
+       <h3>Video Details :</h3>
+       <hr>
+     </div>
+<div id="tag" class="col-12 text-center" >
+  {% if tags_indicator %}
+  <div class="myAlert-top alert alert-success" style="position: fixed;bottom: 0px;left:2%;width: 96%;z-index: 999;">
+
+
+           <form method="post" action="{% url 'langclassify' comment.id%}">
+               <strong>&#128515; Tag(s) was found Go to comments classifier &#128515; </strong><br />
+              {% csrf_token %}
+               <button  type="submit" class="btn btn-outline-primary btn-sm"  ng-click="clickMe()">Language Classifier</button>
+             </form>
+  </div>
+  <h3 class="text-center">Tags of this video: <span  class="badge badge-pill badge-success" >predefined tags</span> <span  class="badge badge-pill badge-secondary" > user tags</span> </h3>
+    <h2 class="text-center">&#128515;</h2>
+      <h5  class="text-center">
+
+        {% if user_tags_list %}
+            {% for tag in user_tags_list %}
+            <span  class="badge badge-pill badge-secondary" >{{tag}}</span>
+            {% endfor %}
+        {% endif %}
+        {% if predefined_tags_list %}
+            {% for tag in predefined_tags_list %}
+            <span  class="badge badge-pill badge-success" >{{tag}}</span>
+            {% endfor %}
+        {% endif %}
+
+      {% else %}
+      <div class="myAlert-top alert alert-danger" style="position: fixed;bottom: 0px;left:2%;width: 96%;z-index: 999;">
+
+    <a class="myAlert-top alert alert-danger" style="text-decoration: none;" href="#form"> &#128531; please insert some Tag(s) , inorder to use our comments classifier app  &#128531;</strong></a> <strong>
+
+      </div>
+      <h1 class="text-center"><span class="badge badge-danger">This video has no tags </span></h1>
+      <h2 class="text-center">&#128531;</h2>
+        {% endif %}
+          </h5>
+        <hr />
+</div>
+    <div class="row">
+      <div class="col-12 col-md-6">
+
+         <iframe width="500px" height="320px" src="{{watching_url}}">     </iframe>
+         <hr />
+
+      </div>
+      <div class="col-12 col-md-6 text-center">
+
+
+          <table class="table-responsive table table-bordered">
+            <caption class="text-center" style="caption-side: top;">
+              Video statistics
+            </caption>
+            <thead>
+              <tr>
+                <th scope="row">video's ID</th>
+                <td>{{video.video_ID}}</td>
+                <th scope="row">video's title</th>
+                <td>{{video.video_title}}</td>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">video's category</th>
+                <td>{{video.video_category}}</td>
+                <th scope="row">channel's title</th>
+                <td>{{video.channel_title}}</td>
+              </tr>
+              <tr>
+                <th scope="row">likes</th>
+                <td>{{video.statics_like_counts}}</td>
+                <th scope="row">dislikes</th>
+                <td>{{video.statics_dislike_counts}}</td>
+              </tr>
+              <tr>
+                <th scope="row" title="comments including replies">overall comments</th>
+                <td>{{video.statics_comments_counts}}</td>
+                <th scope="row" title="only directs comments without including the replies">direct comments</th>
+                <td>{{comment.numberOfComments}}</td>
+              </tr>
+
+            </tbody>
+          </table>
+
+
+
+      </div>
+    </div>
+
 
 <div class="container">
-  <div class="row">
-    <div class="col-12 col-md-7">
-      <iframe width="500px" height="320px" src="{{watching_url}}">     </iframe>
-      <hr />
-      <table class="table-responsive table table-bordered">
-        <caption class="text-center" style="caption-side: top;">
-          Video statistics
-        </caption>
-        <thead>
-          <tr>
-            <th scope="row">video's ID</th>
-            <td>{{video.video_ID}}</td>
-            <th scope="row">channel's title</th>
-            <td>{{video.channel_title}}</td>
-
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">video's category</th>
-            <td>{{video.video_category}}</td>
-            <th scope="row">channel's title</th>
-            <td>{{video.channel_title}}</td>
-          </tr>
-          <tr>
-            <th scope="row">likes</th>
-            <td>{{video.statics_like_counts}}</td>
-            <th scope="row">dislikes</th>
-            <td>{{video.statics_dislike_counts}}</td>
-          </tr>
-          <tr>
-            <th scope="row" title="comments including replies">overall comments</th>
-            <td>{{video.statics_comments_counts}}</td>
-            <th scope="row" title="only directs comments without including the replies">direct comments</th>
-            <td>{{comment.numberOfComments}}</td>
-          </tr>
-
-        </tbody>
-      </table>
-    </div>
-    <div class="col-12 col-md-5">
+  <div class="col-12">
 
 
 
-      {% if tags_indicator %}
-        <h3 class="text-center">Tags of this video </h3>
-        <h5 class="text-center">
-        {% for tag in tag_list %}
+        <form id="form" class="border border-light p-5" >
+          {% csrf_token %}
 
-          <span id="tag" class="badge badge-pill badge-secondary" >{{tag}}</span>
-        {% endfor %}
-        </h5>
+          <div class="caption"><h1>Tags Insertions</h1></div>
 
-        {% else %}
-        <h1 class="text-center"><span class="badge badge-danger">This video has no tags</span></h1>
-          {% endif %}
-    <!-- Tag -->
+      <div class="text-center" style="border-top: 1px solid #eee;border-bottom:1px solid #eee;background:#fafafa;margin:30px 0;padding:20px 5px">
+              <h3><span  class="badge badge-pill badge-success" >predefined tags</span></h3>
 
-    <!-- Tag -->
+              <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+                  <textarea readonly id="predefined_tags" name="predefined_tags">
+                              {% if predefined_tags_list %}
+                                  {% for tag in predefined_tags_list %}
+                                  {{tag}},
+                                  {% endfor %}
 
-    <form id="form" class="border border-light p-5" >
-      {% csrf_token %}
+                              {% endif %}</textarea>
+              </div>
+          </div>
+          <div class="text-center" style="border-top: 1px solid #eee;border-bottom:1px solid #eee;background:#fafafa;margin:30px 0;padding:20px 5px">
+              <h3><span  class="badge badge-pill badge-secondary" >user tags</span></h3>
 
-      <label>Tags Insertions</label>
-      <input autofocus id="form-tags-1" class="taginput" name="tags-1" type="text" value="{% if tags_indicator %}
-              {% for tag in tag_list %}
-              {{tag}},
-              {% endfor %}
-              {% else %}
-              {% endif %}"/>
-      <br />
-      <button id="submit" class="btn btn-primary btn-block"  type="submit">Add/UPDATE Tags</button>
-      <br />
-      <p align="center">
-          © Opinion Mining By Eng.Azzam Ali {% now 'Y' %}
-      </p>
+              <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+                  <textarea id="user_tags" name="user_tags">{% if user_tags_list %}
+                                  {% for tag in user_tags_list %}
+                                  {{tag}},
+                                  {% endfor %}
+                              {% endif %}</textarea>
+              </div>
+          </div>
+          <div id="fb-root"></div>
 
-      </form>
-      <script type="text/javascript">
+          <script src="{% static 'JS/tag-insertor/jquery.caret.min.js'%}"></script>
+          <script src="{% static 'JS/tag-insertor/jquery.tag-editor.js'%}"></script>
+          <script>
+              // jQuery UI autocomplete extension - suggest labels may contain HTML tags
+              // github.com/scottgonzalez/jquery-ui-extensions/blob/master/src/autocomplete/jquery.ui.autocomplete.html.js
+              (function($){var proto=$.ui.autocomplete.prototype,initSource=proto._initSource;function filter(array,term){var matcher=new RegExp($.ui.autocomplete.escapeRegex(term),"i");return $.grep(array,function(value){return matcher.test($("<div>").html(value.label||value.value||value).text());});}$.extend(proto,{_initSource:function(){if(this.options.html&&$.isArray(this.options.source)){this.source=function(request,response){response(filter(this.options.source,request.term));};}else{initSource.call(this);}},_renderItem:function(ul,item){return $("<li></li>").data("item.autocomplete",item).append($("<a></a>")[this.options.html?"html":"text"](item.label)).appendTo(ul);}});})(jQuery);
 
-      $('#submit').click(function(){
-      var tags_list;
-      tags_list = $('#form-tags-1').val();
+              var cache = {};
+              function googleSuggest(request, response) {
+                  var term = request.term;
+                  if (term in cache) { response(cache[term]); return; }
+                  $.ajax({
+                      url: 'https://query.yahooapis.com/v1/public/yql',
+                      dataType: 'JSONP',
+                      data: { format: 'json', q: 'select * from xml where url="http://google.com/complete/search?output=toolbar&q='+term+'"' },
+                      success: function(data) {
+                          var suggestions = [];
+                          try { var results = data.query.results.toplevel.CompleteSuggestion; } catch(e) { var results = []; }
+                          $.each(results, function() {
+                              try {
+                                  var s = this.suggestion.data.toLowerCase();
+                                  suggestions.push({label: s.replace(term, '<b>'+term+'</b>'), value: s});
+                              } catch(e){}
+                          });
+                          cache[term] = suggestions;
+                          response(suggestions);
+                      }
+                  });
+              }
 
-      $.ajaxSetup({
-          headers: { "X-CSRFToken": '{{csrf_token}}' }
-        });
-      $.ajax(
-      {
-          type:"POST",
-          url: "{% url 'tagviewer' comment.id%}",
-          data:{
-                   tags: tags_list
-      },
-      success: function( data )
-      {
-          console.log("success");
-    } }) });
+              $(function() {
+                  $('#predefined_tags').tagEditor({
+                      placeholder: 'no-tags',
+                      autocomplete: { source: googleSuggest, minLength: 3, delay: 250, html: true, position: { collision: 'flip' } }
+                  });
+                  $('#user_tags').tagEditor({
+                      placeholder: 'no-tags',
+                      autocomplete: { source: googleSuggest, minLength: 3, delay: 250, html: true, position: { collision: 'flip' } }
+                  });
+            });
+          </script>
+          <!--       -->
+          <button  id="submit" class="btn btn-primary btn-block"  type="submit" >Add/UPDATE Tags</button>
+          <br />
+          <p align="center">
+              © Opinion Mining By Eng.Azzam Ali {% now 'Y' %}
+          </p>
 
-      </script>
-    </div>
+          </form>
+    <div id="loaderDiv"><img class="ajax-loader" src="http://www.nasa.gov/multimedia/videogallery/ajax-loader.gif" /></div>
+          <script type="text/javascript">
+    $('#loaderDiv').hide();
+          $('#submit').click(function(){
+             $('#loaderDiv').show();
+          var user_tags_list;
+          var predefined_tags_list;
+          predefined_tags_list = $('#predefined_tags').val();
+          user_tags_list = $('#user_tags').val();
+
+          $.ajaxSetup({
+              headers: { "X-CSRFToken": '{{csrf_token}}' }
+            });
+          $.ajax(
+          {
+              type:"POST",
+              url: "{% url 'tagviewer' comment.id%}",
+              data:{
+                       predefined_tags: predefined_tags_list,
+                       user_tags: user_tags_list,
+          },
+          success: function( data )
+          {
+            // payload
+
+
+
+        location.reload(true);
+        $('#loaderDiv').hide();
+
+
+        } }); });
+
+          </script>
+
   </div>
-</div>
+
 
 
 
@@ -132,19 +240,20 @@
 {% for item in comments_details %}
 
       {% if forloop.counter == size%}
-    <class="col-sm-4">
+    <div class="col-sm-4">
       <div class="card-group">
         <div class="card" >
           <a href="{{ item.3|slice:"2:-2" }}">{{ forloop.counter }}<img src="{{item.2|slice:"2:-2"}}"  /></a>
 
           <div class="card-body">
             <h5 class="card-title"><a href="{{ item.3|slice:"2:-2" }}">{{item.1|slice:"2:-2"}}</a></h5>
-            <p class="card-text">{{ item.0|slice:"2:-2" }}</p>
+            <p class="card-text">{{ item.0|slice:"2:150" }}</p>
             <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-2" }}</small></p>
           </div>
         </div>
       </div>
     </div>
+
       {% else %}
 
       <div class="col-sm-4">
@@ -154,7 +263,7 @@
 
             <div class="card-body">
             <h5 class="card-title"><a href="{{ item.3|slice:"2:-1" }}">{{item.1|slice:"2:-1"}}</a></h5>
-            <p class="card-text">{{ item.0|slice:"2:-1" }}</p>
+            <p class="card-text">{{ item.0|slice:"2:150" }}</p>
             <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-1" }}</small></p>
             </div>
           </div>

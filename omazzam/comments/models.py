@@ -108,10 +108,10 @@ class Videoinformation(models.Model):
                 tag = tag.lower()
                 tag = self.repeative_characters_removal(tag)
                 tag_list.append(tag)
-            self.tags = tag_list
+            self.tags = {"predefined":tag_list,"userdefined":["NO-TAGS"]}
         except:
             print("This video has no tags")
-            self.tags = ["NO-TAGS"]
+            self.tags = {"predefined":["NO-TAGS"],"userdefined":["NO-TAGS"]}
         self.video_desciption = video_details_processing_recieved.get('items')[0]['snippet']['description']
         self.statics_view_counts = video_details_processing_recieved.get('items')[0]['statistics']['viewCount']
         self.statics_like_counts =  video_details_processing_recieved.get('items')[0]['statistics']['likeCount']

@@ -4,7 +4,7 @@
 <div class="container">
        <div class="row">
            <ol class="col-12 breadcrumb">
-               <li class="breadcrumb-item"><a href="{% url 'home'%}">Home</a></li>
+               <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'home'%}">Home</a></li>
                <li class="breadcrumb-item active">Contact Us</li>
            </ol>
            <div class="col-12">
@@ -24,7 +24,7 @@
                  Syria<br>
                  <i class="fa fa-phone"></i>: +963 991576641<br>
                  <i class="fa fa-envelope"></i>:
-                       <a href="mailto:azzamazezali@gmail.com">azzamazezali@gmail.com</a>
+                       <a ng-click="clickMe()"href="mailto:azzamazezali@gmail.com">azzamazezali@gmail.com</a>
               </address>
            </div>
            <div class="col-12 col-sm-6 offset-sm-1">
@@ -53,9 +53,9 @@
            </div>
            <div class="col-12 col-sm-11 offset-sm-1">
                <div class="btn-group" role="group">
-       <a role="button" class="btn btn-primary" href="tel:+963991576641"> <i class="fa fa-phone"></i>Call</a>
-       <a role="button" class="btn btn-info"><i class="fa fa-skype"></i>Skype</a>
-       <a role="button" class="btn btn-success" href="mailto:Azzamazezali@gmail.com"><i class="fa fa-envelope-o"></i>Email</a>
+       <a ng-click="clickMe()"role="button" class="btn btn-primary" href="tel:+963991576641"> <i class="fa fa-phone"></i>Call</a>
+       <a ng-click="clickMe()"role="button" class="btn btn-info"><i class="fa fa-skype"></i>Skype</a>
+       <a ng-click="clickMe()"role="button" class="btn btn-success" href="mailto:Azzamazezali@gmail.com"><i class="fa fa-envelope-o"></i>Email</a>
        </div>
            </div>
        </div>
@@ -115,7 +115,7 @@
                    </div>
          <div class="form-group row">
                        <div class="offset-md-2 col-md-10">
-                           <button type="submit" class="btn btn-primary">Send Feedback</button>
+                           <button type="submit" ng-click="clickMe()" class="btn btn-primary">Send Feedback</button>
                        </div>
                    </div>
             </form>

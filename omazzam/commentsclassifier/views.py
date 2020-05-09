@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from commentsclassifier.models import Langclassifier,Commentclassifier
+
 from comments.models import Comment,Videoinformation
 
 import polyglot
@@ -64,7 +65,7 @@ def langcommentsclassifier(request,comment_id):
         print("setting up finishs successfully....")
         print("total_processed comments : ",str(total_processed))
         print("redirecting to comment classifier page .......")
-        return render(request,'commentsclassifier/langcommentsclassifier.html',{"video_Object":video_Object,"total_processed":total_processed,"emoji_comment_dic":emoji_comment_dic ,"pure_emoji_dic":pure_emoji_dic ,"emoji_pure_arabic_dic":emoji_pure_arabic_dic ,"emoji_pure_english_dic":emoji_pure_english_dic ,"emoji_mixed_lang_dic":emoji_mixed_lang_dic,"emoji_arabic_with_others_dic":emoji_arabic_with_others_dic ,"emoji_english_with_others_dic":emoji_english_with_others_dic ,"emoji_ar_en_dic": emoji_ar_en_dic,"emoji_exceptions_dic":emoji_exceptions_dic ,"emoji_other_language_dic":emoji_other_language_dic,"emoji_useless_comment_dic":emoji_useless_comment_dic ,"pure_arabic_dic":pure_arabic_dic,"pure_english_dic":pure_english_dic ,"mixed_lang_dic":mixed_lang_dic,"exceptions_dic":exceptions_dic ,"other_language_dic":other_language_dic ,"useless_comment_dic": useless_comment_dic,"arabic_with_others_dic": arabic_with_others_dic,"english_with_others_dic":english_with_others_dic,"ar_en_dic": ar_en_dic,"status":"found a comment_classifier object"})
+        return render(request,'commentsclassifier/langcommentsclassifier.html',{"comment_obj":comment_obj,"video_Object":video_Object,"total_processed":total_processed,"emoji_comment_dic":emoji_comment_dic ,"pure_emoji_dic":pure_emoji_dic ,"emoji_pure_arabic_dic":emoji_pure_arabic_dic ,"emoji_pure_english_dic":emoji_pure_english_dic ,"emoji_mixed_lang_dic":emoji_mixed_lang_dic,"emoji_arabic_with_others_dic":emoji_arabic_with_others_dic ,"emoji_english_with_others_dic":emoji_english_with_others_dic ,"emoji_ar_en_dic": emoji_ar_en_dic,"emoji_exceptions_dic":emoji_exceptions_dic ,"emoji_other_language_dic":emoji_other_language_dic,"emoji_useless_comment_dic":emoji_useless_comment_dic ,"pure_arabic_dic":pure_arabic_dic,"pure_english_dic":pure_english_dic ,"mixed_lang_dic":mixed_lang_dic,"exceptions_dic":exceptions_dic ,"other_language_dic":other_language_dic ,"useless_comment_dic": useless_comment_dic,"arabic_with_others_dic": arabic_with_others_dic,"english_with_others_dic":english_with_others_dic,"ar_en_dic": ar_en_dic,"status":"found a comment_classifier object"})
 
 
     else:
@@ -104,10 +105,7 @@ def langcommentsclassifier(request,comment_id):
             print("successfully got Videoinformation object  under : ", comment_obj.videoInfo)
             print("total_processed comments : ",str(total_processed))
             print("redirecting to comment classifier page .......")
-            return render(request,'commentsclassifier/langcommentsclassifier.html',{"video_Object":video_Object,"total_processed":total_processed,"emoji_comment_dic":emoji_comment_dic ,"pure_emoji_dic":pure_emoji_dic ,"emoji_pure_arabic_dic":emoji_pure_arabic_dic ,"emoji_pure_english_dic":emoji_pure_english_dic ,"emoji_mixed_lang_dic":emoji_mixed_lang_dic,"emoji_arabic_with_others_dic":emoji_arabic_with_others_dic ,"emoji_english_with_others_dic":emoji_english_with_others_dic ,"emoji_ar_en_dic": emoji_ar_en_dic,"emoji_exceptions_dic":emoji_exceptions_dic ,"emoji_other_language_dic":emoji_other_language_dic,"emoji_useless_comment_dic":emoji_useless_comment_dic ,"pure_arabic_dic":pure_arabic_dic,"pure_english_dic":pure_english_dic ,"mixed_lang_dic":mixed_lang_dic,"exceptions_dic":exceptions_dic ,"other_language_dic":other_language_dic ,"useless_comment_dic": useless_comment_dic,"arabic_with_others_dic": arabic_with_others_dic,"english_with_others_dic":english_with_others_dic,"ar_en_dic": ar_en_dic,"status":"found a comment_classifier object"})
-
-            print("redirecting to comment classifier page ....... ")
-            return render(request,'commentsclassifier/langcommentsclassifier.html',{"video_Object":video_Object,"comments_classifier":comments_classifier,"comment_obj":comment_obj,"total_processed":total_processed})
+            return render(request,'commentsclassifier/langcommentsclassifier.html',{"comment_obj":comment_obj,"video_Object":video_Object,"total_processed":total_processed,"emoji_comment_dic":emoji_comment_dic ,"pure_emoji_dic":pure_emoji_dic ,"emoji_pure_arabic_dic":emoji_pure_arabic_dic ,"emoji_pure_english_dic":emoji_pure_english_dic ,"emoji_mixed_lang_dic":emoji_mixed_lang_dic,"emoji_arabic_with_others_dic":emoji_arabic_with_others_dic ,"emoji_english_with_others_dic":emoji_english_with_others_dic ,"emoji_ar_en_dic": emoji_ar_en_dic,"emoji_exceptions_dic":emoji_exceptions_dic ,"emoji_other_language_dic":emoji_other_language_dic,"emoji_useless_comment_dic":emoji_useless_comment_dic ,"pure_arabic_dic":pure_arabic_dic,"pure_english_dic":pure_english_dic ,"mixed_lang_dic":mixed_lang_dic,"exceptions_dic":exceptions_dic ,"other_language_dic":other_language_dic ,"useless_comment_dic": useless_comment_dic,"arabic_with_others_dic": arabic_with_others_dic,"english_with_others_dic":english_with_others_dic,"ar_en_dic": ar_en_dic,"status":"found a comment_classifier object"})
 
         else:
             return render(request,'commentsclassifier/langcommentsclassifier.html',{"status":"please insert a valid comment_id"})

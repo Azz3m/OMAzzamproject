@@ -5,7 +5,7 @@ from django.http import JsonResponse,HttpResponse
 import json
 from .models import Comment,Videoinformation,Usersearcher,video_data_url_builder,comments_data_url_builder
 import re
-
+import ast
 
 
 # Create your views here.
@@ -110,27 +110,32 @@ def home(request):
 
 def commentsDetail(request,comment_id):
     try:
-        tag_list = list()
+        user_tags_list = list()
+        predefined_tags_list = list()
         comment = get_object_or_404(Comment,pk=comment_id)
         video_id = comment.video_object_id
         video = get_object_or_404(Videoinformation,pk=video_id)
         usersearcher = get_object_or_404(Usersearcher,video_object_id=video_id)
-        tags = video.tags.split(',')
+        video_tags = ast.literal_eval(video.tags)
 
-        for tag in tags:
-            tag = tag.replace("[","")
-            tag = tag.replace("]","")
-            tag = tag.replace(" '","")
-            tag = tag.replace("'","")
-
-            tag_list.append(tag)
-        if len(tag_list)>1:
+        if video_tags["predefined"]==["NO-TAGS"] and video_tags["userdefined"]==["NO-TAGS"] :
+            tags_indicator = False
+        elif video_tags["predefined"]!=["NO-TAGS"] and video_tags["userdefined"]==["NO-TAGS"]:
             tags_indicator = True
+            for item in video_tags["predefined"]:
+                predefined_tags_list.append(item)
+        elif video_tags["predefined"]==["NO-TAGS"] and video_tags["userdefined"]!=["NO-TAGS"]:
+            tags_indicator = True
+            for item in video_tags["userdefined"]:
+                user_tags_list.append(item)
         else:
-            if "NO-TAGS" in tag_list:
-                tags_indicator = False
-            else:
-                tags_indicator = True
+            tags_indicator = True
+            for item in video_tags["userdefined"]:
+                user_tags_list.append(item)
+            tags_indicator = True
+            for item in video_tags["predefined"]:
+                predefined_tags_list.append(item)
+
         #texts = json.loads(comment.textDisplay)
         size =  comment.numberOfComments
         texts = comment.textDisplay.split(',')
@@ -140,7 +145,7 @@ def commentsDetail(request,comment_id):
         dates = comment.updatedAt.split(',')
         comments_details = zip(texts,authors,images,channelsURL,dates)
         watching_url = usersearcher.watching_url
-        return render(request,'comments/comments.html',{'status':"success",'comment':comment,'comments_details':comments_details,'size':size,"video":video,"comment_id":comment_id,"comments":comment.textDisplay,"watching_url":watching_url,"tag_list":tag_list,"tags_indicator":tags_indicator})
+        return render(request,'comments/comments.html',{'status':"success",'comment':comment,'comments_details':comments_details,'size':size,"video":video,"comment_id":comment_id,"comments":comment.textDisplay,"watching_url":watching_url,"user_tags_list":user_tags_list,"predefined_tags_list":predefined_tags_list,"tags_indicator":tags_indicator})
     except :
         return render(request,'comments/comments.html',{'status':"please enter a valid comment_object_id "})
 
@@ -148,7 +153,8 @@ def commentsDetail(request,comment_id):
 
 def tagInsertor(request,comment_id):
     video_tags = list()
-    temp = list()
+    predefined_tags = list()
+    user_tags = list()
     def repeative_characters_removal(text):
         repeative_chars_pattern = re.compile(r'(\w)\1*',flags=re.UNICODE)
         shaped_string = repeative_chars_pattern.sub(r'\1',text).strip()
@@ -159,18 +165,11 @@ def tagInsertor(request,comment_id):
         comment = get_object_or_404(Comment,pk=comment_id)
         video_id = comment.video_object_id
         video = get_object_or_404(Videoinformation,pk=video_id)
-        video_tags = video.tags.split(',')
-        if request.POST['tags']:
-            tags = request.POST['tags']
-            print(tags)
-            if tags=="":
-                video.tags = ["NO-TAGS"]
-                video.save()
-
-                return JsonResponse({'success':tag_list})
-            else:
-                print(type(tags))
-                temp = tags.split(',')
+        video_tags = ast.literal_eval(video.tags)
+        if request.POST['predefined_tags']:
+            predefined_tags_str = request.POST['predefined_tags']
+            if predefined_tags_str!="":
+                temp = predefined_tags_str.split(',')
                 for tag in temp:
                     tag = tag.replace("[","")
                     tag = tag.replace("]","")
@@ -178,20 +177,29 @@ def tagInsertor(request,comment_id):
                     tag = tag.replace("'","")
                     tag = tag.lower()
                     tag =repeative_characters_removal(tag)
-                    if tag not in video_tags:
-                        tag_list.append(tag)
-                    else:
-                        pass
-
-                video.tags = tag_list
-                video.save()
-
-                return JsonResponse({'success':tag_list})
+                    predefined_tags.append(tag)
         else:
-            video.tags = ["NO-TAGS"]
-            video.save()
+            predefined_tags.append("NO-TAGS")
 
-            return JsonResponse({'success':tag_list})
+        if request.POST['user_tags']:
+            user_tags_str = request.POST['user_tags']
+            if user_tags_str!="":
+                temp = user_tags_str.split(',')
+                for tag in temp:
+                    tag = tag.replace("[","")
+                    tag = tag.replace("]","")
+                    tag = tag.replace(" '","")
+                    tag = tag.replace("'","")
+                    tag = tag.lower()
+                    tag =repeative_characters_removal(tag)
+                    user_tags.append(tag)
+        else:
+            user_tags.append("NO-TAGS")
+        video.tags = {"predefined":predefined_tags,"userdefined":user_tags}
+
+        video.save()
+        return JsonResponse({'success':video.tags})
+
 
     else:
         print("fail")

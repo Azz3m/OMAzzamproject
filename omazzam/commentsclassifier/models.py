@@ -7,7 +7,7 @@ from polyglot.detect import Detector
 from nltk.tokenize import sent_tokenize,word_tokenize
 import pyarabic.araby as araby
 from langdetect import detect
-import re
+import re,ast
 
 # Create your models here.
 
@@ -159,6 +159,7 @@ class Langclassifier(models.Model):
         temp = temp.replace("[","")
         temp = temp.replace("]","")
         return temp
+
 
     def comments_lang_classifier(self,user,comment_id):
 
@@ -461,11 +462,34 @@ class Langclassifier(models.Model):
 
 class Commentclassifier(models.Model):
         #instance variables of the model
+
         user = models.ForeignKey(User, on_delete=models.CASCADE)
         video_Object = models.OneToOneField(Videoinformation, on_delete=models.CASCADE)
         comment_object = models.OneToOneField(Comment, on_delete=models.CASCADE)
+        langcommentsclassifier = models.OneToOneField(Langclassifier, on_delete=models.CASCADE)
         video_ObjectID =  models.IntegerField()
         comment_objID = models.IntegerField()
+        emoji_comment_dic = models.TextField()
+        pure_emoji_dic = models.TextField()
+        emoji_pure_arabic_dic = models.TextField()
+        emoji_pure_english_dic = models.TextField()
+        emoji_mixed_lang_dic = models.TextField()
+        emoji_arabic_with_others_dic = models.TextField()
+        emoji_english_with_others_dic =models.TextField()
+        emoji_ar_en_dic = models.TextField()
+        emoji_exceptions_dic = models.TextField()
+        emoji_other_language_dic = models.TextField()
+        emoji_useless_comment_dic = models.TextField()
+        pure_arabic_dic = models.TextField()
+        pure_english_dic = models.TextField()
+        mixed_lang_dic = models.TextField()
+        exceptions_dic = models.TextField()
+        other_language_dic = models.TextField()
+        useless_comment_dic = models.TextField()
+        arabic_with_others_dic = models.TextField()
+        english_with_others_dic = models.TextField()
+        ar_en_dic = models.TextField()
+
 
 
 
@@ -478,6 +502,76 @@ class Commentclassifier(models.Model):
             self.comment_object = comment_obj
             self.video_ObjectID = video_information_object.id
             self.comment_objID = comment_obj.id
+            self.langcommentsclassifier = lang_classifier_obj
+            emoji_comment_dic = {}
+            pure_emoji_dic={}
+            emoji_pure_arabic_dic = {}
+            emoji_pure_english_dic = {}
+            emoji_mixed_lang_dic = {}
+            emoji_arabic_with_others_dic={}
+            emoji_english_with_others_dic ={}
+            emoji_ar_en_dic={}
+            emoji_exceptions_dic = {}
+            emoji_other_language_dic ={}
+            emoji_useless_comment_dic={}
+            pure_arabic_dic = {}
+            pure_english_dic = {}
+            mixed_lang_dic = {}
+            exceptions_dic = {}
+            other_language_dic ={}
+            useless_comment_dic={}
+            arabic_with_others_dic={}
+            english_with_others_dic ={}
+            ar_en_dic={}
+
+            emoji_comment_dic = ast.literal_eval(lang_classifier_obj.emoji_comment_dic)
+            pure_emoji_dic=ast.literal_eval(lang_classifier_obj.pure_emoji_dic)
+            emoji_pure_arabic_dic = ast.literal_eval(lang_classifier_obj.emoji_pure_arabic_dic)
+            emoji_pure_english_dic = ast.literal_eval(lang_classifier_obj.emoji_pure_english_dic)
+            emoji_mixed_lang_dic = ast.literal_eval(lang_classifier_obj.emoji_mixed_lang_dic)
+            emoji_arabic_with_others_dic=ast.literal_eval(lang_classifier_obj.emoji_arabic_with_others_dic)
+            emoji_english_with_others_dic =ast.literal_eval(lang_classifier_obj.emoji_english_with_others_dic)
+            emoji_ar_en_dic=ast.literal_eval(lang_classifier_obj.emoji_ar_en_dic)
+            emoji_exceptions_dic = ast.literal_eval(lang_classifier_obj.emoji_exceptions_dic)
+            emoji_other_language_dic =ast.literal_eval(lang_classifier_obj.emoji_other_language_dic)
+            emoji_useless_comment_dic=ast.literal_eval(lang_classifier_obj.emoji_useless_comment_dic)
+            pure_arabic_dic = ast.literal_eval(lang_classifier_obj.pure_arabic_dic)
+            pure_english_dic = ast.literal_eval(lang_classifier_obj.pure_english_dic)
+            mixed_lang_dic = ast.literal_eval(lang_classifier_obj.mixed_lang_dic)
+            exceptions_dic = ast.literal_eval(lang_classifier_obj.exceptions_dic)
+            other_language_dic =ast.literal_eval(lang_classifier_obj.other_language_dic)
+            useless_comment_dic=ast.literal_eval(lang_classifier_obj.useless_comment_dic)
+            arabic_with_others_dic=ast.literal_eval(lang_classifier_obj.arabic_with_others_dic)
+            english_with_others_dic =ast.literal_eval(lang_classifier_obj.english_with_others_dic)
+            ar_en_dic=ast.literal_eval(lang_classifier_obj.ar_en_dic)
+
+            tags=ast.literal_eval(video_information_object.tags)
+            user_tags = tags['userdefined']
+            predefined_tags = tags['predefined']
+
+
+            for item in pure_english_dic:
+                index = pure_english_dic[item]['i']
+                single_comment = pure_english_dic[item]['single_comment']
+
+                if len(predefined_tags) ==1 and  predefined_tags[0] == "NO-TAGS" :
+                    pass
+                else:
+                    for tag in predefined_tags:
+                        if tag in single_comment:
+                            print(str(index) +" predefined ("+tag +") "+str(single_comment.count(tag))+" ",single_comment)
+                        else:
+                            pass
+                if len(user_tags) ==1 and  user_tags[0] == "NO-TAGS" :
+                    pass
+                else:
+                    for tag in user_tags:
+                        if tag in single_comment:
+                            print(str(index) + " userdefined ("+tag +") "+str(single_comment.count(tag))+" ",single_comment)
+                        else:
+                            pass
+
+
 
             return self
 
