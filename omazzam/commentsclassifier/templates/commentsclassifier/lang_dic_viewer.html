@@ -1,0 +1,52 @@
+
+<div id="header" class="col-12">
+<hr />
+{% if dic|length > 0 %}
+  <div class="page-header">
+    <h1><small class="pull-right">
+      {{ dic|length }} comments</small> <span class="badge badge-success" title="{{ dic|length }}"> {{ dic_name }} </span></h1>
+    </div>
+</div>
+{% else %}
+
+  <div class="page-header">
+    <h1><small class="pull-right">
+      0 comments</small> <span class="badge badge-danger" title="{{ dic|length }}"> {{ dic_name }} </span> </h1>
+    </div>
+</div>
+
+{% endif %}
+
+<div class="container">
+
+
+<div class="row">
+{% if dic|length > 0 %}
+<br />
+{% for key,item in dic.items %}
+
+   <div class="col-sm-4" title="{{ item.i }}">
+     <div class="card-group">
+       <div class="card" >
+         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+
+         <div class="card-body">
+         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
+         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
+         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
+         </div>
+       </div>
+     </div>
+   </div>
+{% endfor %}
+
+      {% else %}
+
+      <div class="col-12 text-center">
+      <h3> This video hasn't any {{ dic_name }} comments .</h3> 
+      </div>
+{% endif %}
+</div>
+
+
+</div>

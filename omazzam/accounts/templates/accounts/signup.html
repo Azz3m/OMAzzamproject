@@ -1,63 +1,86 @@
 
-{% extends 'base.html' %}
-{% block content %}
 
-<div  class="col-12 text-center">
-{% if error %}
-<div class="aler alert-danger">
-<h2>{{ error }}</h2>
-</div>
-<br />
-<br />
-{% endif %}
-</div>
-    <div class="col-12 text-center">
-       <h1><span class="fa fa-user-plus"></span> Sign Up </h1>
-       <br />
-       <br />
-    </div>
+{% block signup %}
 
-   <div class="offset-2 col-10 col-md-9">
-    <form method="POST" action="{% url 'signup' %}">
-        {% csrf_token %}
-        <div class="form-group row">
-            <label for="username" class="col-md-3 col-form-label"> Username </label>
-            <div class="col-md-9">
-                <input type="text" class="form-control" id="username" name="username" placeholder="eg.Azzam"required/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="password1" class="col-md-3 col-form-label"> Password </label>
-            <div class="col-md-9">
-                <input type="password" class="form-control" id="password1" name="password1" required/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="password2" class="col-md-3 col-form-label"> Confirm password </label>
-            <div class="col-md-9">
-                <input type="password" class="form-control" id="password2" name="password2" required/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="email" class="col-md-3 col-form-label"> Email </label>
-            <div class="col-md-9">
-                <input type="email" class="form-control" id="email" name="email" required/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="key" class="col-md-3 col-form-label"> Youtube API's' key </label>
-            <div class="col-md-9">
-                <input type="text" class="form-control" id="key" name="key" required/>
-            </div>
-        </div>
-        <div class="form-group row">
+<!-- sign up modal -->
+<div id="signupModal" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-lg" role="content">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Signup </h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
 
-            <div class="col-md-9 offset-md-10 offset-4">
-                <input type="submit" value="Sign up" class="btn btn-primary" required/>
+                      <div class="col-12 text-center">
+                         <h1><span class="fa fa-user-plus"></span> Sign Up </h1>
+                         <div  class="col-12 text-center">
+                         {% if signuperror %}
+                         <div class="aler alert-danger">
+                         <h2>{{ signuperror }}</h2>
+                         </div>
+                         <br />
+                         <br />
+
+                        <script>
+                          $(document).ready(function(){
+                            $("#signupModal").modal('show');
+                          });
+                        </script>
+                         {% endif %}
+                         </div>
+                         <br />
+                         <br />
+                      </div>
+
+                     <div class=" col-10 col-md-9 offset-md-3">
+                      <form method="POST" action="{% url 'signup' %}">
+                          {% csrf_token %}
+                          <div class="form-group row">
+
+                              <div class="col-md-9 ">
+                                  <input type="text" class="form-control" id="username" name="username" placeholder="Username eg.Azzam"required/>
+                              </div>
+                          </div>
+                          <div class="form-group row">
+
+                              <div class="col-md-9">
+                                  <input type="password" class="form-control" id="password1" placeholder="Password"name="password1" autocomplete required/>
+                              </div>
+                          </div>
+                          <div class="form-group row">
+
+                              <div class="col-md-9">
+                                  <input type="password" class="form-control" placeholder=" Confirm password" id="password2" name="password2" autocomplete required/>
+                              </div>
+                          </div>
+                          <div class="form-group row">
+
+                              <div class="col-md-9">
+                                  <input type="email" class="form-control" id="email" placeholder="Email"name="email" required/>
+                              </div>
+                          </div>
+                          <div class="form-group row">
+
+                              <div class="col-md-9">
+                                  <input type="text" class="form-control" id="key" name="key" placeholder="Youtube API's' key"required/>
+                              </div>
+                          </div>
+
+
+
+
+                          </div>
+
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Cancel</button>
+                <button type="submit" ng-click="clickMe();" class="btn btn-primary btn-sm">Sign Up</button>
+                </div>
+                    </form>
             </div>
         </div>
-
-      </form>
     </div>
 
 

@@ -1,7 +1,11 @@
 {% extends 'base.html'%}
 {% load staticfiles %}
 {% block content %}
-
+<div id="fetcherDiv">
+  <div class="fetcher-loader">
+    {% include 'proccessingloader.html' %}
+  </div>
+</div>
 
 
 
@@ -9,8 +13,10 @@
 <div class="container">
    <div class="col-12 text-center">
        <ol class="col-12 text-center breadcrumb">
-           <li class="breadcrumb-item"><a href="{% url 'home'%}">Home</a></li>
-           <li class="breadcrumb-item active">{{video_Object.video_title}}</li>
+           <li class="breadcrumb-item"><a ng-click="clickMe()" href="{% url 'home'%}">Home</a></li>
+          <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'commentsdetail' comment_obj.id%}">Comments Detail</a></li>
+          <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'videoclassifer' comment_obj.id%}">Classify Video</a></li>
+           <li class="breadcrumb-item active">Language Classifier for {{video_Object.video_title}}</li>
        </ol>
        <div class="col-12 text-center">
           <h3>Language classifier for :{{video_Object.video_title}}  </h3>
@@ -20,468 +26,160 @@
    </div>
    <div class="col-12">
      <hr />
+     <div class="myAlert-top alert alert-success text-center" style="position: fixed;bottom: 0px;left:2%;width: 96%;z-index: 999;">
+
+{{video_Object.video_title}}
+              <form method="post" action="{% url 'classify' lang_classifier.id %}">
+                  <strong>&#128515; Proccess completed ,classify the comments based on Tags &#128515; </strong><br />
+                 {% csrf_token %}
+                  <button  type="submit" class="btn btn-outline-primary btn-sm "  ng-click="clickMe()">Comments Classifier</button>
+                </form>
+     </div>
      <div class="page-header">
-         <h1><small class="pull-right">{{ total_processed }} comments</small> Comments </h1>
+         <h1><small class="pull-right">{{ total_processed }} comments</small> Total Proccessed  </h1>
      </div>
    </div>
 
 </div>
 
-{% if pure_arabic_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ pure_arabic_dic|length }}">pure_arabic</span></h1></div>
-<br />
-{% for key,item in pure_arabic_dic.items %}
+  <div class="col-12">
+    <hr />
 
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-
-{% if pure_english_dic|length > 0 %}
-<div class="col-12 text-center">
-  <h1 ><span class="badge badge-danger" title="{{ pure_english_dic|length }}">pure_english</span></h1>
-</div>
-
-<br />
-{% for key,item in pure_english_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-{% if mixed_lang_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ mixed_lang_dic|length }}">mixed_lang</span></h1></div>
-<br />
-{% for key,item in mixed_lang_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-
-{% if exceptions_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ mixed_lang_dic|length }}">exceptions</span></h1></div>
-<br />
-{% for key,item in exceptions_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-
-{% if other_language_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ other_language_dic|length }}">other_language</span></h1></div>
-<br />
-{% for key,item in other_language_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-{% if useless_comment_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ useless_comment_dic|length }}">useless_comment</span></h1></div>
-<br />
-{% for key,item in useless_comment_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-{% if arabic_with_others_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ arabic_with_others_dic|length }}">arabic_with_others</span></h1></div>
-<br />
-{% for key,item in arabic_with_others_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
+  </div>
 
 
 
-{% if ar_en_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ ar_en_dic|length }}">english_with_others</span></h1></div>
-<br />
-{% for key,item in ar_en_dic.items %}
+        <div class="col-12 text-center">
 
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+          <form method="post">
+            {% csrf_token %}
+            <div class="btn-group">
 
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                   English
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="pure_english" class="btn btn-secondary submit dropdown-item"name="pure_english_dic" value="pure_english_dic">pure_english_comments</button>
+                  <button type="submit" id="emoji_pure_english_dic" class="btn btn-secondary submit dropdown-item"name="emoji_pure_english_dic" value="emoji_pure_english_dic">emoji_pure_english_comments</button>
+                  <button type="submit" id="emoji_english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_english_with_others_dic" value="emoji_english_with_others_dic">emoji_english_with_others_comments</button>
+                  <button type="submit" id="english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="english_with_others_dic" value="english_with_others_dic">english_with_others_comments</button>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                   Arabic
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="pure_arabic" class="btn btn-secondary submit dropdown-item"name="pure_arabic_dic" value="pure_arabic_dic">pure_arabic_comments</button>
+                  <button type="submit" id="arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="arabic_with_others_dic" value="arabic_with_others_dic">arabic_with_others_comments</button>
+                  <button type="submit" id="emoji_arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_arabic_with_others_dic" value="emoji_arabic_with_others_dic">emoji_arabic_with_others_comments</button>
 
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                   Mixed Language
+                </button>
+                <div class="dropdown-menu">
+                <button type="submit" id="ar_en_dic" class="btn btn-secondary submit dropdown-item"name="ar_en_dic" value="ar_en_dic">ar_en_comments</button>
+                <button type="submit" id="emoji_ar_en_dic" class="btn btn-secondary submit dropdown-item"name="emoji_ar_en_dic" value="emoji_ar_en_dic">emoji_ar_en_comments</button>
+                <button type="submit" id="mixed_lang_dic" class="btn btn-secondary submit dropdown-item"name="mixed_lang_dic" value="mixed_lang_dic">mixed_lang_comments</button>
 
-{% if emoji_comment_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_comment_dic|length }}">this emoji Processing sections  </span></h1></div>
+                <button type="submit" id="emoji_mixed_lang_dic" class="btn btn-secondary submit dropdown-item"name="emoji_mixed_lang_dic" value="emoji_mixed_lang_dic">emoji_mixed_lang_comments</button>
 
-{% endif %}
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                   Pure Emoji
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="pure_emoji_dic" class="btn btn-secondary submit dropdown-item"name="pure_emoji_dic dropdown-item" value="pure_emoji_dic">pure_emoji_comments</button>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                   Other Language
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="other_language_dic" class="btn btn-secondary submit dropdown-item"name="other_language_dic" value="other_language_dic">other_language_dic</button>
 
-{% if pure_emoji_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ pure_emoji_dic|length }}">pure_emoji </span></h1></div>
-<br />
-{% for key,item in pure_emoji_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-{% if emoji_pure_arabic_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_pure_arabic_dic|length }}">emoji_pure_arabic</span></h1></div>
-<br />
-{% for key,item in emoji_pure_arabic_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-
-{% if emoji_pure_english_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_pure_english_dic|length }}">emoji_pure_english</span></h1></div>
-<br />
-{% for key,item in emoji_pure_english_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-{% if emoji_mixed_lang_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_mixed_lang_dic|length }}">emoji_mixed_lang</span></h1></div>
-<br />
-{% for key,item in emoji_mixed_lang_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-{% if emoji_arabic_with_others_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_arabic_with_others_dic|length }}">emoji_arabic_with_others</span></h1></div>
-<br />
-{% for key,item in emoji_arabic_with_others_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-{% if emoji_english_with_others_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_english_with_others_dic|length }}">emoji_english_with_others</span></h1></div>
-<br />
-{% for key,item in emoji_english_with_others_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-{% if emoji_ar_en_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_ar_en_dic|length }}">emoji_ar_en</span></h1></div>
-<br />
-{% for key,item in emoji_ar_en_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-
-{% if emoji_exceptions_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_exceptions_dic|length }}">emoji_exceptions</span></h1></div>
-<br />
-{% for key,item in emoji_exceptions_dic.items %}
-
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
+                  <button type="submit" id="emoji_other_language_dic" class="btn btn-secondary submit dropdown-item"name="emoji_other_language_dic" value="emoji_other_language_dic">emoji_other_language_comments</button>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" data-toggle="dropdown">
+                   Useless & Exceptions
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="exceptions_dic" class="btn btn-secondary submit dropdown-item"name="exceptions_dic" value="exceptions_dic">exceptions_comments</button>
+                  <button type="submit" id="useless_comment_dic" class="btn btn-secondary submit dropdown-item"name="useless_comment_dic" value="useless_comment_dic">useless_comments</button>
+                  <button type="submit" id="emoji_exceptions_dic" class="btn btn-secondary submit dropdown-item"name="emoji_exceptions_dic" value="emoji_exceptions_dic">emoji_exceptions_comments</button>
+                  <button type="submit" id="emoji_useless_comment_dic" class="btn btn-secondary submit dropdown-item"name="emoji_useless_comment_dic" value="emoji_useless_comment_dic">emoji_useless_comments</button>
+                </div>
+              </div>
+            </div>
 
 
-{% if emoji_other_language_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_other_language_dic|length }}">emoji_other_language</span></h1></div>
-<br />
-{% for key,item in emoji_other_language_dic.items %}
 
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
 
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
 
-{% if emoji_useless_comment_dic|length > 0 %}
-<div class="col-12 text-center"><h1 ><span class="badge badge-danger" title="{{ emoji_useless_comment_dic|length }}">emoji_useless_comment</span></h1></div>
-<br />
-{% for key,item in emoji_useless_comment_dic.items %}
+          </form>
+        </div>
 
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
-
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
-{% endif %}
-  <div id="accordion">
-    <div class="card">
-      <div class="card-header" role="tab" id="peterhead">
-        <h3 class="mb-0">
-        <a data-toggle="collapse" data-target="#peter">
-        Peter Pan <small>Chief Epicurious Officer</small>
-        </a>
-        </h3>
-      </div>
-      <div class="collapse show" id="peter" data-parent="#accordion">
-        <div class="card-body">
-        <p class="d-none d-sm-block">Our CEO, Peter, credits his hardworking East Asian immigrant parents who undertook the arduous journey to the shores of America with the intention of giving their children the best future. His mother's wizardy in the kitchen whipping up the tastiest dishes with whatever is available inexpensively at the supermarket, was his first inspiration to create the fusion cuisines for which <em>The Frying Pan</em> became well known. He brings his zeal for fusion cuisines to this restaurant, pioneering cross-cultural culinary connections.</p>
+        <div id="contents"  class="col-12" >
 
         </div>
-      </div>
-    </div>
-  <div class="card">
-    <div class="card-header" role="tab" id="dannyhead">
-      <h3 class="mb-0">
-      <a class="collapsed" data-toggle="collapse" data-target="#danny">
-      Dhanasekaran Witherspoon <small>Chief Food Officer</small>
-      </a>
-      </h3>
-    </div>
-    <div class="collapse" id="danny" data-parent="#accordion">
-    <div class="card-body">
-    <p class="d-none d-sm-block">Our CFO, Danny, as he is affectionately referred to by his colleagues, comes from a long established family tradition in farming and produce. His experiences growing up on a farm in the Australian outback gave him great appreciation for varieties of food sources. As he puts it in his own words, <em>Everything that runs, wins, and everything that stays, pays!</em></p>
 
-    </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header" role="tab" id="agumbehead">
-      <h3 class="mb-0">
-      <a class="collapsed" data-toggle="collapse" data-target="#agumbe">
-      Agumbe Tang <small>Chief Taste Officer</small>
-      </a>
-      </h3>
-    </div>
-    <div class="collapse" id="agumbe" data-parent="#accordion">
-      <div class="card-body">
-      <p class="d-none d-sm-block">Blessed with the most discerning gustatory sense, Agumbe, our CTO, personally ensures that every dish that we serve meets his exacting tastes. Our chefs dread the tongue lashing that ensues if their dish does not meet his exacting standards. He lives by his motto, <em>You click only if you survive my lick.</em></p>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header" role="tab" id="albertohead">
-      <h3 class="mb-0">
-      <a class="collapsed" data-toggle="collapse" data-target="#alberto">
-      Alberto Somayya <small>Executive Chef</small>
-      </a>
-      </h3>
-    </div>
-    <div class="collapse" id="alberto" data-parent="#accordion">
-      <div class="card-body">
-      <p class="d-none d-sm-block">Award winning three-star Michelin chef with wide International experience having worked closely with whos-who in the culinary world, he specializes in creating mouthwatering Indo-Italian fusion experiences. He says, <em>Put together the cuisines from the two craziest cultures, and you get a winning hit! Amma Mia!</em></p>
+        <script type="text/javascript">
+              $("#fetcherDiv").hide();
+              /*$('#loaderDiv').hide();*/
+              $('.dropdownlist').on('click', function () {
+                  var outterbutton = $(this);
+                  $('.dropdownlist').css("color", "white");
+                  $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
 
-      </div>
-    </div>
-  </div>
-  </div>
+                    $('.submit').slideUp(50).slideDown(2000);
+
+              $('.submit').on('click', function () {
+                var dic_name = $(this).val();
+                  $("#fetcherDiv").show();
+                $("button[value='"+dic_name+"']").removeClass("btn-secondary").addClass("btn-warning");
+              $.ajaxSetup({
+                  headers: { "X-CSRFToken": '{{csrf_token}}' }
+                });
+              $.ajax(
+              {
+                  type:"POST",
+                  url: "{% url 'langdictionariesfetcher' lang_classifier.id %}",
+                  data:{
+                    dic_name :dic_name ,
+                  },
+              success: function( data )
+              {
+                // payload
+                var url = "{% url 'langdectionaryviewer' comment_obj.id "+'dic_name'+" %}".replace("dic_name",data.success);
+                url = url.replace("+&#39;","");
+                url = url.replace("&#39;+","");
+                $('#contents').empty();
 
 
+
+                $('#contents').html('').load(url,function(){
+                          $("#fetcherDiv").hide();
+                }).slideUp(2000).slideDown(2000);
+
+
+
+                url = "";
+              $("button[value='"+dic_name+"']").removeClass("btn-warning").addClass("btn-success");
+              $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
+              outterbutton.removeClass("btn-primary").addClass("btn-success");
+
+
+            }});  });  });
+        </script>
 
 
 

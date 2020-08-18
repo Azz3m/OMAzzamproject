@@ -1,0 +1,122 @@
+{% load highlight %}
+<div id="header" class="col-12">
+<hr />
+{% if dic|length > 0 %}
+
+  <div class="page-header">
+    <h1><small class="pull-right">
+      {{ dic|length }} comments</small> <span class="badge badge-success" title="{{ dic|length }}"> {{ dic_name }} </span></h1>
+    </div>
+</div>
+{% else %}
+
+  <div class="page-header">
+    <h1><small class="pull-right">
+      0 comments</small> <span class="badge badge-danger" title="{{ dic|length }}"> {{ dic_name }} </span> </h1>
+    </div>
+</div>
+
+{% endif %}
+  {% if dic|length > 0 %}
+          <br />
+          <div class="container">
+
+
+          <div class="row">
+
+
+          {% for key,item in dic.items %}
+
+             <div class="col-sm-4">
+               <div class="card-group">
+                 <div class="card" >
+                   <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+                   <div class="card-body" title= '{% if item.video_titles_linker %}
+                               related videos :
+                              {% for item in item.video_titles_linker %}
+                                {{ item }}  ,
+                              {% endfor %}
+                             {% endif %}
+                             {% if  item.video_specification_linker %}
+                             {% for item in item.video_specification_linker %}
+                             related video : 
+                               {{ item }} ,
+                             {% endfor %}
+                             {% endif %}'>
+                   <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a> </h5>
+                    {% if item.predefined and item.userdefined %}
+
+                      <p class="card-text "title="{{ item.i }}">{{ item.single_comment|highlightpredefined:item.predefined|highlightuser:item.userdefined}}</p><br />
+                      <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.date }}</small></p>
+                      <table style="position:absolute;right:3px;top:5px;">
+                        {% if item.predefined %}
+                        {% for tag,repeat in item.predefined_pack %}
+                        <thead>
+                          <tr>
+                            <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
+                            <td scope="row">{{repeat }} times</td>
+                          </tr>
+
+                        </thead>
+                        {% endfor %}
+                        {% endif %}
+                        {% if item.userdefined %}
+                        {% for tag,repeat in item.userdefined_pack %}
+                        <thead>
+                          <tr>
+                            <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
+                            <td scope="row">{{repeat }} times</td>
+                          </tr>
+
+                        </thead>
+                        {% endfor %}
+                        {% endif %}
+                      </table>
+                {% elif item.predefined %}
+
+                    <p class="card-text " title="{{ item.i }}">{{ item.single_comment|highlightpredefined:item.predefined}}</p><br />
+                    <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.date }}</small></p>
+                    <table style="position:absolute;right:3px;top:5px;">
+                      {% for tag,repeat in item.predefined_pack %}
+                      <thead>
+                        <tr>
+                          <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
+                          <td scope="row">{{repeat }} times</td>
+                        </tr>
+
+                      </thead>
+                      {% endfor %}
+                    </table>
+
+                {%elif item.userdefined %}
+
+                    <p class="card-text "title="{{ item.i }}">{{ item.single_comment|highlightuser:item.userdefined}}</p><br />
+                    <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.date }}</small></p>
+                    <table style="position:absolute;right:3px;top:5px;">
+                      {% for tag,repeat in item.userdefined_pack %}
+                      <thead>
+                        <tr>
+                          <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
+                          <td scope="row">{{repeat }} times</td>
+                        </tr>
+
+                      </thead>
+                      {% endfor %}
+                    </table>
+                {% else %}
+                    <p class="card-text "title="{{ item.i }}">{{ item.single_comment|slice:"0:50"}}</p><br />
+                    <p class="card-text"style="position:absolute;right:3px;bottom:5px;" ><small class="text-muted">Last updated {{ item.date }}</small></p>
+                {% endif %}
+
+                   </div>
+                 </div>
+               </div>
+             </div>
+          {% endfor %}
+          </div>
+      </div>
+      {% else %}
+      <div class="col-12 text-center">
+      <h3> This video hasn't any {{ dic_name }} comments .</h3>
+      </div>
+{% endif %}

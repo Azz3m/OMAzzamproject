@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
-from comments.models import Comment,Videoinformation
+from comments.models import Comment,Videoinformation,Videocategoryclassifier
 from django.shortcuts import get_object_or_404
 import polyglot
+from django.http import JsonResponse
 from polyglot.detect import Detector
 from nltk.tokenize import sent_tokenize,word_tokenize
 import pyarabic.araby as araby
@@ -47,6 +48,7 @@ class Langclassifier(models.Model):
     emoji_pattern = re.compile(r'([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF])|(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])|[\U00010000-\U0010ffff]', flags=re.UNICODE)
     only_digits_pattern = re.compile(r'[0-9]',flags=re.UNICODE)
     repeative_chars_pattern = re.compile(r'(\w)\1*',flags=re.UNICODE)
+
     #functions of the model language Type Detectors
        # English language Detection
     def pure_english_detector(self,text):
@@ -449,16 +451,152 @@ class Langclassifier(models.Model):
             print("redirecting to comment classifier page ....... ")
             total_processed = len(self.pure_arabic_dic) + len(self.pure_english_dic) + len(self.mixed_lang_dic) + len(self.exceptions_dic) + len(self.mixed_lang_dic)+ len(self.other_language_dic)+ len(self.useless_comment_dic)+ len(self.arabic_with_others_dic)+ len(self.english_with_others_dic)+ len(self.ar_en_dic)+ len(self.emoji_comment_dic)
             print(total_processed)
-            comment_classifier = self
-            return {"state":"created","comment_classifier":comment_classifier}
+            lang_classifier = self
+            return {"state":"created","lang_classifier":lang_classifier}
             #print("getting comments object from database ......")
         else:
             return {"state":"not_found"}
 
+    def dictionary_viewer(self,lang_classifier_obj,dictionary_name):
+        status = False
+        dictionary = {}
+        video_Object = None
+        tags_indicator = False
+        predefined_tags_list = list()
+        user_tags_list = list()
 
+        if dictionary_name == 'pure_english_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.pure_english_dic)
+            status = True
+        if dictionary_name == 'pure_emoji_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.pure_emoji_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'pure_arabic_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.pure_arabic_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'mixed_lang_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.mixed_lang_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_pure_arabic_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_pure_arabic_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_pure_english_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_pure_english_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_mixed_lang_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_mixed_lang_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_arabic_with_others_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_arabic_with_others_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_english_with_others_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_english_with_others_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_ar_en_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_ar_en_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_exceptions_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_exceptions_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_other_language_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_other_language_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'ar_en_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.ar_en_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'english_with_others_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.english_with_others_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'arabic_with_others_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.arabic_with_others_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'other_language_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.other_language_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'exceptions_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.exceptions_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'emoji_useless_comment_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.emoji_useless_comment_dic)
+            video_Object = lang_classifier_obj.video_Object
+            status = True
+        if dictionary_name == 'useless_comment_dic':
+            dictionary = ast.literal_eval(lang_classifier_obj.useless_comment_dic)
+            video_Object = lang_classifier_obj.video_Object
+
+            status = True
+
+        return status,dictionary,video_Object
+
+    def dictionary_fetcher(self,dic_name,lang_classifier_obj):
+        dictionary_name = dic_name
+
+        if dictionary_name == 'pure_english_dic':
+            return True,len(lang_classifier_obj.pure_english_dic)
+        if dictionary_name == 'pure_arabic_dic':
+            return True,len(lang_classifier_obj.pure_arabic_dic)
+        if dictionary_name == 'ar_en_dic':
+            return True,len(lang_classifier_obj.ar_en_dic)
+        if dictionary_name == 'english_with_others_dic':
+            return True,len(lang_classifier_obj.english_with_others_dic)
+        if dictionary_name == 'arabic_with_others_dic':
+            return True,len(lang_classifier_obj.arabic_with_others_dic)
+        if dictionary_name == 'mixed_lang_dic':
+            return True,len(lang_classifier_obj.mixed_lang_dic)
+        if dictionary_name == 'other_language_dic':
+            return True,len(lang_classifier_obj.other_language_dic)
+        if dictionary_name == 'exceptions_dic':
+            return True,len(lang_classifier_obj.exceptions_dic)
+        if dictionary_name == 'pure_emoji_dic':
+            return True,len(lang_classifier_obj.pure_emoji_dic)
+        if dictionary_name == 'emoji_pure_arabic_dic':
+            return True,len(lang_classifier_obj.emoji_pure_arabic_dic)
+        if dictionary_name == 'emoji_pure_english_dic':
+            return True,len(lang_classifier_obj.emoji_pure_english_dic)
+        if dictionary_name == 'emoji_arabic_with_others_dic':
+            return True,len(lang_classifier_obj.emoji_arabic_with_others_dic)
+        if dictionary_name == 'emoji_english_with_others_dic':
+            return True,len(lang_classifier_obj.emoji_english_with_others_dic)
+        if dictionary_name == 'emoji_ar_en_dic':
+            return True,len(lang_classifier_obj.emoji_ar_en_dic)
+        if dictionary_name == 'emoji_mixed_lang_dic':
+            return True,len(lang_classifier_obj.emoji_mixed_lang_dic)
+        if dictionary_name == 'emoji_other_language_dic':
+            return True,len(lang_classifier_obj.emoji_other_language_dic)
+        if dictionary_name == 'emoji_exceptions_dic':
+            return True,len(lang_classifier_obj.emoji_exceptions_dic)
+        if dictionary_name == 'emoji_english_with_others_dic':
+            return True,len(lang_classifier_obj.emoji_english_with_others_dic)
+        if dictionary_name == 'emoji_useless_comment_dic':
+            return True,len(lang_classifier_obj.emoji_useless_comment_dic)
+        if dictionary_name == 'useless_comment_dic':
+            return True,len(lang_classifier_obj.useless_comment_dic)
+        else:
+            return False,0
 
     def __str__(self):
         return " username: " +self.user.username + " /// video_title: " + self.video_Object.video_title + " /// key_api: " + self.comment_object.key_api
+
+
+
+
+
 
 class Commentclassifier(models.Model):
         #instance variables of the model
@@ -467,8 +605,10 @@ class Commentclassifier(models.Model):
         video_Object = models.OneToOneField(Videoinformation, on_delete=models.CASCADE)
         comment_object = models.OneToOneField(Comment, on_delete=models.CASCADE)
         langcommentsclassifier = models.OneToOneField(Langclassifier, on_delete=models.CASCADE)
+
         video_ObjectID =  models.IntegerField()
         comment_objID = models.IntegerField()
+        langcommentsclassifier_objID = models.IntegerField()
         emoji_comment_dic = models.TextField()
         pure_emoji_dic = models.TextField()
         emoji_pure_arabic_dic = models.TextField()
@@ -490,11 +630,272 @@ class Commentclassifier(models.Model):
         english_with_others_dic = models.TextField()
         ar_en_dic = models.TextField()
 
+        r = re.compile(r'\b%s\b' % "is", re.I)
+    #begin comments_classifier
+
+        def video_titles_linker(self,tag,video_titles_sets):
+            video_list = list()
 
 
+            for video in video_titles_sets:
+                if tag in ast.literal_eval(video.video_title):
+                    #temp =  Videocategoryclassifier.objects.get(pk=video.id)
+                    video_list.append(video.id)
+                else:
+                    pass
+
+
+
+
+            return video_list
+
+
+        def video_specifications_comment_linker(self,tag,video_specification_sets):
+            video_list = list()
+
+
+            for video in video_specification_sets:
+                if tag in ast.literal_eval(video.video_specification):
+                    temp = get_object_or_404(Videocategoryclassifier,pk=video.id)
+                    video_list.append(video.id)
+
+                else:
+                    pass
+
+
+
+
+            return video_list
+
+        def comment_classifier_among_video_classfier(self,dic,video_title,video_specification):
+            video_titles_sets = Videocategoryclassifier.objects.all().order_by('video_title')
+            video_specification_sets = Videocategoryclassifier.objects.all().order_by('video_specification')
+            tags_list = list()
+            total_comments_tags = 0
+
+            comments_tags_details_dic ={}
+            for item in dic:
+                index = dic[item]['i']
+                single_comment = dic[item]['single_comment']
+
+                if len(video_specification) ==1 and  video_specification[0] == "NO-TAGS" :
+                    pass
+                else:
+                    begin_list =list()
+                    end_list =list()
+                    video_specification_repeat = list()
+
+                    tags_list = list()
+                    for tag in video_specification:
+                        if tag in single_comment:
+                            dic[item]['video_specification_linker'] = self.video_specifications_comment_linker(tag,video_specification_sets)
+                            total_comments_tags += 1
+                            tags_list.append(tag)
+                            dic[item]['video_specification'] = tags_list
+                            video_specification_repeat.append(single_comment.count(tag))
+                            dic[item]['video_specification_repeat'] = video_specification_repeat
+                            dic[item]['video_specification_pack'] = None
+                            for m in re.finditer(tag, single_comment):
+                                begin_temp = m.start()
+                                end_temp = m.end()
+                                begin_list.append(begin_temp)
+                                end_list.append(end_temp)
+                                dic[item]['begin'] = begin_list
+                                dic[item]['end'] = end_list
+
+
+                            print(str(index) +" predefined ("+tag +") "+str(single_comment.count(tag))+" ",single_comment)
+                        else:
+                            pass
+                if len(video_title) ==1 and  video_title[0] == "NO-TAGS" :
+                    pass
+                else:
+                    begin_list =list()
+                    end_list =list()
+                    tags_list = list()
+                    video_title_repeat = list()
+                    for tag in video_title:
+                        if tag in single_comment:
+
+                            dic[item]['video_titles_linker'] = self.video_titles_linker(tag,video_titles_sets)
+
+
+                            total_comments_tags += 1
+                            tags_list.append(tag)
+                            dic[item]['video_title'] = tags_list
+                            video_title_repeat.append(single_comment.count(tag))
+                            dic[item]['video_title_repeat'] = video_title_repeat
+                            dic[item]['video_title_pack'] = None
+                            for m in re.finditer(tag, single_comment):
+                                begin_temp = m.start()
+                                end_temp = m.end()
+                                begin_list.append(begin_temp)
+                                end_list.append(end_temp)
+                                dic[item]['begin'] = begin_list
+                                dic[item]['end'] = end_list
+                                dic[item]['begin'] = m.start()
+                                dic[item]['end'] = m.end()
+                            print(str(index) + " video_title ("+tag +") "+str(single_comment.count(tag))+" ",single_comment)
+
+                        else:
+                            pass
+            return dic
+
+
+
+
+
+    #end
+    # begin
+        def tag_classifier(self,dic,user_tags,predefined_tags):
+
+            tags_list = list()
+            total_comments_tags = 0
+
+            comments_tags_details_dic ={}
+            for item in dic:
+                index = dic[item]['i']
+                single_comment = dic[item]['single_comment']
+
+                if len(predefined_tags) ==1 and  predefined_tags[0] == "NO-TAGS" :
+                    pass
+                else:
+                    begin_list =list()
+                    end_list =list()
+                    predefined_tag_repeat = list()
+                    user_tag_repeat = list()
+                    tags_list = list()
+                    for tag in predefined_tags:
+                        if tag in single_comment:
+
+                            total_comments_tags += 1
+                            tags_list.append(tag)
+                            dic[item]['predefined'] = tags_list
+                            predefined_tag_repeat.append(single_comment.count(tag))
+                            dic[item]['predefined_tag_repeat'] = predefined_tag_repeat
+                            dic[item]['predefined_pack'] = None
+                            for m in re.finditer(tag, single_comment):
+                                begin_temp = m.start()
+                                end_temp = m.end()
+                                begin_list.append(begin_temp)
+                                end_list.append(end_temp)
+                                dic[item]['begin'] = begin_list
+                                dic[item]['end'] = end_list
+
+
+                            print(str(index) +" predefined ("+tag +") "+str(single_comment.count(tag))+" ",single_comment)
+                        else:
+                            pass
+                if len(user_tags) ==1 and  user_tags[0] == "NO-TAGS" :
+                    pass
+                else:
+                    begin_list =list()
+                    end_list =list()
+                    tags_list = list()
+                    user_tag_repeat = list()
+                    for tag in user_tags:
+                        if tag in single_comment:
+
+
+                            total_comments_tags += 1
+                            tags_list.append(tag)
+                            dic[item]['userdefined'] = tags_list
+                            user_tag_repeat.append(single_comment.count(tag))
+                            dic[item]['user_tag_repeat'] = user_tag_repeat
+                            dic[item]['userdefined_pack'] = None
+                            for m in re.finditer(tag, single_comment):
+                                begin_temp = m.start()
+                                end_temp = m.end()
+                                begin_list.append(begin_temp)
+                                end_list.append(end_temp)
+                                dic[item]['begin'] = begin_list
+                                dic[item]['end'] = end_list
+                                dic[item]['begin'] = m.start()
+                                dic[item]['end'] = m.end()
+                            print(str(index) + " userdefined ("+tag +") "+str(single_comment.count(tag))+" ",single_comment)
+
+                        else:
+                            pass
+            return dic
+        def get_length(self,lang_classifier_obj):
+            length = 0
+            pure_emoji_dic=ast.literal_eval(lang_classifier_obj.pure_emoji_dic)
+            emoji_pure_arabic_dic = ast.literal_eval(lang_classifier_obj.emoji_pure_arabic_dic)
+            emoji_pure_english_dic = ast.literal_eval(lang_classifier_obj.emoji_pure_english_dic)
+            emoji_mixed_lang_dic = ast.literal_eval(lang_classifier_obj.emoji_mixed_lang_dic)
+            emoji_arabic_with_others_dic=ast.literal_eval(lang_classifier_obj.emoji_arabic_with_others_dic)
+            emoji_english_with_others_dic =ast.literal_eval(lang_classifier_obj.emoji_english_with_others_dic)
+            emoji_ar_en_dic=ast.literal_eval(lang_classifier_obj.emoji_ar_en_dic)
+            emoji_exceptions_dic = ast.literal_eval(lang_classifier_obj.emoji_exceptions_dic)
+            emoji_other_language_dic =ast.literal_eval(lang_classifier_obj.emoji_other_language_dic)
+            emoji_useless_comment_dic=ast.literal_eval(lang_classifier_obj.emoji_useless_comment_dic)
+            pure_arabic_dic = ast.literal_eval(lang_classifier_obj.pure_arabic_dic)
+            pure_english_dic = ast.literal_eval(lang_classifier_obj.pure_english_dic)
+            mixed_lang_dic = ast.literal_eval(lang_classifier_obj.mixed_lang_dic)
+            exceptions_dic = ast.literal_eval(lang_classifier_obj.exceptions_dic)
+            other_language_dic =ast.literal_eval(lang_classifier_obj.other_language_dic)
+            useless_comment_dic=ast.literal_eval(lang_classifier_obj.useless_comment_dic)
+            arabic_with_others_dic=ast.literal_eval(lang_classifier_obj.arabic_with_others_dic)
+            english_with_others_dic =ast.literal_eval(lang_classifier_obj.english_with_others_dic)
+            ar_en_dic=ast.literal_eval(lang_classifier_obj.ar_en_dic)
+            length += len(pure_emoji_dic) +  len(other_language_dic) +  len(arabic_with_others_dic) +  len(exceptions_dic) +  len(mixed_lang_dic) +  len(emoji_mixed_lang_dic)
+            length +=   len(emoji_pure_english_dic) +  len(emoji_pure_arabic_dic) +  len(emoji_useless_comment_dic) +  len(emoji_other_language_dic) +  len(emoji_exceptions_dic) +  len(emoji_english_with_others_dic) +  len(emoji_arabic_with_others_dic)
+            length +=   len(ar_en_dic) +  len(english_with_others_dic) +  len(useless_comment_dic) +  len(emoji_arabic_with_others_dic) +  len(pure_english_dic) +  len(pure_arabic_dic) +  len(emoji_ar_en_dic)
+            return length
+
+        def tag_list_setter(self,video_Object):
+            predefined_tags_list = list()
+            user_tags_list = list()
+
+            video_tags = ast.literal_eval(video_Object.tags)
+            if video_tags["predefined"]==["NO-TAGS"] and video_tags["userdefined"]==["NO-TAGS"] :
+                tags_indicator = False
+            elif video_tags["predefined"]!=["NO-TAGS"] and video_tags["userdefined"]==["NO-TAGS"]:
+                tags_indicator = True
+                for item in video_tags["predefined"]:
+                    predefined_tags_list.append(item)
+            elif video_tags["predefined"]==["NO-TAGS"] and video_tags["userdefined"]!=["NO-TAGS"]:
+                tags_indicator = True
+                for item in video_tags["userdefined"]:
+                    user_tags_list.append(item)
+            else:
+                tags_indicator = True
+                for item in video_tags["userdefined"]:
+                    user_tags_list.append(item)
+                tags_indicator = True
+                for item in video_tags["predefined"]:
+                    predefined_tags_list.append(item)
+            return tags_indicator,predefined_tags_list,user_tags_list
+
+        def dic_tag_pack_viewer(self,dictionary):
+            user_defined_repeat =list()
+            user_defined_list = list()
+            for item in dictionary:
+                for tag_info in dictionary[item]:
+                    if 'userdefined' in tag_info:
+
+                        user_defined_list  = dictionary[item]['userdefined']
+
+                        user_defined_repeat = dictionary[item]['user_tag_repeat']
+                        zipped_userdefined_tags = zip(user_defined_list,user_defined_repeat)
+                        dictionary[item]['userdefined_pack'] = zipped_userdefined_tags
+
+
+            predefined_repeat_list =list()
+            predefined_list = list()
+            for item in dictionary:
+                for tag_info in dictionary[item]:
+                    if 'predefined' in tag_info:
+                        predefined_list  = dictionary[item]['predefined']
+
+                        predefined_repeat_list = dictionary[item]['predefined_tag_repeat']
+                        zipped_predefined_tags = zip(predefined_list,predefined_repeat_list)
+                        dictionary[item]['predefined_pack'] = zipped_predefined_tags
+            return dictionary
 
         def comments_classifier(self,user,lang_classifier_obj_id):
             lang_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
+            video_classified_obj = get_object_or_404(Videocategoryclassifier,video_Object=lang_classifier_obj.video_Object)
             video_information_object = lang_classifier_obj.video_Object
             comment_obj = lang_classifier_obj.comment_object
             self.user = user
@@ -503,6 +904,7 @@ class Commentclassifier(models.Model):
             self.video_ObjectID = video_information_object.id
             self.comment_objID = comment_obj.id
             self.langcommentsclassifier = lang_classifier_obj
+            self.langcommentsclassifier_objID = lang_classifier_obj.id
             emoji_comment_dic = {}
             pure_emoji_dic={}
             emoji_pure_arabic_dic = {}
@@ -546,37 +948,309 @@ class Commentclassifier(models.Model):
             ar_en_dic=ast.literal_eval(lang_classifier_obj.ar_en_dic)
 
             tags=ast.literal_eval(video_information_object.tags)
+
             user_tags = tags['userdefined']
             predefined_tags = tags['predefined']
+            self.emoji_comment_dic = self.tag_classifier(emoji_comment_dic,user_tags,predefined_tags)
+            self.pure_emoji_dic = self.tag_classifier(pure_emoji_dic,user_tags,predefined_tags)
+            self.pure_english_dic = self.tag_classifier(pure_english_dic,user_tags,predefined_tags)
+            self.pure_arabic_dic = self.tag_classifier(pure_arabic_dic,user_tags,predefined_tags)
+            self.mixed_lang_dic = self.tag_classifier(mixed_lang_dic,user_tags,predefined_tags)
+            self.emoji_pure_arabic_dic = self.tag_classifier(emoji_pure_arabic_dic,user_tags,predefined_tags)
+            self.emoji_pure_english_dic =self.tag_classifier(emoji_pure_english_dic,user_tags,predefined_tags)
+            self.emoji_mixed_lang_dic = self.tag_classifier(emoji_mixed_lang_dic,user_tags,predefined_tags)
+            self.emoji_arabic_with_others_dic = self.tag_classifier(emoji_arabic_with_others_dic,user_tags,predefined_tags)
+            self.emoji_english_with_others_dic = self.tag_classifier(emoji_english_with_others_dic,user_tags,predefined_tags)
+            self.emoji_ar_en_dic = self.tag_classifier(emoji_ar_en_dic,user_tags,predefined_tags)
+            self.emoji_exceptions_dic = self.tag_classifier(emoji_exceptions_dic,user_tags,predefined_tags)
+            self.emoji_other_language_dic = self.tag_classifier(emoji_other_language_dic,user_tags,predefined_tags)
+            self.emoji_useless_comment_dic= self.tag_classifier(emoji_useless_comment_dic,user_tags,predefined_tags)
+            self.exceptions_dic = self.tag_classifier(exceptions_dic,user_tags,predefined_tags)
+            self.other_language_dic = self.tag_classifier(other_language_dic,user_tags,predefined_tags)
+            self.useless_comment_dic= self.tag_classifier(useless_comment_dic,user_tags,predefined_tags)
+            self.arabic_with_others_dic= self.tag_classifier(arabic_with_others_dic,user_tags,predefined_tags)
+            self.english_with_others_dic = self.tag_classifier(english_with_others_dic,user_tags,predefined_tags)
+            self.ar_en_dic = self.tag_classifier(ar_en_dic,user_tags,predefined_tags)
 
 
-            for item in pure_english_dic:
-                index = pure_english_dic[item]['i']
-                single_comment = pure_english_dic[item]['single_comment']
+            video_title = ast.literal_eval(video_classified_obj.video_title)
+            video_specification = ast.literal_eval(video_classified_obj.video_specification)
 
-                if len(predefined_tags) ==1 and  predefined_tags[0] == "NO-TAGS" :
-                    pass
-                else:
-                    for tag in predefined_tags:
-                        if tag in single_comment:
-                            print(str(index) +" predefined ("+tag +") "+str(single_comment.count(tag))+" ",single_comment)
-                        else:
-                            pass
-                if len(user_tags) ==1 and  user_tags[0] == "NO-TAGS" :
-                    pass
-                else:
-                    for tag in user_tags:
-                        if tag in single_comment:
-                            print(str(index) + " userdefined ("+tag +") "+str(single_comment.count(tag))+" ",single_comment)
-                        else:
-                            pass
+            self.emoji_comment_dic = self.comment_classifier_among_video_classfier(emoji_comment_dic,video_title,video_specification)
+            self.pure_emoji_dic = self.comment_classifier_among_video_classfier(pure_emoji_dic,video_title,video_specification)
+            self.pure_english_dic = self.comment_classifier_among_video_classfier(pure_english_dic,video_title,video_specification)
+            self.pure_arabic_dic = self.comment_classifier_among_video_classfier(pure_arabic_dic,video_title,video_specification)
+            self.mixed_lang_dic = self.comment_classifier_among_video_classfier(mixed_lang_dic,video_title,video_specification)
+            self.emoji_pure_arabic_dic = self.comment_classifier_among_video_classfier(emoji_pure_arabic_dic,video_title,video_specification)
+            self.emoji_pure_english_dic =self.comment_classifier_among_video_classfier(emoji_pure_english_dic,video_title,video_specification)
+            self.emoji_mixed_lang_dic = self.comment_classifier_among_video_classfier(emoji_mixed_lang_dic,video_title,video_specification)
+            self.emoji_arabic_with_others_dic = self.comment_classifier_among_video_classfier(emoji_arabic_with_others_dic,video_title,video_specification)
+            self.emoji_english_with_others_dic = self.comment_classifier_among_video_classfier(emoji_english_with_others_dic,video_title,video_specification)
+            self.emoji_ar_en_dic = self.comment_classifier_among_video_classfier(emoji_ar_en_dic,video_title,video_specification)
+            self.emoji_exceptions_dic = self.comment_classifier_among_video_classfier(emoji_exceptions_dic,video_title,video_specification)
+            self.emoji_other_language_dic = self.comment_classifier_among_video_classfier(emoji_other_language_dic,video_title,video_specification)
+            self.emoji_useless_comment_dic= self.comment_classifier_among_video_classfier(emoji_useless_comment_dic,video_title,video_specification)
+            self.exceptions_dic = self.comment_classifier_among_video_classfier(exceptions_dic,video_title,video_specification)
+            self.other_language_dic = self.comment_classifier_among_video_classfier(other_language_dic,video_title,video_specification)
+            self.useless_comment_dic= self.comment_classifier_among_video_classfier(useless_comment_dic,video_title,video_specification)
+            self.arabic_with_others_dic= self.comment_classifier_among_video_classfier(arabic_with_others_dic,video_title,video_specification)
+            self.english_with_others_dic = self.comment_classifier_among_video_classfier(english_with_others_dic,video_title,video_specification)
+            self.ar_en_dic = self.comment_classifier_among_video_classfier(ar_en_dic,video_title,video_specification)
+
+            comment_classifier = self
+
+
+            return comment_classifier
 
 
 
-            return self
+
+        def dictionary_viewer(self,comment_classifier_obj,dictionary_name):
+            status = False
+            dictionary = {}
+            video_Object = None
+            tags_indicator = False
+            predefined_tags_list = list()
+            user_tags_list = list()
+
+            if dictionary_name == 'pure_english_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.pure_english_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+
+            if dictionary_name == 'pure_emoji_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.pure_emoji_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'pure_arabic_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.pure_arabic_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'mixed_lang_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.mixed_lang_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'emoji_pure_arabic_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_pure_arabic_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'emoji_pure_english_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_pure_english_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'emoji_mixed_lang_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_mixed_lang_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'emoji_arabic_with_others_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_arabic_with_others_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'emoji_english_with_others_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_english_with_others_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'emoji_ar_en_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_ar_en_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'emoji_exceptions_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_exceptions_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'emoji_other_language_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_other_language_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+            if dictionary_name == 'ar_en_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.ar_en_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+            if dictionary_name == 'english_with_others_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.english_with_others_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+            if dictionary_name == 'arabic_with_others_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.arabic_with_others_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+            if dictionary_name == 'other_language_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.other_language_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+            if dictionary_name == 'exceptions_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.exceptions_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+            if dictionary_name == 'emoji_useless_comment_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.emoji_useless_comment_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+            if dictionary_name == 'useless_comment_dic':
+
+                dictionary = ast.literal_eval(comment_classifier_obj.useless_comment_dic)
+
+                video_Object = comment_classifier_obj.video_Object
+                tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
+
+                dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
+                status = True
+
+# begin
+
+            return status,dictionary,video_Object,tags_indicator,predefined_tags_list,user_tags_list
+
+
+        def dictionary_fetcher(self,dic_name,comment_classifier_obj):
+            dictionary_name = dic_name
+            if dictionary_name == 'pure_english_dic':
+                return True,len(comment_classifier_obj.pure_english_dic)
+            if dictionary_name == 'pure_arabic_dic':
+                return True,len(comment_classifier_obj.pure_arabic_dic)
+            if dictionary_name == 'ar_en_dic':
+                return True,len(comment_classifier_obj.ar_en_dic)
+            if dictionary_name == 'english_with_others_dic':
+                return True,len(comment_classifier_obj.english_with_others_dic)
+            if dictionary_name == 'arabic_with_others_dic':
+                return True,len(comment_classifier_obj.arabic_with_others_dic)
+            if dictionary_name == 'mixed_lang_dic':
+                return True,len(comment_classifier_obj.mixed_lang_dic)
+            if dictionary_name == 'other_language_dic':
+                return True,len(comment_classifier_obj.other_language_dic)
+            if dictionary_name == 'exceptions_dic':
+                return True,len(comment_classifier_obj.exceptions_dic)
+            if dictionary_name == 'pure_emoji_dic':
+                return True,len(comment_classifier_obj.pure_emoji_dic)
+            if dictionary_name == 'emoji_pure_arabic_dic':
+                return True,len(comment_classifier_obj.emoji_pure_arabic_dic)
+            if dictionary_name == 'emoji_pure_english_dic':
+                return True,len(comment_classifier_obj.emoji_pure_english_dic)
+            if dictionary_name == 'emoji_arabic_with_others_dic':
+                return True,len(comment_classifier_obj.emoji_arabic_with_others_dic)
+            if dictionary_name == 'emoji_english_with_others_dic':
+                return True,len(comment_classifier_obj.emoji_english_with_others_dic)
+            if dictionary_name == 'emoji_ar_en_dic':
+                return True,len(comment_classifier_obj.emoji_ar_en_dic)
+            if dictionary_name == 'emoji_mixed_lang_dic':
+                return True,len(comment_classifier_obj.emoji_mixed_lang_dic)
+            if dictionary_name == 'emoji_other_language_dic':
+                return True,len(comment_classifier_obj.emoji_other_language_dic)
+            if dictionary_name == 'emoji_exceptions_dic':
+                return True,len(comment_classifier_obj.emoji_exceptions_dic)
+            if dictionary_name == 'emoji_english_with_others_dic':
+                return True,len(comment_classifier_obj.emoji_english_with_others_dic)
+            if dictionary_name == 'emoji_useless_comment_dic':
+                return True,len(comment_classifier_obj.emoji_useless_comment_dic)
+            if dictionary_name == 'useless_comment_dic':
+                return True,len(comment_classifier_obj.useless_comment_dic)
+            else:
+                return False,0
 
         def __str__(self):
             return " username: " +self.user.username + " /// video_title: " + self.video_Object.video_title + " /// key_api: " + self.comment_object.key_api
+
 
 
 
@@ -724,4 +1398,29 @@ class Commentclassifier(models.Model):
     print("self.pure_english_detector : ",self.pure_english_detector(mixed_text))
     print("self.pure_arabic_detector : ",self.pure_arabic_detector(mixed_text))
     print("self.mixed_ar_en_detector : ",self.mixed_ar_en_detector(mixed_text))
+'''
+'''
+            video_title = ast.literal_eval(video_classified_obj.video_title)
+            video_specification = ast.literal_eval(video_classified_obj.video_specification)
+
+            self.emoji_comment_dic = self.comment_classifier_among_video_classfier(emoji_comment_dic,video_title,video_specification)
+            self.pure_emoji_dic = self.comment_classifier_among_video_classfier(pure_emoji_dic,video_title,video_specification)
+            self.pure_english_dic = self.comment_classifier_among_video_classfier(pure_english_dic,video_title,video_specification)
+            self.pure_arabic_dic = self.comment_classifier_among_video_classfier(pure_arabic_dic,video_title,video_specification)
+            self.mixed_lang_dic = self.comment_classifier_among_video_classfier(mixed_lang_dic,video_title,video_specification)
+            self.emoji_pure_arabic_dic = self.comment_classifier_among_video_classfier(emoji_pure_arabic_dic,video_title,video_specification)
+            self.emoji_pure_english_dic =self.comment_classifier_among_video_classfier(emoji_pure_english_dic,video_title,video_specification)
+            self.emoji_mixed_lang_dic = self.comment_classifier_among_video_classfier(emoji_mixed_lang_dic,video_title,video_specification)
+            self.emoji_arabic_with_others_dic = self.comment_classifier_among_video_classfier(emoji_arabic_with_others_dic,video_title,video_specification)
+            self.emoji_english_with_others_dic = self.comment_classifier_among_video_classfier(emoji_english_with_others_dic,video_title,video_specification)
+            self.emoji_ar_en_dic = self.comment_classifier_among_video_classfier(emoji_ar_en_dic,video_title,video_specification)
+            self.emoji_exceptions_dic = self.comment_classifier_among_video_classfier(emoji_exceptions_dic,video_title,video_specification)
+            self.emoji_other_language_dic = self.comment_classifier_among_video_classfier(emoji_other_language_dic,video_title,video_specification)
+            self.emoji_useless_comment_dic= self.comment_classifier_among_video_classfier(emoji_useless_comment_dic,video_title,video_specification)
+            self.exceptions_dic = self.comment_classifier_among_video_classfier(exceptions_dic,video_title,video_specification)
+            self.other_language_dic = self.comment_classifier_among_video_classfier(other_language_dic,video_title,video_specification)
+            self.useless_comment_dic= self.comment_classifier_among_video_classfier(useless_comment_dic,video_title,video_specification)
+            self.arabic_with_others_dic= self.comment_classifier_among_video_classfier(arabic_with_others_dic,video_title,video_specification)
+            self.english_with_others_dic = self.comment_classifier_among_video_classfier(english_with_others_dic,video_title,video_specification)
+            self.ar_en_dic = self.comment_classifier_among_video_classfier(ar_en_dic,video_title,video_specification)
 '''

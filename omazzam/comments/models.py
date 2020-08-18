@@ -81,6 +81,7 @@ class Videoinformation(models.Model):
     def video_object_creator(self,user,video_detail_url,video_ID_parameter):
         tag_list = list()
         self.user = user
+        status  = False
         # fetching video's details
         print('*****************  0   ********************************  0  *********************** *******  \n')
         print ("\n ******* Coded By Azzam Ali ," , "Video ID is : " ,video_ID_parameter ,'*******')
@@ -92,43 +93,73 @@ class Videoinformation(models.Model):
         vedio_details_json_recieved = urllib.request.urlopen(video_detail_url).read()
         response_for_video_details = vedio_details_json_recieved.decode("utf-8")
         video_details_processing_recieved = json.loads(response_for_video_details)
-        print("*************** 3 video details object creation  *************************")
+
+        if 'pageInfo' in video_details_processing_recieved:
+            if video_details_processing_recieved.get('pageInfo').get('totalResults')== 0:
+                status = True
+                return status,""
+
+            else:
+                print("*************** 3 video details object creation  *************************")
 
 
-        self.publish_at = video_details_processing_recieved.get('items')[0]['snippet']['publishedAt']
-        self.video_ID = video_details_processing_recieved.get('items')[0]['id']
+                self.publish_at = video_details_processing_recieved.get('items')[0]['snippet']['publishedAt']
+                self.video_ID = video_details_processing_recieved.get('items')[0]['id']
 
-        self.video_title = video_details_processing_recieved.get('items')[0]['snippet']['title']
-        self.channel_ID = video_details_processing_recieved.get('items')[0]['snippet']['channelId']
-        self.channel_title = video_details_processing_recieved.get('items')[0]['snippet']['channelTitle']
-        try:
-            tags_list = video_details_processing_recieved.get('items')[0]['snippet']['tags']
-            temp = tags_list
-            for tag in temp:
-                tag = tag.lower()
-                tag = self.repeative_characters_removal(tag)
-                tag_list.append(tag)
-            self.tags = {"predefined":tag_list,"userdefined":["NO-TAGS"]}
-        except:
-            print("This video has no tags")
-            self.tags = {"predefined":["NO-TAGS"],"userdefined":["NO-TAGS"]}
-        self.video_desciption = video_details_processing_recieved.get('items')[0]['snippet']['description']
-        self.statics_view_counts = video_details_processing_recieved.get('items')[0]['statistics']['viewCount']
-        self.statics_like_counts =  video_details_processing_recieved.get('items')[0]['statistics']['likeCount']
-        self.statics_dislike_counts = video_details_processing_recieved.get('items')[0]['statistics']['dislikeCount']
-        self.statics_comments_counts = video_details_processing_recieved.get('items')[0]['statistics']['commentCount']
-        self.video_category_ID = video_details_processing_recieved.get('items')[0]['snippet']['categoryId']
-        dictionary = self.category_dictionary
-        if int(self.video_category_ID) in dictionary:
-            self.video_category = dictionary.get(int(self.video_category_ID))
-        else:
-            self.video_category = "UNKNOWN CATEGORY"
-        #return self
+                self.video_title = video_details_processing_recieved.get('items')[0]['snippet']['title']
+                self.channel_ID = video_details_processing_recieved.get('items')[0]['snippet']['channelId']
+                self.channel_title = video_details_processing_recieved.get('items')[0]['snippet']['channelTitle']
+                try:
+                    tags_list = video_details_processing_recieved.get('items')[0]['snippet']['tags']
+                    temp = tags_list
+                    for tag in temp:
+                        tag = tag.lower()
+                        tag = self.repeative_characters_removal(tag)
+                        tag_list.append(tag)
+                    self.tags = {"predefined":tag_list,"userdefined":["NO-TAGS"]}
+                except:
+                    print("This video has no tags")
+                    self.tags = {"predefined":["NO-TAGS"],"userdefined":["NO-TAGS"]}
+                self.video_desciption = video_details_processing_recieved.get('items')[0]['snippet']['description']
+                self.statics_view_counts = video_details_processing_recieved.get('items')[0]['statistics']['viewCount']
+                self.statics_like_counts =  video_details_processing_recieved.get('items')[0]['statistics']['likeCount']
+                self.statics_dislike_counts = video_details_processing_recieved.get('items')[0]['statistics']['dislikeCount']
+                self.statics_comments_counts = video_details_processing_recieved.get('items')[0]['statistics']['commentCount']
+                self.video_category_ID = video_details_processing_recieved.get('items')[0]['snippet']['categoryId']
+                dictionary = self.category_dictionary
+                if int(self.video_category_ID) in dictionary:
+                    self.video_category = dictionary.get(int(self.video_category_ID))
+                else:
+                    self.video_category = "UNKNOWN CATEGORY"
+                status =False
+                video_object = self
+                return status, video_object
 
 
     def __str__(self):
         return self.user.username + " " + self.video_title + " " + self.video_ID
 
+class Videocategoryclassifier(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    video_Object = models.OneToOneField(Videoinformation, on_delete=models.CASCADE)
+    video_id = models.IntegerField()
+    video_title = models.TextField()
+    video_domain = models.CharField(max_length=255)
+    video_specification = models.TextField()
+
+    def videocategoryclassifier_creator(self,user,video_Object,video_title,video_domain,video_specification):
+        self.user = user
+        self.video_id = video_Object.id
+        self.video_Object = video_Object
+        self.video_title = video_title
+        self.video_domain = video_domain
+        self.video_specification = video_specification
+        classified_video_object = self
+        return classified_video_object
+
+
+    def __str__(self):
+        return " username: " +self.user.username + " /// video_title: " + self.video_Object.video_title + " /// video_category: " + self.video_Object.video_category
 
 
 class Comment(models.Model):
@@ -146,6 +177,9 @@ class Comment(models.Model):
     updatedAt = models.TextField()
     numberOfComments = models.IntegerField()
 
+    u_removal = re.compile(u'[(\uE000-\uFFFF)|()]', re.UNICODE)
+    x_removal = re.compile(r'\\x.*?(2)', re.UNICODE)
+
     def __str__(self):
         return self.user.username + " " + self.videoInfo.video_title + " " + self.video_id
 
@@ -154,119 +188,147 @@ class Comment(models.Model):
 
         #fetching video's comments
         #fetching video's comments
+        comments_status = False
+
         main_url = "https://www.googleapis.com/youtube/v3/"
         comments_json_recieved = urllib.request.urlopen(comment_url).read()
+        print(comment_url)
         response_for_comments = comments_json_recieved.decode("utf-8")
         comments_processing_recieved = json.loads(response_for_comments)
-        video_id = comments_processing_recieved.get('items')[0].get('snippet').get('topLevelComment').get('snippet').get('videoId')
 
-        comments_list = []
-        authors_names_list = []
-        authors_image_url_list = []
-        authors_profile_url_list = []
-        publishedAt_list = []
-        updatedAt = []
-        i = 0
-        if 'nextPageToken' not in comments_processing_recieved:
-            print('*****************   4  *************************** 4     *******************  \n')
-            print('******** there is NO token , the fetch proccess is statring *************** ')
-            for items in comments_processing_recieved.get('items'):
-                i += 1
-                #making lists of video's comments informations
-                clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textDisplay')
-                clear_comment = clear_comment.replace("'","&rsquo;")
-                clear_comment = clear_comment.replace('"',"&rdquo;")
-                clear_comment = clear_comment.replace(",","&comma;")
-                comments_list.append(clear_comment)
-                authors_names_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorDisplayName'))
-                authors_image_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorProfileImageUrl'))
-                authors_profile_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorChannelUrl'))
-                publishedAt_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('publishedAt'))
-                updatedAt.append(items.get('snippet').get('topLevelComment').get('snippet').get('updatedAt'))
-            #making comment object
+        if comments_processing_recieved.get("pageInfo").get('totalResults') == 0:
+            comments_status = False
+            print("This video has no comments ")
+            return comments_status , ""
+        else :
+            comments_status = True
+            video_id = comments_processing_recieved.get('items')[0].get('snippet').get('topLevelComment').get('snippet').get('videoId')
 
-            self.user = user
-            self.video_object_id = video_information.id
-            self.videoInfo  = video_information
-            self.key_api = user_api
-            self.video_id = video_id
-            self.authorDisplayName = authors_names_list
-            self.authorProfileImageUrl = authors_image_url_list
-            self.authorChannelUrl = authors_profile_url_list
-            self.textDisplay = comments_list
-            self.publishedAt = publishedAt_list
-            self.updatedAt = updatedAt
-            self.numberOfComments = i
-            print('*****************     ******************************** *********************** ******* \n')
-            print('there is NO token , fetching is finished')
-            print('*****************     ******************************** *********************** ******* \n')
-            print('we fetch :(  ' ,str(i),'  )comments.')
-            print('*****************     ******************************** *********************** *******  \n')
-
-
-
-        else:
-            index = 1
-            print('there is token(s) with code +  (   '+ comments_processing_recieved.get('nextPageToken')[0:6] +'  )......., fetching proccess is statring .....')
-            print('*****************  4   ******************************** 4  ********************* \n')
-            while 'nextPageToken' in comments_processing_recieved:
-                for items in comments_processing_recieved.get('items'):
-                    i += 1
-                    #making lists of video's comments informations
-                    clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textDisplay')
-                    clear_comment = clear_comment.replace("'","&rsquo;")
-                    clear_comment = clear_comment.replace('"',"&rdquo;")
-                    clear_comment = clear_comment.replace(",","&comma;")
-                    comments_list.append(clear_comment)
-                    authors_names_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorDisplayName'))
-                    authors_image_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorProfileImageUrl'))
-                    authors_profile_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorChannelUrl'))
-                    publishedAt_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('publishedAt'))
-                    updatedAt.append(items.get('snippet').get('topLevelComment').get('snippet').get('updatedAt'))
-                next_token = comments_processing_recieved.get('nextPageToken')
-                comment_url = comments_data_url_builder(main_url,user_api,video_id,next_token)
-
-                index+=1
-                print('*****************  5  fetching stage( '+ str(index)+' ) ***********************')
-                comments_json_recieved = urllib.request.urlopen(comment_url).read()
-                response_for_comments = comments_json_recieved.decode("utf-8")
-                comments_processing_recieved = json.loads(response_for_comments)
+            comments_list = []
+            authors_names_list = []
+            authors_image_url_list = []
+            authors_profile_url_list = []
+            publishedAt_list = []
+            updatedAt = []
+            i = 0
             if 'nextPageToken' not in comments_processing_recieved:
-                print('*****************  6   ******************************** 6 ***************** *******  \n')
-                print('***** reaching to the end of page of the comments  , fetching is about to be finished .....')
+                print('*****************   4  *************************** 4     *******************  \n')
+                print('******** there is NO token , the fetch proccess is statring *************** ')
                 for items in comments_processing_recieved.get('items'):
                     i += 1
                     #making lists of video's comments informations
-                    clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textDisplay')
+                    clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textOriginal')
+                    clear_comment = clear_comment.lower()
                     clear_comment = clear_comment.replace("'","&rsquo;")
-                    clear_comment = clear_comment.replace('"',"&rdquo;")
-                    clear_comment = clear_comment.replace(",","&comma;")
+                    clear_comment = clear_comment.replace('"'," ")
+                    clear_comment = clear_comment.replace(","," ")
+                    clear_comment = clear_comment.replace("\n"," ")
+                    clear_comment = self.x_removal.sub('', clear_comment)
+                    clear_comment = self.u_removal.sub('', clear_comment)
+
                     comments_list.append(clear_comment)
                     authors_names_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorDisplayName'))
                     authors_image_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorProfileImageUrl'))
                     authors_profile_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorChannelUrl'))
                     publishedAt_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('publishedAt'))
                     updatedAt.append(items.get('snippet').get('topLevelComment').get('snippet').get('updatedAt'))
-            #making comment object
+                #making comment object
 
-            self.user = user
-            self.video_object_id = video_information.id
-            self.videoInfo  = video_information
-            self.key_api = user_api
-            self.video_id = video_id
-            self.authorDisplayName = authors_names_list
-            self.authorProfileImageUrl = authors_image_url_list
-            self.authorChannelUrl = authors_profile_url_list
-            self.textDisplay = comments_list
-            self.publishedAt = publishedAt_list
-            self.updatedAt = updatedAt
-            self.numberOfComments = i
+                self.user = user
+                self.video_object_id = video_information.id
+                self.videoInfo  = video_information
+                self.key_api = user_api
+                self.video_id = video_id
+                self.authorDisplayName = authors_names_list
+                self.authorProfileImageUrl = authors_image_url_list
+                self.authorChannelUrl = authors_profile_url_list
+                self.textDisplay = comments_list
+                self.publishedAt = publishedAt_list
+                self.updatedAt = updatedAt
+                self.numberOfComments = i
+                print('*****************     ******************************** *********************** ******* \n')
+                print('there is NO token , fetching is finished')
+                print('*****************     ******************************** *********************** ******* \n')
+                print('we fetch :(  ' ,str(i),'  )comments.')
+                print('*****************     ******************************** *********************** *******  \n')
 
-            print('*****************     ******************************** *********************** ******* \n')
-            print('there is token(s) , fetching is finished')
-            print('*****************     ******************************** *********************** ******* \n')
-            print('we fetch :(  ' ,str(i),'  )comments.')
-            print('*****************     ******************************** *********************** *******  \n')
+
+
+            else:
+                index = 1
+                print('there is token(s) with code +  (   '+ comments_processing_recieved.get('nextPageToken')[0:6] +'  )......., fetching proccess is statring .....')
+                print('*****************  4   ******************************** 4  ********************* \n')
+                while 'nextPageToken' in comments_processing_recieved:
+                    for items in comments_processing_recieved.get('items'):
+                        i += 1
+                        #making lists of video's comments informations
+                        clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textOriginal')
+                        clear_comment = clear_comment.lower()
+                        clear_comment = clear_comment.replace("'","&rsquo;")
+                        clear_comment = clear_comment.replace('"'," ")
+                        clear_comment = clear_comment.replace(","," ")
+                        clear_comment = clear_comment.replace("\n"," ")
+                        clear_comment = self.x_removal.sub('', clear_comment)
+                        clear_comment = self.u_removal.sub('', clear_comment)
+
+                        comments_list.append(clear_comment)
+                        authors_names_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorDisplayName'))
+                        authors_image_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorProfileImageUrl'))
+                        authors_profile_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorChannelUrl'))
+                        publishedAt_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('publishedAt'))
+                        updatedAt.append(items.get('snippet').get('topLevelComment').get('snippet').get('updatedAt'))
+                    next_token = comments_processing_recieved.get('nextPageToken')
+                    comment_url = comments_data_url_builder(main_url,user_api,video_id,next_token)
+
+                    index+=1
+                    print('*****************  5  fetching stage( '+ str(index)+' ) ***********************')
+                    comments_json_recieved = urllib.request.urlopen(comment_url).read()
+                    response_for_comments = comments_json_recieved.decode("utf-8")
+                    comments_processing_recieved = json.loads(response_for_comments)
+                if 'nextPageToken' not in comments_processing_recieved:
+                    print('*****************  6   ******************************** 6 ***************** *******  \n')
+                    print('***** reaching to the end of page of the comments  , fetching is about to be finished .....')
+                    for items in comments_processing_recieved.get('items'):
+                        i += 1
+                        #making lists of video's comments informations
+                        clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textOriginal')
+                        clear_comment = clear_comment.lower()
+                        clear_comment = clear_comment.replace("'","&rsquo;")
+                        clear_comment = clear_comment.replace('"'," ")
+                        clear_comment = clear_comment.replace(","," ")
+                        clear_comment = clear_comment.replace("\n"," ")
+                        clear_comment = self.x_removal.sub('', clear_comment)
+                        clear_comment = self.u_removal.sub('', clear_comment)
+
+                        comments_list.append(clear_comment)
+                        authors_names_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorDisplayName'))
+                        authors_image_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorProfileImageUrl'))
+                        authors_profile_url_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('authorChannelUrl'))
+                        publishedAt_list.append(items.get('snippet').get('topLevelComment').get('snippet').get('publishedAt'))
+                        updatedAt.append(items.get('snippet').get('topLevelComment').get('snippet').get('updatedAt'))
+                #making comment object
+
+                self.user = user
+                self.video_object_id = video_information.id
+                self.videoInfo  = video_information
+                self.key_api = user_api
+                self.video_id = video_id
+                self.authorDisplayName = authors_names_list
+                self.authorProfileImageUrl = authors_image_url_list
+                self.authorChannelUrl = authors_profile_url_list
+                self.textDisplay = comments_list
+                self.publishedAt = publishedAt_list
+                self.updatedAt = updatedAt
+                self.numberOfComments = i
+
+                print('*****************     ******************************** *********************** ******* \n')
+                print('there is token(s) , fetching is finished')
+                print('*****************     ******************************** *********************** ******* \n')
+                print('we fetch :(  ' ,str(i),'  )comments.')
+                print('*****************     ******************************** *********************** *******  \n')
+            comment_object = self
+            return comments_status , comment_object
+
 
 
 

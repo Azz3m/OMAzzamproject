@@ -2,11 +2,11 @@
 {% load staticfiles %}
 {% block content %}
 
-<div class="container">
-   <div class="row">
+
      <div class="col-12">
        <ol class="breadcrumb">
-           <li class="breadcrumb-item"><a href="{% url 'home'%}">Home</a></li>
+           <li class="breadcrumb-item"><a ng-click="clickMe()" href="{% url 'home'%}">Home</a></li>
+              <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'commentsdetail' comment.id%}">Comments Detail</a></li>
            <li class="breadcrumb-item active">{{video.video_title}}</li>
        </ol>
      </div>
@@ -19,10 +19,10 @@
   <div class="myAlert-top alert alert-success" style="position: fixed;bottom: 0px;left:2%;width: 96%;z-index: 999;">
 
 
-           <form method="post" action="{% url 'langclassify' comment.id%}">
-               <strong>&#128515; Tag(s) was found Go to comments classifier &#128515; </strong><br />
+           <form method="post" action="{% url 'videoclassifer' comment.id%}">
+               <strong>&#128515; Tag(s) was found Go to video's classifier &#128515; </strong><br />
               {% csrf_token %}
-               <button  type="submit" class="btn btn-outline-primary btn-sm"  ng-click="clickMe()">Language Classifier</button>
+               <button  type="submit" class="btn btn-outline-primary btn-sm"  ng-click="clickMe()">Video's Classifier</button>
              </form>
   </div>
   <h3 class="text-center">Tags of this video: <span  class="badge badge-pill badge-success" >predefined tags</span> <span  class="badge badge-pill badge-secondary" > user tags</span> </h3>
@@ -39,17 +39,17 @@
             <span  class="badge badge-pill badge-success" >{{tag}}</span>
             {% endfor %}
         {% endif %}
-
+    </h5>
       {% else %}
       <div class="myAlert-top alert alert-danger" style="position: fixed;bottom: 0px;left:2%;width: 96%;z-index: 999;">
 
-    <a class="myAlert-top alert alert-danger" style="text-decoration: none;" href="#form"> &#128531; please insert some Tag(s) , inorder to use our comments classifier app  &#128531;</strong></a> <strong>
+    <a class="myAlert-top alert alert-danger" style="text-decoration: none;" href="#form"> &#128531; please insert some Tag(s) , inorder to use our comments classifier app  &#128531;</a>
 
       </div>
       <h1 class="text-center"><span class="badge badge-danger">This video has no tags </span></h1>
       <h2 class="text-center">&#128531;</h2>
         {% endif %}
-          </h5>
+
         <hr />
 </div>
     <div class="row">
@@ -140,47 +140,9 @@
           </div>
           <div id="fb-root"></div>
 
-          <script src="{% static 'JS/tag-insertor/jquery.caret.min.js'%}"></script>
-          <script src="{% static 'JS/tag-insertor/jquery.tag-editor.js'%}"></script>
-          <script>
-              // jQuery UI autocomplete extension - suggest labels may contain HTML tags
-              // github.com/scottgonzalez/jquery-ui-extensions/blob/master/src/autocomplete/jquery.ui.autocomplete.html.js
-              (function($){var proto=$.ui.autocomplete.prototype,initSource=proto._initSource;function filter(array,term){var matcher=new RegExp($.ui.autocomplete.escapeRegex(term),"i");return $.grep(array,function(value){return matcher.test($("<div>").html(value.label||value.value||value).text());});}$.extend(proto,{_initSource:function(){if(this.options.html&&$.isArray(this.options.source)){this.source=function(request,response){response(filter(this.options.source,request.term));};}else{initSource.call(this);}},_renderItem:function(ul,item){return $("<li></li>").data("item.autocomplete",item).append($("<a></a>")[this.options.html?"html":"text"](item.label)).appendTo(ul);}});})(jQuery);
-
-              var cache = {};
-              function googleSuggest(request, response) {
-                  var term = request.term;
-                  if (term in cache) { response(cache[term]); return; }
-                  $.ajax({
-                      url: 'https://query.yahooapis.com/v1/public/yql',
-                      dataType: 'JSONP',
-                      data: { format: 'json', q: 'select * from xml where url="http://google.com/complete/search?output=toolbar&q='+term+'"' },
-                      success: function(data) {
-                          var suggestions = [];
-                          try { var results = data.query.results.toplevel.CompleteSuggestion; } catch(e) { var results = []; }
-                          $.each(results, function() {
-                              try {
-                                  var s = this.suggestion.data.toLowerCase();
-                                  suggestions.push({label: s.replace(term, '<b>'+term+'</b>'), value: s});
-                              } catch(e){}
-                          });
-                          cache[term] = suggestions;
-                          response(suggestions);
-                      }
-                  });
-              }
-
-              $(function() {
-                  $('#predefined_tags').tagEditor({
-                      placeholder: 'no-tags',
-                      autocomplete: { source: googleSuggest, minLength: 3, delay: 250, html: true, position: { collision: 'flip' } }
-                  });
-                  $('#user_tags').tagEditor({
-                      placeholder: 'no-tags',
-                      autocomplete: { source: googleSuggest, minLength: 3, delay: 250, html: true, position: { collision: 'flip' } }
-                  });
-            });
-          </script>
+          <script type="text/javascript" src="{% static 'JS/tag-insertor/jquery.caret.min.js'%}"></script>
+          <script type="text/javascript" src="{% static 'JS/tag-insertor/jquery.tag-editor.js'%}"></script>
+          <script type="text/javascript" src="{% static 'JS/tag-insertor/jQuery_UI_autocomplete.js'%}">  </script>
           <!--       -->
           <button  id="submit" class="btn btn-primary btn-block"  type="submit" >Add/UPDATE Tags</button>
           <br />
@@ -189,8 +151,120 @@
           </p>
 
           </form>
-    <div id="loaderDiv"><img class="ajax-loader" src="http://www.nasa.gov/multimedia/videogallery/ajax-loader.gif" /></div>
-          <script type="text/javascript">
+
+
+
+  </div>
+
+
+
+
+</div>
+
+<div class="col-12">
+  <hr />
+  <div class="page-header">
+      <h1><small class="pull-right">{{ size }} comments</small> Comments </h1>
+  </div>
+</div>
+<div id="contents">
+
+
+
+<div class="offset-2 col-10 col-md-9">
+<form method="POST" id="NextForm">
+    {% csrf_token %}
+    <div class="form-group row">
+      <div class="input-group">
+        <input type="text" class="form-control" id="start" placeholder="start" value="{{ start }}"hidden>
+                <input type="text" class="form-control" id="end" placeholder="end" value="{{ end}}" hidden>
+
+
+      </div>
+    </div>
+
+  </form>
+  <div id="contents">
+    <hr />
+    {% if page.has_other_pages %}
+      <div class="pagination justify-content-center">
+
+          {% if page.has_previous %}
+          <a href="?&page={{page.previous_page_number}}" ng-click="clickMe()">Previous</a> -
+          {% endif %}
+          Page {{page.number}} / {{page.paginator.num_pages}}
+
+          {% if page.has_next %}
+            - <a href="?page={{page.next_page_number}}" ng-click="clickMe()">Next</a>
+          {% endif %}
+        </div>
+      {% endif %}
+          <hr />
+<div class="container">
+  <div class="row">
+
+    {% for item in page_obj %}
+
+          {% if forloop.counter == size%}
+        <div class="col-sm-4">
+          <div class="card-group">
+            <div class="card" >
+              <a href="{{ item.3|slice:"2:-2" }}"><img src="{{item.2|slice:"2:-2"}}"  /></a>
+
+              <div class="card-body">
+                <h5 class="card-title"><a href="{{ item.3|slice:"2:-2" }}">{{item.1|slice:"2:-2"}}</a></h5>
+                <p class="card-text">{{ item.0|slice:"2:150" }}</p>
+                <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-2" }}</small></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          {% else %}
+
+          <div class="col-sm-4">
+            <div class="card-group">
+              <div class="card" >
+                <a href="{{ item.3|slice:"2:-1" }}"><img src="{{item.2|slice:"2:-1"}}"  /></a>
+
+                <div class="card-body">
+                <h5 class="card-title"><a href="{{ item.3|slice:"2:-1" }}">{{item.1|slice:"2:-1"}}</a></h5>
+                <p class="card-text">{{ item.0|slice:"2:150" }}</p>
+                <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-1" }}</small></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+    {% endfor %}
+
+
+  </div>
+</div>
+  <hr />
+
+{% if page.has_other_pages %}
+
+    <div class="pagination justify-content-center">
+      <br />
+        {% if page.has_previous %}
+        <a href="?&page={{page.previous_page_number}}" ng-click="clickMe()">Previous</a> -
+        {% endif %}
+        Page {{page.number}} / {{page.paginator.num_pages}}
+
+        {% if page.has_next %}
+          - <a href="?page={{page.next_page_number}}" ng-click="clickMe()">Next</a>
+        {% endif %}
+      </div>
+
+  {% endif %}
+
+
+  </div>
+
+  <script type="text/javascript">
+
     $('#loaderDiv').hide();
           $('#submit').click(function(){
              $('#loaderDiv').show();
@@ -205,7 +279,7 @@
           $.ajax(
           {
               type:"POST",
-              url: "{% url 'tagviewer' comment.id%}",
+              url: "{% url 'tagviewer' comment.id %}",
               data:{
                        predefined_tags: predefined_tags_list,
                        user_tags: user_tags_list,
@@ -222,21 +296,13 @@
 
         } }); });
 
+
+
+
           </script>
-
-  </div>
-
-
-
-
 </div>
-
-<div class="col-12">
-  <hr />
-  <div class="page-header">
-      <h1><small class="pull-right">{{ size }} comments</small> Comments </h1>
-  </div>
 </div>
+<!--
 {% for item in comments_details %}
 
       {% if forloop.counter == size%}
@@ -247,7 +313,7 @@
 
           <div class="card-body">
             <h5 class="card-title"><a href="{{ item.3|slice:"2:-2" }}">{{item.1|slice:"2:-2"}}</a></h5>
-            <p class="card-text">{{ item.0|slice:"2:150" }}</p>
+            <p class="card-text">{{ item.0|slice:"2:-2" }}</p>
             <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-2" }}</small></p>
           </div>
         </div>
@@ -263,15 +329,14 @@
 
             <div class="card-body">
             <h5 class="card-title"><a href="{{ item.3|slice:"2:-1" }}">{{item.1|slice:"2:-1"}}</a></h5>
-            <p class="card-text">{{ item.0|slice:"2:150" }}</p>
+            <p class="card-text">{{ item.0|slice:"2:-1" }}</p>
             <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-1" }}</small></p>
             </div>
           </div>
         </div>
       </div>
       {% endif %}
+
 {% endfor %}
-{% for item in comments.items %}
-{{item}}
-{% endfor %}
+-->
 {% endblock %}

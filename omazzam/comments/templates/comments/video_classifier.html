@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="col-12">
+  <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a ng-click="clickMe()" href="{% url 'home'%}">Home</a></li>
+         <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'commentsdetail' comment.id%}">Comments Detail</a></li>
+
+      <li class="breadcrumb-item active">Classify The video ({{video.video_title}} ).</li>
+  </ol>
+</div>
+<div id="tag" class="col-12 text-center" >
+  {% if tags_indicator %}
+  <div class="myAlert-top alert alert-success" style="position: fixed;bottom: 0px;left:2%;width: 96%;z-index: 999;">
+
+
+           <form method="post" action="{% url 'langclassify' comment.id%}">
+               <strong>&#128515; Tag(s) was found Go to comments classifier &#128515; </strong><br />
+              {% csrf_token %}
+               <button  type="submit" class="btn btn-outline-primary btn-sm"  ng-click="clickMe()">Language Classifier</button>
+             </form>
+  </div>
+  <h3 class="text-center">Tags of this video: <span  class="badge badge-pill badge-success" >predefined tags</span> <span  class="badge badge-pill badge-secondary" > user tags</span> </h3>
+    <h2 class="text-center">&#128515;</h2>
+      <h5  class="text-center">
+
+        {% if user_tags_list %}
+            {% for tag in user_tags_list %}
+            <span  class="badge badge-pill badge-secondary" >{{tag}}</span>
+            {% endfor %}
+        {% endif %}
+        {% if predefined_tags_list %}
+            {% for tag in predefined_tags_list %}
+            <span  class="badge badge-pill badge-success" >{{tag}}</span>
+            {% endfor %}
+        {% endif %}
+    </h5>
+      {% else %}
+      <div class="myAlert-top alert alert-danger" style="position: fixed;bottom: 0px;left:2%;width: 96%;z-index: 999;">
+
+    <a class="myAlert-top alert alert-danger" style="text-decoration: none;" href="#form"> &#128531; please insert some Tag(s) , inorder to use our comments classifier app  &#128531;</a>
+
+      </div>
+      <h1 class="text-center"><span class="badge badge-danger">This video has no tags </span></h1>
+      <h2 class="text-center">&#128531;</h2>
+        {% endif %}
+
+        <hr />
+</div>
+<div class="container">
+  <div class="col-12">
+{% if video_classifier_indicator %}
+<!--  if video classified object is found   -->
+{% csrf_token %}
+<div class="caption"><h1><i class="fa fa-video-camera" aria-hidden="true"></i> Classify The Video :</h1>
+  <div id="status">
+
+</div>
+</div>
+<div class="text-center" style="border-top: 1px solid #eee;border-bottom:1px solid #eee;background:#fafafa;margin:30px 0;padding:20px 5px">
+    <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+    </div>
+<div class="form-group row">
+  <div class="input-group">
+    <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+      <h3><span  class="badge badge-pill badge-secondary" >Video's Domain: </span></h3>
+<select class="form-control form-control-lg" id="video_domain" name="video_domain">
+<option selected>{{video.video_category}}</option>
+      {% for categoryID,category in category_dictionary.items %}
+          {% if category == domain %}
+            <option value="{{category}}" selected>  {{category}}</option>
+              {% else %}
+            <option value="{{category}}" >  {{category}}</option>
+              {% endif %}
+              {% endfor %}
+        </select>
+    </div>
+    </div>
+    </div>
+    <div class="form-group row">
+  <div class="input-group">
+    <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+        <h3><span  class="badge badge-pill badge-secondary" >Video's title </span></h3>
+        <textarea id="video_name" name="video_title">{% for keyword in video_title%}
+          {{ keyword }},
+          {% endfor %}
+        </textarea>
+    </div>
+  </div>
+</div>
+        <div class="form-group row">
+      <div class="input-group">
+        <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+            <h3><span  class="badge badge-pill badge-secondary" >Video's specification </span></h3>
+            <textarea id="specification" name="video_specification">
+{% for keyword in video_specification%}
+  {{ keyword }},
+  {% endfor %}
+            </textarea>
+        </div>
+      </div>
+    </div>
+</div>
+<div id="fb-root"></div>
+<script type="text/javascript" src="{% static 'JS/tag-insertor/jquery.caret.min.js'%}"></script>
+<script type="text/javascript" src="{% static 'JS/tag-insertor/jquery.tag-editor.js'%}"></script>
+<script type="text/javascript" src="{% static 'JS/tag-insertor/jQuery_UI_autocomplete.js'%}">  </script>
+<!--       -->
+<button  id="submit" class="btn btn-primary btn-block"  type="submit" >Classify </button>
+<br />
+<p align="center">
+    © Opinion Mining By Eng.Azzam Ali {% now 'Y' %}
+</p>
+</form>
+<!-- end of test -->
+          {% else %}
+          <form id="form" class="border border-light p-5">
+            {% csrf_token %}
+            <div class="caption"><h1><i class="fa fa-video-camera" aria-hidden="true"></i> Classify The Video :</h1>
+              <div id="status">
+
+            </div>
+          </div>
+            <div class="text-center" style="border-top: 1px solid #eee;border-bottom:1px solid #eee;background:#fafafa;margin:30px 0;padding:20px 5px">
+                <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+                </div>
+            <div class="form-group row">
+              <div class="input-group">
+                <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+                  <h3><span  class="badge badge-pill badge-secondary" >Video's Domain: </span></h3>
+    <select class="form-control form-control-lg" id="video_domain" name="video_domain">
+        <option selected>{{video.video_category}}</option>
+                  {% for categoryID,category in category_dictionary.items %}
+                      {% if category == video.video_category %}
+                        <option value="{{category}}" selected>  {{category}}</option>
+                          {% else %}
+                        <option value="{{category}}" >  {{category}}</option>
+                          {% endif %}
+                          {% endfor %}
+                    </select>
+                </div>
+                </div>
+                </div>
+                <div class="form-group row">
+              <div class="input-group">
+                <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+                    <h3><span  class="badge badge-pill badge-secondary" >Video's title </span></h3>
+                    <textarea id="video_name" name="video_title">{{video.video_title}}</textarea>
+                </div>
+              </div>
+            </div>
+                    <div class="form-group row">
+                  <div class="input-group">
+                    <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
+                        <h3><span  class="badge badge-pill badge-secondary" >Video's specification </span></h3>
+                        <textarea id="specification" name="video_specification">{% if user_tags_list %}
+                                        {% for tag in user_tags_list %}
+                                        {{tag}},
+                                        {% endfor %}
+                                    {% endif %}
+                                  ,      {% if predefined_tags_list %}
+                                            {% for tag in predefined_tags_list %}
+                                            {{tag}},
+                                            {% endfor %}
+
+                                        {% endif %}</textarea>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div id="fb-root"></div>
+            <script type="text/javascript" src="{% static 'JS/tag-insertor/jquery.caret.min.js'%}"></script>
+            <script type="text/javascript" src="{% static 'JS/tag-insertor/jquery.tag-editor.js'%}"></script>
+            <script type="text/javascript" src="{% static 'JS/tag-insertor/jQuery_UI_autocomplete.js'%}">  </script>
+            <!--       -->
+            <button  id="submit" class="btn btn-primary btn-block"  type="submit" >Classify </button>
+            <br />
+            <p align="center">
+                © Opinion Mining By Eng.Azzam Ali {% now 'Y' %}
+            </p>
+            </form>
+          {% endif %}
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  $('#loaderDiv').hide();
+        $('#submit').click(function(){
+           $('#loaderDiv').show();
+             $('#status').empty();
+        var video_specification;
+        var video_domain;
+        var video_title;
+        video_specification = $('#specification').val();
+        video_domain = $('#video_domain').val();
+        video_title = $('#video_name').val();
+
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+          });
+        $.ajax(
+        {
+            type:"POST",
+            url: "{% url 'videoclassifed' video.id%}",
+            data:{
+              video_specification : video_specification,
+              video_domain : video_domain,
+              video_title : video_title,
+        },
+        success: function( data )
+        {
+          // payload
+
+        $("#loaderDiv").hide();
+        $("#status").empty();
+
+        if('success' in data){
+            $("#status").append( '<h3 class="alert alert-success">'+data['success']+'</h3>');
+        } else{
+            $("#status").append( '<h3 class="alert alert-success">'+data['state']+'</h3>');
+
+        }
+
+      } }); });
+
+
+        </script>
+{% endblock %}

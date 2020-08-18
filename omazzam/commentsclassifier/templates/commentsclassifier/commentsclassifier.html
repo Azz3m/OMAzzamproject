@@ -1,27 +1,190 @@
 {% extends 'base.html'%}
 {% load staticfiles %}
+{% load highlight %}
 {% block content %}
-
+<div id="fetcherDiv">
+  <div id ="cml" class="fetcher-loader">
+      {% include 'commentsclassifierloader.html' %}
+  </div>
+</div>
 <div class="container">
+
    <div class="col-12 text-center">
        <ol class="col-12 text-center breadcrumb">
-           <li class="breadcrumb-item"><a href="{% url 'home'%}">Home</a></li>
-           <li class="breadcrumb-item active">{{video_Object.video_title}}</li>
+           <li class="breadcrumb-item"><a ng-click="clickMe()" href="{% url 'home'%}">Home</a></li>
+             <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'commentsdetail' comment_classifier_obj.comment_object.id%}">Comments Detail</a></li>
+              <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'videoclassifer' comment_classifier_obj.comment_object.id %}">Classify Video</a></li>
+             <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'langclassify' comment_classifier_obj.comment_object.id%}">Language Classifier </a></li>
+           <li class="breadcrumb-item active">{{comment_classifier_obj.video_Object.video_title}}</li>
        </ol>
        <div class="col-12 text-center">
-          <h3>Language classifier for :{{video_Object.video_title}}  </h3>
+          <h3>Comment classifier for :{{video_Object.video_title}}  </h3>
           <hr>
-          {{status}}
-       </div>
-   </div>
-   <div class="col-12">
-     <hr />
-     <div class="page-header">
-         <h1><small class="pull-right">{{ total_processed }} comments</small> Comments </h1>
-     </div>
-   </div>
+          <h5><span class="badge badge-pill badge-secondary" >Userdefined Tag</span>
+  <span class="badge badge-pill badge-success" >Predefined Tag</span></h5>
+{% if tags_indicator %}
+  {% if user_tags_list %}
+      {% for tag in user_tags_list %}
+      <span  class="badge badge-pill badge-secondary" >{{tag}}</span>
+      {% endfor %}
+  {% endif %}
+  {% if predefined_tags_list %}
+      {% for tag in predefined_tags_list %}
+      <span  class="badge badge-pill badge-success" >{{tag}}</span>
+      {% endfor %}
+  {% endif %}
+{% else %}
+<h5><span class="badge badge-pill badge-danger" >&#128531;This video has no tags please return to tags Insertor in order  process tag classifications process &#128531;</span>></h5>
 
-</div>
+{% endif %}
+
+
+       </div>
+
+   </div>
+   <div class="page-header">
+       <h1><small class="pull-right">{{ total_processed }} comments</small> Total Proccessed  </h1>
+   </div>
+ </div>
+
+
+  <div class="col-12">
+    <hr />
+
+  </div>
+
+
+
+        <div class="col-12 text-center">
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="btn-group">
+
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" data-toggle="dropdown">
+                   English
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="pure_english" class="btn btn-secondary submit dropdown-item"name="pure_english_dic" value="pure_english_dic">pure_english_comments</button>
+                  <button type="submit" id="emoji_pure_english_dic" class="btn btn-secondary submit dropdown-item"name="emoji_pure_english_dic" value="emoji_pure_english_dic">emoji_pure_english_comments</button>
+                  <button type="submit" id="emoji_english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_english_with_others_dic" value="emoji_english_with_others_dic">emoji_english_with_others_comments</button>
+                  <button type="submit" id="english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="english_with_others_dic" value="english_with_others_dic">english_with_others_comments</button>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" data-toggle="dropdown">
+                   Arabic
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="pure_arabic" class="btn btn-secondary submit dropdown-item"name="pure_arabic_dic" value="pure_arabic_dic">pure_arabic_comments</button>
+                  <button type="submit" id="arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="arabic_with_others_dic" value="arabic_with_others_dic">arabic_with_others_comments</button>
+                  <button type="submit" id="emoji_arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_arabic_with_others_dic" value="emoji_arabic_with_others_dic">emoji_arabic_with_others_comments</button>
+
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" data-toggle="dropdown">
+                   Mixed Language
+                </button>
+                <div class="dropdown-menu">
+                <button type="submit" id="ar_en_dic" class="btn btn-secondary submit dropdown-item"name="ar_en_dic" value="ar_en_dic">ar_en_comments</button>
+                <button type="submit" id="emoji_ar_en_dic" class="btn btn-secondary submit dropdown-item"name="emoji_ar_en_dic" value="emoji_ar_en_dic">emoji_ar_en_comments</button>
+                <button type="submit" id="mixed_lang_dic" class="btn btn-secondary submit dropdown-item"name="mixed_lang_dic" value="mixed_lang_dic">mixed_lang_comments</button>
+
+                <button type="submit" id="emoji_mixed_lang_dic" class="btn btn-secondary submit dropdown-item"name="emoji_mixed_lang_dic" value="emoji_mixed_lang_dic">emoji_mixed_lang_comments</button>
+
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" data-toggle="dropdown">
+                   Pure Emoji
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="pure_emoji_dic" class="btn btn-secondary submit dropdown-item"name="pure_emoji_dic dropdown-item" value="pure_emoji_dic">pure_emoji_comments</button>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" data-toggle="dropdown">
+                   Other Language
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="other_language_dic" class="btn btn-secondary submit dropdown-item"name="other_language_dic" value="other_language_dic">other_language_dic</button>
+
+                  <button type="submit" id="emoji_other_language_dic" class="btn btn-secondary submit dropdown-item"name="emoji_other_language_dic" value="emoji_other_language_dic">emoji_other_language_comments</button>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" data-toggle="dropdown">
+                   Useless & Exceptions
+                </button>
+                <div class="dropdown-menu">
+                  <button type="submit" id="exceptions_dic" class="btn btn-secondary submit dropdown-item"name="exceptions_dic" value="exceptions_dic">exceptions_comments</button>
+                  <button type="submit" id="useless_comment_dic" class="btn btn-secondary submit dropdown-item"name="useless_comment_dic" value="useless_comment_dic">useless_comments</button>
+                  <button type="submit" id="emoji_exceptions_dic" class="btn btn-secondary submit dropdown-item"name="emoji_exceptions_dic" value="emoji_exceptions_dic">emoji_exceptions_comments</button>
+                  <button type="submit" id="emoji_useless_comment_dic" class="btn btn-secondary submit dropdown-item"name="emoji_useless_comment_dic" value="emoji_useless_comment_dic">emoji_useless_comments</button>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
+          </form>
+        </div>
+
+        <div id="contents"  class="col-12" >
+
+        </div>
+
+        <script type="text/javascript">
+              $("#fetcherDiv").hide();
+              /*$('#loaderDiv').hide();*/
+
+            $('.dropdownlist').on('click', function () {
+
+              $(this).css("color", "black").slideUp(50).slideDown(2000);
+              var outterbutton = $(this);
+              $('.dropdownlist').css("color", "white");
+              $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
+
+
+
+              $('.submit').on('click', function () {
+                var dic_name = $(this).val();
+
+                $(this).removeClass("btn-secondary").addClass("btn-warning");
+                $("#fetcherDiv").show();
+              $.ajaxSetup({
+                  headers: { "X-CSRFToken": '{{csrf_token}}' }
+                });
+              $.ajax(
+              {
+                  type:"POST",
+                  url: "{% url 'dictionariesfetcher' comment_classifier_obj.id %}",
+                  data:{
+                    dic_name :dic_name ,
+                  },
+              success: function( data )
+              {
+                // payload
+                var url = "{% url 'dectionaryviewer' lang_classifier_obj_id "+'dic_name'+" %}".replace("dic_name",data.success);
+                url = url.replace("+&#39;","");
+                url = url.replace("&#39;+","");
+                $('#contents').empty();
+                $('#contents').html('').load(url,function(){
+                          $("#fetcherDiv").hide();
+                }).slideDown(50);
+                url = "";
+                $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
+                outterbutton.removeClass("btn-primary").addClass("btn-success");
+
+            }});  });});
+        </script>
+
+
+
 
 
 

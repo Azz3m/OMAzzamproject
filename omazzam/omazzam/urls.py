@@ -16,12 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from comments import views
-
+from accounts import views as account
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('contactus/',include('contactus.urls')),
-    path('accounts/',include('accounts.urls')),
+    path('accounts/signup/', account.signup, name="signup"),
+    path('accounts/login/', account.login, name="login"),
+    path('accounts/logout/', account.logout, name="logout"),
+    #path('accounts/',include('accounts.urls')),
     path('comments/',include('comments.urls')),
     path('commentsclassifier/',include('commentsclassifier.urls')),
 ]
