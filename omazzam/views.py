@@ -100,11 +100,9 @@ def langcommentsclassifier(request,comment_id):
             print("successfully got Videoinformation object  under : ", comment_obj.videoInfo)
             print("total_processed comments : ",str(total_processed))
             print("redirecting to comment classifier page .......")
-            print(comment_obj.id)
             context = {
             "lang_classifier":lang_classifier,
             "comment_obj":comment_obj,
-            "comment_id":comment_obj.id,
             "video_Object":video_Object,
             "total_processed":total_processed
             }
@@ -122,7 +120,6 @@ def commentsclassifier(request,lang_classifier_obj_id):
         dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
         language_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
         total_processed = comment_classifier_obj.get_length(language_classifier_obj)
-
         context = {
         "total_processed":total_processed,
         "lang_classifier_obj_id":lang_classifier_obj_id,
@@ -145,22 +142,17 @@ def commentsclassifier(request,lang_classifier_obj_id):
         dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary.pure_english_dic)
         language_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
         total_processed = comment_classifier_obj.get_length(language_classifier_obj)
-
-        context = {
-        "total_processed":total_processed,
-        "lang_classifier_obj_id":lang_classifier_obj_id,
-        "video_Object":video_Object,
-        "tags_indicator":tags_indicator,
-        "predefined_tags_list":predefined_tags_list,
-        "user_tags_list":user_tags_list,
-        "comment_classifier_obj":comment_classifier_obj,
-        "pure_english_dic":dictionary
-        }
-        return render(request,'commentsclassifier/commentsclassifier.html',context)
-
-
-
-
+    context = {
+    "total_processed":total_processed,
+    "lang_classifier_obj_id":lang_classifier_obj_id,
+    "video_Object":video_Object,
+    "tags_indicator":tags_indicator,
+    "predefined_tags_list":predefined_tags_list,
+    "user_tags_list":user_tags_list,
+    "comment_classifier_obj":comment_classifier_obj,
+    "pure_english_dic":dictionary
+    }
+    return render(request,'commentsclassifier/commentsclassifier.html',context)
 
 def langdictionariesfetcher(request,lang_classifier_obj_id):
     lang_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
@@ -179,135 +171,11 @@ def langdectionaryviewer(request,comment_id,dic_name):
         dictionary_name = dic_name
         status,dictionary,video_Object = lang_classifier_obj.dictionary_viewer(lang_classifier_obj,dictionary_name)
         if status == True:
-            texts = list()
-            authors = list()
-            images = list()
-            channelsURL = list()
-            dates = list()
-            indexes = list()
-            predefined = list()
-            predefined_pack = list()
-            predefined_tag_repeat = list()
-            userdefined = list()
-            userdefined_pack = list()
-            user_tag_repeat = list()
-
-            video_titles_linker = list()
-            video_specification_linker = list()
-            for key,item in dictionary.items():
-                texts.append(item['single_comment'])
-                authors.append(item['author'])
-                images.append(item['img'])
-                channelsURL.append(item['url'])
-                dates.append(item['date'])
-                indexes.append(item['i'])
-
-                if 'predefined_pack' in item:
-                    predefined_pack.append(item['predefined_pack'])
-                    predefined_tag_repeat.append(item['predefined_tag_repeat'])
-                    predefined.append(item['predefined'])
-                else:
-                    predefined_pack.append(False)
-                    predefined_tag_repeat.append(False)
-                    predefined.append(False)
-
-                if 'userdefined' in item:
-                    userdefined.append(item['userdefined'])
-                    user_tag_repeat.append(item['user_tag_repeat'])
-                    userdefined_pack.append(item['userdefined_pack'])
-                else:
-                    userdefined.append(False)
-                    user_tag_repeat.append(False)
-                    userdefined_pack.append(False)
-
-                if 'video_titles_linker' in item:
-                    video_titles_linker.append(item['video_titles_linker'])
-                else:
-                    video_titles_linker.append(False)
-                if 'video_specification_linker' in item:
-                    video_specification_linker.append(item['video_specification_linker'])
-                else:
-                    video_specification_linker.append(False)
-
-
-            paginator = Paginator(texts, 1000)
-            page = request.GET.get('page')
-            texts = paginator.get_page(page)
-
-            paginator2 = Paginator(authors, 1000)
-            page2 = request.GET.get('page')
-            authors = paginator2.get_page(page2)
-
-            paginator3 = Paginator(images, 1000)
-            page3 = request.GET.get('page')
-            images = paginator3.get_page(page3)
-
-            paginator4 = Paginator(channelsURL, 1000)
-            page4 = request.GET.get('page')
-            channelsURL = paginator4.get_page(page4)
-
-            paginator5 = Paginator(dates, 1000)
-            page5 = request.GET.get('page')
-            dates = paginator5.get_page(page5)
-
-            paginator6 = Paginator(indexes, 1000)
-            page = request.GET.get('page')
-            indexes = paginator6.get_page(page)
-
-            paginator8 = Paginator(predefined_pack, 1000)
-            page = request.GET.get('page')
-            predefined_pack = paginator8.get_page(page)
-
-            paginator9 = Paginator(predefined_tag_repeat, 1000)
-            page = request.GET.get('page')
-            predefined_tag_repeat = paginator9.get_page(page)
-
-            paginator10 = Paginator(predefined, 1000)
-            page = request.GET.get('page')
-            predefined = paginator10.get_page(page)
-
-            paginator11 = Paginator(userdefined_pack, 1000)
-            page = request.GET.get('page')
-            userdefined_pack = paginator11.get_page(page)
-
-            paginator12 = Paginator(user_tag_repeat, 1000)
-            page = request.GET.get('page')
-            user_tag_repeat = paginator12.get_page(page)
-
-            paginator13 = Paginator(userdefined, 1000)
-            page = request.GET.get('page')
-            userdefined = paginator13.get_page(page)
-
-            paginator14 = Paginator(video_titles_linker, 1000)
-            page = request.GET.get('page')
-            video_titles_linker = paginator14.get_page(page)
-
-            paginator15 = Paginator(video_specification_linker, 1000)
-            page = request.GET.get('page')
-            video_specification_linker = paginator15.get_page(page)
-
-
-
-            page_obj = zip(texts,authors,images,channelsURL,dates,indexes,predefined_pack,predefined_tag_repeat,predefined,userdefined,user_tag_repeat,userdefined_pack,video_titles_linker,video_specification_linker)
-            texts = list()
-            for key,item in dictionary.items():
-                texts.append(item['single_comment'])
-
-
-
-            paginator7 = Paginator(texts, 1000)
-            page = request.GET.get('page')
-            texts = paginator7.get_page(page)
-            print(comment_id)
 
             context = {
             "video_Object":video_Object,
-            'comment_id':comment_id,
             "dic":dictionary,
             'dic_name':dic_name,
-            "dic":dictionary,
-            'page_obj': page_obj,
-            "page":texts
 
             }
             return render(request,'commentsclassifier/lang_dic_viewer.html',context)
@@ -354,120 +222,44 @@ def dectionaryviewer(request,lang_classifier_obj_id,dic_name):
             images = list()
             channelsURL = list()
             dates = list()
-            indexes = list()
-            predefined = list()
-            predefined_pack = list()
-            predefined_tag_repeat = list()
-            userdefined = list()
-            userdefined_pack = list()
-            user_tag_repeat = list()
 
-            video_titles_linker = list()
-            video_specification_linker = list()
             for key,item in dictionary.items():
                 texts.append(item['single_comment'])
                 authors.append(item['author'])
                 images.append(item['img'])
                 channelsURL.append(item['url'])
                 dates.append(item['date'])
-                indexes.append(item['i'])
 
-                if 'predefined_pack' in item:
-                    predefined_pack.append(item['predefined_pack'])
-                    predefined_tag_repeat.append(item['predefined_tag_repeat'])
-                    predefined.append(item['predefined'])
-                else:
-                    predefined_pack.append(False)
-                    predefined_tag_repeat.append(False)
-                    predefined.append(False)
-
-                if 'userdefined' in item:
-                    userdefined.append(item['userdefined'])
-                    user_tag_repeat.append(item['user_tag_repeat'])
-                    userdefined_pack.append(item['userdefined_pack'])
-                else:
-                    userdefined.append(False)
-                    user_tag_repeat.append(False)
-                    userdefined_pack.append(False)
-
-                if 'video_titles_linker' in item:
-                    video_titles_linker.append(item['video_titles_linker'])
-                else:
-                    video_titles_linker.append(False)
-                if 'video_specification_linker' in item:
-                    video_specification_linker.append(item['video_specification_linker'])
-                else:
-                    video_specification_linker.append(False)
-
-
-            paginator = Paginator(texts, 1000)
+            paginator = Paginator(texts, 500)
             page = request.GET.get('page')
             texts = paginator.get_page(page)
 
-            paginator2 = Paginator(authors, 1000)
+            paginator2 = Paginator(authors, 500)
             page2 = request.GET.get('page')
             authors = paginator2.get_page(page2)
 
-            paginator3 = Paginator(images, 1000)
+            paginator3 = Paginator(images, 500)
             page3 = request.GET.get('page')
             images = paginator3.get_page(page3)
 
-            paginator4 = Paginator(channelsURL, 1000)
+            paginator4 = Paginator(channelsURL, 500)
             page4 = request.GET.get('page')
             channelsURL = paginator4.get_page(page4)
 
-            paginator5 = Paginator(dates, 1000)
+            paginator5 = Paginator(dates, 500)
             page5 = request.GET.get('page')
             dates = paginator5.get_page(page5)
 
-            paginator6 = Paginator(indexes, 1000)
-            page = request.GET.get('page')
-            indexes = paginator6.get_page(page)
-
-            paginator8 = Paginator(predefined_pack, 1000)
-            page = request.GET.get('page')
-            predefined_pack = paginator8.get_page(page)
-
-            paginator9 = Paginator(predefined_tag_repeat, 1000)
-            page = request.GET.get('page')
-            predefined_tag_repeat = paginator9.get_page(page)
-
-            paginator10 = Paginator(predefined, 1000)
-            page = request.GET.get('page')
-            predefined = paginator10.get_page(page)
-
-            paginator11 = Paginator(userdefined_pack, 1000)
-            page = request.GET.get('page')
-            userdefined_pack = paginator11.get_page(page)
-
-            paginator12 = Paginator(user_tag_repeat, 1000)
-            page = request.GET.get('page')
-            user_tag_repeat = paginator12.get_page(page)
-
-            paginator13 = Paginator(userdefined, 1000)
-            page = request.GET.get('page')
-            userdefined = paginator13.get_page(page)
-
-            paginator14 = Paginator(video_titles_linker, 1000)
-            page = request.GET.get('page')
-            video_titles_linker = paginator14.get_page(page)
-
-            paginator15 = Paginator(video_specification_linker, 1000)
-            page = request.GET.get('page')
-            video_specification_linker = paginator15.get_page(page)
-
-
-
-            page_obj = zip(texts,authors,images,channelsURL,dates,indexes,predefined_pack,predefined_tag_repeat,predefined,userdefined,user_tag_repeat,userdefined_pack,video_titles_linker,video_specification_linker)
+            page_obj = zip(texts,authors,images,channelsURL,dates)
             texts = list()
             for key,item in dictionary.items():
                 texts.append(item['single_comment'])
 
 
-
-            paginator7 = Paginator(texts, 1000)
+            paginator7 = Paginator(texts, 500)
             page = request.GET.get('page')
             texts = paginator7.get_page(page)
+            print(texts)
 
 
             context = {

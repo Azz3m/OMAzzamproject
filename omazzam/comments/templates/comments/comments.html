@@ -238,7 +238,7 @@
           {% endif %}
 
     {% endfor %}
-
+<br />
 
   </div>
 </div>
@@ -247,7 +247,7 @@
 {% if page.has_other_pages %}
 
     <div class="pagination justify-content-center">
-      <br />
+      
         {% if page.has_previous %}
         <a href="?&page={{page.previous_page_number}}" ng-click="clickMe()">Previous</a> -
         {% endif %}

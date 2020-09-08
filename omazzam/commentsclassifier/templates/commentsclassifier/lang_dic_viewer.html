@@ -1,7 +1,11 @@
+{% load highlight %}
+
+
 
 <div id="header" class="col-12">
 <hr />
 {% if dic|length > 0 %}
+
   <div class="page-header">
     <h1><small class="pull-right">
       {{ dic|length }} comments</small> <span class="badge badge-success" title="{{ dic|length }}"> {{ dic_name }} </span></h1>
@@ -12,41 +16,86 @@
   <div class="page-header">
     <h1><small class="pull-right">
       0 comments</small> <span class="badge badge-danger" title="{{ dic|length }}"> {{ dic_name }} </span> </h1>
+
     </div>
-</div>
+
 
 {% endif %}
 
-<div class="container">
 
 
-<div class="row">
-{% if dic|length > 0 %}
-<br />
-{% for key,item in dic.items %}
+  {% if dic|length > 0 %}
+  <hr />
+  {% if page.has_other_pages %}
+  <input type="text" class="currentPage" value="{{page.number}} " hidden/>
+  <input type="text" class="numberOfPages" value="{{page.paginator.num_pages}} " hidden/>
 
-   <div class="col-sm-4" title="{{ item.i }}">
-     <div class="card-group">
-       <div class="card" >
-         <a href="{{ item.url }}"><img src="{{item.img}}"  /></a>
+    <div class="pagination justify-content-center" style="border-style: solid;border-width: 1px;">
 
-         <div class="card-body">
-         <h5 class="card-title"><a href="{{ item.url}}">{{item.author}}</a></h5>
-         <p class="card-text">{{ item.single_comment|slice:"0:150" }}</p>
-         <p class="card-text"><small class="text-muted">Last updated {{ item.date }}</small></p>
-         </div>
-       </div>
-     </div>
-   </div>
-{% endfor %}
 
-      {% else %}
-
-      <div class="col-12 text-center">
-      <h3> This video hasn't any {{ dic_name }} comments .</h3> 
       </div>
+    {% endif %}
+        <hr />
+          <div class="container" style="border-style: solid;border-width: 1px;">
+
+
+          <div class="row">
+            <hr />
+
+
+                  {% for item in page_obj %}
+
+
+                      <div class="col-sm-4">
+                        <div class="card-group">
+                          <div class="card" title="" >
+                            <a href="{{ item.3  }}">
+                              <img src="{{item.2 }}"  />
+                              <h5 class="card-title">
+                                <a href="{{ item.3  }}">{{item.1 }}
+                              </a>
+                            </h5>
+                          </a>
+
+                            <div class="card-body">
+
+                              <p class="card-text" title="{{item.5}}">
+
+                                <p class="card-text "title="{{ item.5 }}">{{ item.0|slice:"0:200"}}</p><br />
+                                <p class="card-text"style="position:absolute;right:3px;bottom:5px;" >
+                                  <small class="text-muted">
+                                    Last updated {{ item.4 }}
+                                  </small>
+                                </p>
+
+
+
+
+                               </p>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  {% endfor %}
+
+
+
+
+</div>
+</div>
+{% if page.has_other_pages %}
+  <hr />  <br />
+  <div class="pagination justify-content-center" style="border-style: solid;border-width: 1px;display: flex;overflow-x: auto;">
+
+
+    </div>
+  {% endif %}        <hr />
+      {% else %}
+      <div class="col-12 text-center">
+      <h3> This video hasn't any {{ dic_name }} comments .</h3>
+      </div>
+
+
+
 {% endif %}
-</div>
-
-
-</div>

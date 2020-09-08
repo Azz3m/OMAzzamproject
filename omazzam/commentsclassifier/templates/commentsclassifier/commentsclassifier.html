@@ -66,7 +66,7 @@
                    English
                 </button>
                 <div class="dropdown-menu">
-                  <button type="submit" id="pure_english" class="btn btn-secondary submit dropdown-item"name="pure_english_dic" value="pure_english_dic">pure_english_comments</button>
+                  <button type="submit" id="pure_english" class="btn btn-secondary submit dropdown-item"name="pure_english_dic" value="pure_english_dic" >pure_english_comments</button>
                   <button type="submit" id="emoji_pure_english_dic" class="btn btn-secondary submit dropdown-item"name="emoji_pure_english_dic" value="emoji_pure_english_dic">emoji_pure_english_comments</button>
                   <button type="submit" id="emoji_english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_english_with_others_dic" value="emoji_english_with_others_dic">emoji_english_with_others_comments</button>
                   <button type="submit" id="english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="english_with_others_dic" value="english_with_others_dic">english_with_others_comments</button>
@@ -77,7 +77,7 @@
                    Arabic
                 </button>
                 <div class="dropdown-menu">
-                  <button type="submit" id="pure_arabic" class="btn btn-secondary submit dropdown-item"name="pure_arabic_dic" value="pure_arabic_dic">pure_arabic_comments</button>
+                  <button type="submit" id="pure_arabic" class="btn btn-secondary submit dropdown-item"name="pure_arabic_dic" value="pure_arabic_dic" >pure_arabic_comments</button>
                   <button type="submit" id="arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="arabic_with_others_dic" value="arabic_with_others_dic">arabic_with_others_comments</button>
                   <button type="submit" id="emoji_arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_arabic_with_others_dic" value="emoji_arabic_with_others_dic">emoji_arabic_with_others_comments</button>
 
@@ -136,6 +136,7 @@
 
         <div id="contents"  class="col-12" >
 
+
         </div>
 
         <script type="text/javascript">
@@ -169,18 +170,158 @@
               success: function( data )
               {
                 // payload
+
                 var url = "{% url 'dectionaryviewer' lang_classifier_obj_id "+'dic_name'+" %}".replace("dic_name",data.success);
                 url = url.replace("+&#39;","");
                 url = url.replace("&#39;+","");
-                $('#contents').empty();
+                var nextPageBaseUrl = url + "?page=" ;
+                var prevPageBaseUrl = url + "?&page=" ;
+                var numberOfPages = 0 ;
+                var currentPage = 0 ;
                 $('#contents').html('').load(url,function(){
-                          $("#fetcherDiv").hide();
-                }).slideDown(50);
-                url = "";
+                currentPageStr = $('.currentPage').val();
+                numberOfPagesStr = $('.numberOfPages').val();
+                currentPage = parseInt(currentPageStr);
+                nextPageNum = currentPage + 1 ;
+                nextPageNumStr = nextPageNum.toString();
+                numberOfPages = parseInt(numberOfPagesStr);
+                var pageURL = "" ;
+                nextPageUrl = nextPageBaseUrl + nextPageNumStr ;
+                var temp = "";
+                if(numberOfPages > 1){
+                  var text = '<nav style="border-style: dotted;border-width: thick;" aria-label="Page navigation example"><h3 class="justify-content-center">Pages</h3><ul class="pagination">';
+                  var active = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+
+
+
+
+                  $('.pagination').empty();
+                  for(var i = 1 ;i <= numberOfPages;i++){
+
+                    pageURL = nextPageBaseUrl + i;
+                    if(i == currentPage){
+
+                    }else{
+
+                    }
+                    if(i == numberOfPages){
+                      if(i == currentPage){
+                        text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                        text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                      }else{
+                        text = '<li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'" aria-label="Last-Page"><span aria-hidden="true">'+i.toString()+'</span>';
+                        text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                      }
+                      $('.pagination').append(text);
+                    }else if(i == 1){
+                      if(i == currentPage){
+                        text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                        text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                      }else{
+                        text = ' <li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'" aria-label="First-Page">';
+                        text += '<span aria-hidden="true">'+i.toString()+'</span><span class="sr-only">First-Page</span></a></li>';
+                      }
+
+                      $('.pagination').append(text);
+                    }else{
+                      if(i == currentPage){
+                        text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                        text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                      }else{
+                        text = '<li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'">'+i.toString()+'</a></li> ';
+                      }
+
+
+                      $('.pagination').append(text);
+                    }
+
+
+
+
+                  }
+
+
+                  }
+                  $(document).on("click", "a.urls" , function(e) {
+                    $("#fetcherDiv").show();
+                    e.stopPropagation();
+                    e.preventDefault();
+                    temp = $(this).attr('href');
+                    $('#contents').empty();
+
+                    $('#contents').html('').load(temp,function(){
+                      for(var i = 1 ;i <= numberOfPages;i++){
+                        currentPageStr = $('.currentPage').val();
+                        currentPage = parseInt(currentPageStr);
+                        pageURL = nextPageBaseUrl + i;
+                        if(i == currentPage){
+
+                        }else{
+
+                        }
+                        if(i == numberOfPages){
+                          if(i == currentPage){
+                            text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                            text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                          }else{
+                            text = '<li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'" aria-label="Last-Page"><span aria-hidden="true">'+i.toString()+'</span>';
+                            text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                          }
+                          $('.pagination').append(text);
+                        }else if(i == 1){
+                          if(i == currentPage){
+                            text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                            text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                          }else{
+                            text = ' <li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'" aria-label="First-Page">';
+                            text += '<span aria-hidden="true">'+i.toString()+'</span><span class="sr-only">First-Page</span></a></li>';
+                          }
+
+                          $('.pagination').append(text);
+                        }else{
+                          if(i == currentPage){
+                            text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                            text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                          }else{
+                            text = '<li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'">'+i.toString()+'</a></li> ';
+                          }
+
+
+                          $('.pagination').append(text);
+                        }
+
+
+
+
+
+                      }
+                      $("#fetcherDiv").hide();
+
+                    });
+
+
+                  });
+
+
+                $("#fetcherDiv").hide();
+
+              });
+
+
+
+
+
                 $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
                 outterbutton.removeClass("btn-primary").addClass("btn-success");
 
-            }});  });});
+
+            }});
+
+
+
+
+            });
+          });
         </script>
 
 

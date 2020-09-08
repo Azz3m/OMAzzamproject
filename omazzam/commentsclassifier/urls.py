@@ -12,6 +12,9 @@ urlpatterns = [
     path('langdectionaryviewer/<int:comment_id>/<str:dic_name>/', cs.langdectionaryviewer, name="langdectionaryviewer"),
 
 
-    path('dictionariesfetcher/<int:comment_classifier_obj_id>', cs.commentclassifierdictionariesfetcher, name="dictionariesfetcher"),
+    path('dictionariesfetcher/<int:comment_classifier_obj_id>/', cs.commentclassifierdictionariesfetcher, name="dictionariesfetcher"),
     path('dectionaryviewer/<int:lang_classifier_obj_id>/<str:dic_name>/', cs.dectionaryviewer, name="dectionaryviewer"),
+
+
+
     ]

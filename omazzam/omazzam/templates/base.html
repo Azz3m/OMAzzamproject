@@ -35,7 +35,7 @@
     <script type="text/javascript" src="{% static 'node_modules/popper.js/dist/umd/popper.min.js'%}"></script>
     <script type="text/javascript" src="{% static 'node_modules/bootstrap/dist/js/bootstrap.min.js'%}"></script>
 
-
+    <script src="https://kit.fontawesome.com/ba84dbd1c7.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="{% static 'JS/jquery-ui.min.js'%}"></script>
 
 
@@ -68,6 +68,8 @@
            {% url 'signup' as signup %}
            {% url 'login' as login %}
             {% if user.is_authenticated %}
+
+                <li class="nav-item"><a  id="editeaccount" class="nav-link"><span class="fa fa-user-edit" aria-hidden="true"></span>Edit Profile </a></li>
                 <li ng-click="clickMe()"class="nav-item"><a  class="nav-link" href="javascript:{document.getElementById('logout').submit()}"><span class="fa fa-sign-out"></span>logout</a></li>
 
             <form id='logout' method="POST" action="{% url 'logout' %}">
@@ -188,6 +190,9 @@
         {% block signup%}
           {% include 'accounts/signup.html'%}
         {% endblock %}
+        {% block edite_account%}
+          {% include 'accounts/edite_profile.html'%}
+        {% endblock %}
     <loading name="loader" class="text-center"></loading>
         {% block content%}
         {% endblock %}
@@ -276,15 +281,254 @@ else if ($("#carouselButton").children("span").hasClass('fa-play')){
 });
 $("#login").click(function(){
 $("#loginModal").modal('show');
+$("#editeAccountModel").modal('hide');
 $("#signupModal").modal('hide');
+
 });
 
 $("#signup").click(function(){
 $("#signupModal").modal('show');
+$("#editeAccountModel").modal('hide');
 $("#loginModal").modal('hide');
+
+
+});
+$("#editeaccount").click(function(){
+$("#signupModal").modal('hide');
+$("#loginModal").modal('hide');
+$("#estate").empty();
+  $("#estate").hide();
+$("#editeAccountModel").modal('show');
+$('#submit_edite_account').click(function(){
+  var username = $('#eusername').val();
+  var password = $('#epassword2').val();
+  var password1 = $('#epassword1').val();
+  var email = $('#eemail').val();
+  var api_key = $('#ekey').val();
+
+if (password == password1){
+  $.ajaxSetup({
+      headers: { "X-CSRFToken": '{{csrf_token}}' }
+    });
+  $.ajax(
+    {
+        type:"POST",
+        url: "{% url 'editeaccount' %}",
+        data:{
+        username : username,
+        password : password,
+        email : email,
+        api_key : api_key
+
+    },
+    success: function( data )
+    {
+            // payload
+
+          if(data['state'] == 'success'){
+
+      $("#estate").show();
+   $("#estate").html("<h2 class='alert alert-success'>user successfully updated</h2>");
+      setTimeout(function(){
+        $('#loaderDiv').show();
+        location.reload();
+      }, 3000);
+    }else{
+      $("#estate").html("<h2 class='alert alert-danger'>some error is happened</h2>");
+    }
+   $("#estate").show();
+      },
+
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+      $("#estate").html("<h2 class='alert alert-danger'>some error is happened</h2>");
+         $("#estate").show();
+    }
+  });
+}else{
+
+}
+});
+
+
+
 
 });
 
+// API confirmation validation for Edite PRofile
+$('#confirmMessageEdite').hide();
+function checkAPIEdite(){
+
+  var api_key = $('#ekey').val();
+
+  $.ajaxSetup({
+      headers: { "X-CSRFToken": '{{csrf_token}}' }
+    });
+  $.ajax(
+    {
+        type:"POST",
+        url: "{% url 'testapi' %}",
+        data:{
+          "api_key" : api_key ,
+    },
+    success: function( data )
+    {
+            // payload
+if(data['state'] == 'success'){
+  $('#ekey').css("background-color", "LightGreen");
+
+}else{
+$('#ekey').css("background-color", "Tomato");
+}
+      },
+
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+
+    }
+  });
+}
+// password for edite account
+function checkPassEdite()
+{
+$('#confirmMessageEdite').hide();
+var password1= $('#epassword1').val();
+var password2= $('#epassword2').val();
+      if(password1 != password2) {
+
+$('#epassword2').css("background-color", "Tomato");
+
+$('#confirmMessageEdite').html("password mismatched");
+$('#confirmMessageEdite').css("background-color", "Tomato");
+$('#confirmMessageEdite').show();
+
+      }else{
+
+$('#epassword2').css("background-color", "LightGreen");
+
+$('#confirmMessageEdite').html("password matched");
+$('#confirmMessageEdite').css("background-color", "LightGreen");
+$('#confirmMessageEdite').show();
+      }
+
+
+}
+
+$.ajaxSetup({
+    headers: { "X-CSRFToken": '{{csrf_token}}' }
+  });
+$.ajax(
+  {
+      type:"POST",
+      url: "{% url 'accountgetter' %}",
+      data:{
+
+
+  },
+  success: function( data )
+  {
+          // payload
+
+        if(data['state'] == 'success'){
+
+$('#eusername').val(data['username']);
+
+$('#eemail').val(data['email']);
+$('#ekey').val(data['api_key']);
+      }
+
+    },
+
+  error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+
+  }
+});
+
+
+// API confirmation validation for SignUP
+
+function checkAPISignUP(){
+
+  var api_key = $('#key').val();
+
+  $.ajaxSetup({
+      headers: { "X-CSRFToken": '{{csrf_token}}' }
+    });
+  $.ajax(
+    {
+        type:"POST",
+        url: "{% url 'testapi' %}",
+        data:{
+          "api_key" : api_key ,
+    },
+    success: function( data )
+    {
+      console.log(data);      // payload
+if(data['state'] == 'success'){
+  $('#key').css("background-color", "LightGreen");
+
+}else{
+$('#key').css("background-color", "Tomato");
+}
+      },
+
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+
+    }
+  });
+}
+// password for SignUP
+function checkPassSignUP()
+{
+$('#confirmMessageSignUP').hide();
+var password1= $('#password1').val();
+var password2= $('#password2').val();
+      if(password1 != password2) {
+
+$('#password2').css("background-color", "Tomato");
+
+$('#confirmMessageSignUP').html("password mismatched");
+$('#confirmMessageSignUP').css("background-color", "Tomato");
+$('#confirmMessageSignUP').show();
+
+      }else{
+
+$('#password2').css("background-color", "LightGreen");
+
+$('#confirmMessageSignUP').html("password matched");
+$('#confirmMessageSignUP').css("background-color", "LightGreen");
+$('#confirmMessageSignUP').show();
+      }
+
+
+}
+// login controlling inputs
+$('#submit_login').attr('disabled',true);
+function login(){
+  if ($('#usernamelogin').val() != '' && $('#passwordlogin').val() != ''){
+  console.log('not empty');
+  $('#submit_login').attr('disabled',false);
+
+  }else{
+  console.log(' empty');
+  $('#submit_login').attr('disabled',true);
+  }
+}
+
+// signup controlling inputs
+$('#submit_signup').attr('disabled',true);
+function signup(){
+  if ($('#username').val() != '' && $('#password1').val() != '' && $('#password2').val() != '' && $('#email').val() != '' && $('#key').val() != ''){
+  console.log('not empty');
+  $('#submit_signup').attr('disabled',false);
+
+  }else{
+  console.log(' empty');
+  $('#submit_signup').attr('disabled',true);
+  }
+}
 </script>
 
 

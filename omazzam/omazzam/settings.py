@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'contactus.apps.ContactusConfig',
     'comments.apps.CommentsConfig',
     'commentsclassifier.apps.CommentsclassifierConfig',
+    'opinionclassifier.apps.OpinionclassifierConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

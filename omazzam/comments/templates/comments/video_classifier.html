@@ -181,9 +181,96 @@
             </form>
           {% endif %}
   </div>
+
+
+
+
+
+</div>
+<div class="container">
+  <div class="row recommandations">
+
+
+</div>
 </div>
 
+
+
+
 <script type="text/javascript">
+//$('.recommandations').hide();
+var count = 1;
+
+if(count == 1){
+  $(window).scroll(function(){
+if($(window).scrollTop() == $(document).height()-$(window).height()){
+    var video_title;
+    video_title = $('#video_name').val();
+
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": '{{csrf_token}}' }
+      });
+      $.ajax(
+      {
+          type:"POST",
+          url: "{% url 'recommandations' video.id%}",
+          data:{
+
+            video_title : video_title,
+      },
+      success: function( data )
+      {
+        // payload
+
+      if(data['state'] == 'success'){
+
+  var text = '<div class="header col-12 alert-success"><h1>Related Videos &#128515; :</h1><br /></div>';
+if (count == 1 ){
+  var videoIds = [];
+  var url = '';
+   for(i = 0 ; i < data['video_sets'].length ; i++){
+    videoIds[i] =  parseInt(data['video_ids'][i]);
+    console.log(videoIds[i]);
+    url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment.id",videoIds[i]);
+
+    console.log(url);
+    console.log(videoIds);
+
+    text += '<div class="col-sm-6" ><div class="card-group"><div class="card" ><div class="card-body">';
+    text += '<h5 class="card-title video_title" ng-click="clickMe()" ><a href="'+url+'" >'+data['video_sets'][i]+'</a>  ,CATEGORY : '+data['video_categories'][i]+'</h5>';
+    text += '<p class="card-text dates"><iframe class="video_watching_url" class="col-sm-4" src="'+data['video_waching_urls'][i]+'"></iframe><small class="text-muted"><br />'+data['video_dates'][i]+'</small></p>';
+
+    text += '</div></div></div></div>';
+
+    $('.recommandations').append(text);
+    text = '';
+  }
+}
+
+count += 1;
+
+
+
+}
+
+    },
+
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+      if(count == 1){
+        text = '<div class="container-fluid"><div style="background-color: #009688">';
+        text += '<p class="text-center alert-danger text-center" style="color: #fff;"> &#128531; There is no videos related to this video in our database &#128531;</p>'
+        text += '</div></div>';
+
+        $('.recommandations').append(text);
+        text = '';
+      }
+      count += 1;
+    }
+   });
+
+}  });
+}
 
   $('#loaderDiv').hide();
         $('#submit').click(function(){
@@ -215,10 +302,10 @@
         $("#loaderDiv").hide();
         $("#status").empty();
 
-        if('success' in data){
-            $("#status").append( '<h3 class="alert alert-success">'+data['success']+'</h3>');
-        } else{
+        if('state' in data){
             $("#status").append( '<h3 class="alert alert-success">'+data['state']+'</h3>');
+        } else{
+            $("#status").append( '<h3 class="alert alert-success">'+data['success']+'</h3>');
 
         }
 

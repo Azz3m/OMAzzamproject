@@ -975,7 +975,7 @@ class Commentclassifier(models.Model):
 
             video_title = ast.literal_eval(video_classified_obj.video_title)
             video_specification = ast.literal_eval(video_classified_obj.video_specification)
-
+            
             self.emoji_comment_dic = self.comment_classifier_among_video_classfier(emoji_comment_dic,video_title,video_specification)
             self.pure_emoji_dic = self.comment_classifier_among_video_classfier(pure_emoji_dic,video_title,video_specification)
             self.pure_english_dic = self.comment_classifier_among_video_classfier(pure_english_dic,video_title,video_specification)

@@ -9,6 +9,7 @@ urlpatterns = [
     path('tagviewer/<int:comment_id>/', cm.tagInsertor, name="tagviewer"),
     path('videoclassifer/<int:comment_id>/', cm.videoclassifer, name="videoclassifer"),
     path('videoclassifed/<int:video_id>/', cm.videoclassifed, name="videoclassifed"),
+    path('recommandations/<int:video_id>/', cm.recommandations, name="recommandations"),
 
 
     ]

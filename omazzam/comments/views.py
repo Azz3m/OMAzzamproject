@@ -228,7 +228,58 @@ def videoclassifed(request,video_id):
 
     return JsonResponse({'state':'we failed to classify the video'})
 
+#recommandations views
 
+def recommandations(request,video_id):
+    try:
+        video_Object = Videoinformation.objects.get(pk=video_id)
+        video_sets = list()
+        video_waching_urls = list()
+        video_categories = list()
+        video_ids = list()
+        video_dates = list()
+        if request.method == 'POST':
+            if request.POST['video_title']:
+
+                title_list = list()
+
+                title_list = request.POST['video_title']
+                try:
+                    video_classified = get_object_or_404(Videocategoryclassifier , video_Object = video_Object)
+                    video_classified.video_title =  title_list.split(',')
+                    video_objects_sets = Videocategoryclassifier.objects.all().order_by('video_title')
+                    for video in video_objects_sets:
+                        for tag in video_classified.video_title:
+                            if tag in video.video_title:
+                                video_sets.append(video.video_Object.video_title)
+                                video_categories.append(video.video_Object.video_category)
+                                temp_user_search = get_object_or_404(Usersearcher,videoInfo= video.video_Object)
+                                video_waching_urls.append(temp_user_search.watching_url)
+                                video_ids.append(temp_user_search.comment_object_id)
+                                video_dates.append(temp_user_search.searching_date_time)
+
+                                break
+                            else:
+                                pass
+                    context = {
+                    'state':'success',
+                    'video_sets':video_sets,
+                    'video_categories':video_categories,
+                    'video_waching_urls':video_waching_urls,
+                    'video_ids':video_ids,
+                    'video_dates':video_dates
+                    }
+
+                    return JsonResponse(context)
+
+                except Videocategoryclassifier.DoesNotExist:
+                    return JsonResponse({'state':"not-found"})
+
+
+
+        return JsonResponse({'state':"successfuly proccessed"})
+    except Videoinformation.DoesNotExist:
+        return JsonResponse({'state':"fail to proccess"})
 
 #comment Detail View
 def commentsdetail(request,comment_id):
@@ -299,7 +350,6 @@ def commentsdetail(request,comment_id):
         paginator7 = Paginator(texts, 1000)
         page = request.GET.get('page')
         texts = paginator7.get_page(page)
-
 
         context = {
         "status":"success",
