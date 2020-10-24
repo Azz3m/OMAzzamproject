@@ -56,29 +56,29 @@
             <div class="btn-group">
 
               <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "English" data-toggle="dropdown">
                    English
                 </button>
                 <div class="dropdown-menu">
-                  <button type="submit" id="pure_english" class="btn btn-secondary submit dropdown-item"name="pure_english_dic" value="pure_english_dic">pure_english_comments</button>
+                  <button type="submit" id="pure_english_dic" class="btn btn-secondary submit dropdown-item"name="pure_english_dic" value="pure_english_dic">pure_english_comments</button>
                   <button type="submit" id="emoji_pure_english_dic" class="btn btn-secondary submit dropdown-item"name="emoji_pure_english_dic" value="emoji_pure_english_dic">emoji_pure_english_comments</button>
                   <button type="submit" id="emoji_english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_english_with_others_dic" value="emoji_english_with_others_dic">emoji_english_with_others_comments</button>
                   <button type="submit" id="english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="english_with_others_dic" value="english_with_others_dic">english_with_others_comments</button>
                 </div>
               </div>
               <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "Arabic" data-toggle="dropdown">
                    Arabic
                 </button>
                 <div class="dropdown-menu">
-                  <button type="submit" id="pure_arabic" class="btn btn-secondary submit dropdown-item"name="pure_arabic_dic" value="pure_arabic_dic">pure_arabic_comments</button>
+                  <button type="submit" id="pure_arabic_dic" class="btn btn-secondary submit dropdown-item"name="pure_arabic_dic" value="pure_arabic_dic">pure_arabic_comments</button>
                   <button type="submit" id="arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="arabic_with_others_dic" value="arabic_with_others_dic">arabic_with_others_comments</button>
                   <button type="submit" id="emoji_arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_arabic_with_others_dic" value="emoji_arabic_with_others_dic">emoji_arabic_with_others_comments</button>
-
+                  <button type="submit" id="emoji_pure_arabic_dic" class="btn btn-secondary submit dropdown-item"name="emoji_pure_arabic_dic" value="emoji_pure_arabic_dic">emoji_pure_arabic_dic</button>
                 </div>
               </div>
               <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "Mix" data-toggle="dropdown">
                    Mixed Language
                 </button>
                 <div class="dropdown-menu">
@@ -91,7 +91,7 @@
                 </div>
               </div>
               <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "pure_emoji" data-toggle="dropdown">
                    Pure Emoji
                 </button>
                 <div class="dropdown-menu">
@@ -99,7 +99,7 @@
                 </div>
               </div>
               <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " data-toggle="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "Others" data-toggle="dropdown">
                    Other Language
                 </button>
                 <div class="dropdown-menu">
@@ -109,8 +109,8 @@
                 </div>
               </div>
               <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" data-toggle="dropdown">
-                   Useless & Exceptions
+                <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" value= "useless_and_exceptions" data-toggle="dropdown">
+                   useless_and_exceptions
                 </button>
                 <div class="dropdown-menu">
                   <button type="submit" id="exceptions_dic" class="btn btn-secondary submit dropdown-item"name="exceptions_dic" value="exceptions_dic">exceptions_comments</button>
@@ -127,7 +127,51 @@
 
           </form>
         </div>
+        <hr />
 
+        <canvas id="dictionariesChart" width="100%" height="20%"></canvas>
+          <script type="text/javascript" src="{% static 'JS\charts\Chart.min.js'%}"></script>
+        <script type="text/javascript">
+        var ctx = document.getElementById('dictionariesChart').getContext('2d');
+        var dictionariesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['English', 'Pure_Emoji', 'Arabic', 'Mixed', 'Other_Language', 'useless_and_exceptions'],
+                datasets: [{
+                    label: '# of comments',
+                    data: [{% for key, value in dictionay_length_pairs.items %}
+                        {{value}},
+                    {% endfor %}],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+        </script>
         <div id="contents"  class="col-12" >
 
         </div>
@@ -137,13 +181,20 @@
               /*$('#loaderDiv').hide();*/
               $('.dropdownlist').on('click', function () {
                   var outterbutton = $(this);
+                  var category = outterbutton.val();
+                  $(this).css("color", "black").slideUp(50).slideDown(2000);
                   $('.dropdownlist').css("color", "white");
                   $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
+                  outterbutton.removeClass("btn-primary").addClass("btn-success");
+                  $('.submit').slideUp(50).slideDown(2000);
 
-                    $('.submit').slideUp(50).slideDown(2000);
-
-              $('.submit').on('click', function () {
+              $('.submit').on('click', function (event) {
+                event.stopPropagation();
+                event.stopImmediatePropagation();
                 var dic_name = $(this).val();
+                $(this).removeClass("btn-secondary").addClass("btn-warning");
+                $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
+                outterbutton.removeClass("btn-primary").addClass("btn-success");
                   $("#fetcherDiv").show();
                 $("button[value='"+dic_name+"']").removeClass("btn-secondary").addClass("btn-warning");
               $.ajaxSetup({
@@ -155,14 +206,19 @@
                   url: "{% url 'langdictionariesfetcher' lang_classifier.id %}",
                   data:{
                     dic_name :dic_name ,
+                    category : category ,
                   },
               success: function( data )
               {
                 // payload
 
-                var url = "{% url 'langdectionaryviewer' comment_obj.id "+'dic_name'+" %}".replace("dic_name",data.success);
+                var url = "{% url 'langdectionaryviewer' comment_obj.id "+'dic_name'+" "+'category'+" %}".replace("dic_name",data.success);
+                url = url.replace("category",data.category);
                 url = url.replace("+&#39;","");
                 url = url.replace("&#39;+","");
+                url = url.replace("+&#39;","");
+                url = url.replace("&#39;+","");
+
                 var nextPageBaseUrl = url + "?page=" ;
                 var prevPageBaseUrl = url + "?&page=" ;
                 var numberOfPages = 0 ;
@@ -297,11 +353,9 @@
               });
 
 
+              $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
+              outterbutton.removeClass("btn-primary").addClass("btn-success");
 
-
-
-                $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
-                outterbutton.removeClass("btn-primary").addClass("btn-success");
 
 
             }});  });  });

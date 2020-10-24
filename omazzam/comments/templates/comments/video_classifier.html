@@ -228,22 +228,25 @@ if($(window).scrollTop() == $(document).height()-$(window).height()){
 if (count == 1 ){
   var videoIds = [];
   var url = '';
-   for(i = 0 ; i < data['video_sets'].length ; i++){
-    videoIds[i] =  parseInt(data['video_ids'][i]);
-    console.log(videoIds[i]);
-    url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment.id",videoIds[i]);
+   for(i = 0 ; i < data['video_sets'].length ; i++)
+   {    videoIds[i] =  parseInt(data['video_ids'][i]);
+       console.log(videoIds[i]);
+       if (videoIds[i] != {{video.id}}){
+         url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment_classifier_obj.comment_objID",videoIds[i]);
 
-    console.log(url);
-    console.log(videoIds);
+         console.log(url);
+         console.log(videoIds);
 
-    text += '<div class="col-sm-6" ><div class="card-group"><div class="card" ><div class="card-body">';
-    text += '<h5 class="card-title video_title" ng-click="clickMe()" ><a href="'+url+'" >'+data['video_sets'][i]+'</a>  ,CATEGORY : '+data['video_categories'][i]+'</h5>';
-    text += '<p class="card-text dates"><iframe class="video_watching_url" class="col-sm-4" src="'+data['video_waching_urls'][i]+'"></iframe><small class="text-muted"><br />'+data['video_dates'][i]+'</small></p>';
+         text += '<div class="col-lg-3 col-md-4 col-xs-6 thumb">'
+             + ' <div class="embed-responsive embed-responsive-21by9">'
+             +   '  <iframe class="embed-responsive-item" src="'+data['video_waching_urls'][i]+'"></iframe>'
 
-    text += '</div></div></div></div>';
-
-    $('.recommandations').append(text);
-    text = '';
+             +  '  </div>'
+               + '<p class="card-title video_title" ng-click="clickMe()" ><a href="'+url+'" >'+data['video_sets'][i]+'</a>  ,CATEGORY : '+data['video_categories'][i]+'</p>'
+             +'</div>';
+         $('.recommandations').append(text);
+         text = '';
+       }
   }
 }
 

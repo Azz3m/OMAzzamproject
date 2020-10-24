@@ -49,6 +49,7 @@ class Langclassifier(models.Model):
     only_digits_pattern = re.compile(r'[0-9]',flags=re.UNICODE)
     repeative_chars_pattern = re.compile(r'(\w)\1*',flags=re.UNICODE)
 
+
     #functions of the model language Type Detectors
        # English language Detection
     def pure_english_detector(self,text):
@@ -162,6 +163,132 @@ class Langclassifier(models.Model):
         temp = temp.replace("]","")
         return temp
 
+    def dictionay_length_pairs(self,state,lang_classifier):
+        print("creating dictionay_length_pairs ")
+        dictionay_length_pairs = {}
+        if state == 'found':
+
+            pure_emoji_dic=ast.literal_eval(lang_classifier.pure_emoji_dic)
+            emoji_pure_arabic_dic = ast.literal_eval(lang_classifier.emoji_pure_arabic_dic)
+            emoji_pure_english_dic = ast.literal_eval(lang_classifier.emoji_pure_english_dic)
+            emoji_mixed_lang_dic = ast.literal_eval(lang_classifier.emoji_mixed_lang_dic)
+            emoji_arabic_with_others_dic=ast.literal_eval(lang_classifier.emoji_arabic_with_others_dic)
+            emoji_english_with_others_dic =ast.literal_eval(lang_classifier.emoji_english_with_others_dic)
+            emoji_ar_en_dic=ast.literal_eval(lang_classifier.emoji_ar_en_dic)
+            emoji_exceptions_dic = ast.literal_eval(lang_classifier.emoji_exceptions_dic)
+            emoji_other_language_dic =ast.literal_eval(lang_classifier.emoji_other_language_dic)
+            emoji_useless_comment_dic=ast.literal_eval(lang_classifier.emoji_useless_comment_dic)
+            pure_arabic_dic = ast.literal_eval(lang_classifier.pure_arabic_dic)
+            pure_english_dic = ast.literal_eval(lang_classifier.pure_english_dic)
+            mixed_lang_dic = ast.literal_eval(lang_classifier.mixed_lang_dic)
+            exceptions_dic = ast.literal_eval(lang_classifier.exceptions_dic)
+            other_language_dic =ast.literal_eval(lang_classifier.other_language_dic)
+            useless_comment_dic=ast.literal_eval(lang_classifier.useless_comment_dic)
+            arabic_with_others_dic=ast.literal_eval(lang_classifier.arabic_with_others_dic)
+            english_with_others_dic =ast.literal_eval(lang_classifier.english_with_others_dic)
+            ar_en_dic=ast.literal_eval(lang_classifier.ar_en_dic)
+
+            dictionay_length_pairs = {
+            'English' : len(emoji_pure_english_dic) + len(pure_english_dic) + len(emoji_english_with_others_dic) + len(english_with_others_dic),
+            'pure_emoji' : len(pure_emoji_dic),
+            'Arabic' : len(emoji_pure_arabic_dic) + len(arabic_with_others_dic) + len(pure_arabic_dic) + len(emoji_arabic_with_others_dic),
+
+            'Mix' : len(emoji_mixed_lang_dic) + len(mixed_lang_dic) + len(ar_en_dic) + len(emoji_ar_en_dic),
+            'Others' : len(other_language_dic) + len(emoji_other_language_dic) ,
+
+            'useless_and_exceptions' : len(emoji_exceptions_dic) + len(emoji_useless_comment_dic) + len(useless_comment_dic) + len(exceptions_dic),
+            }
+        else:
+            dictionay_length_pairs = {
+            'English': len(lang_classifier.emoji_pure_english_dic) + len(lang_classifier.pure_english_dic) + len(lang_classifier.emoji_english_with_others_dic) + len(lang_classifier.english_with_others_dic),
+            'pure_emoji' : len(lang_classifier.pure_emoji_dic),
+            'Arabic' : len(lang_classifier.emoji_pure_arabic_dic) + len(lang_classifier.arabic_with_others_dic) + len(lang_classifier.pure_arabic_dic) + len(lang_classifier.emoji_arabic_with_others_dic),
+            'Mix' : len(lang_classifier.emoji_mixed_lang_dic) + len(lang_classifier.mixed_lang_dic) + len(lang_classifier.ar_en_dic) + len(lang_classifier.emoji_ar_en_dic),
+            'Others' : len(lang_classifier.other_language_dic) + len(lang_classifier.emoji_other_language_dic) ,
+            'useless_and_exceptions' : len(lang_classifier.emoji_exceptions_dic) + len(lang_classifier.emoji_useless_comment_dic) + len(lang_classifier.useless_comment_dic) + len(lang_classifier.exceptions_dic),
+            }
+        print("dictionay_length_pairs created successfully")
+        return dictionay_length_pairs
+
+    def dictionary_among_one_category(self,category,lang_classifier):
+
+        pure_emoji_dic=ast.literal_eval(lang_classifier.pure_emoji_dic)
+        emoji_pure_arabic_dic = ast.literal_eval(lang_classifier.emoji_pure_arabic_dic)
+        emoji_pure_english_dic = ast.literal_eval(lang_classifier.emoji_pure_english_dic)
+        emoji_mixed_lang_dic = ast.literal_eval(lang_classifier.emoji_mixed_lang_dic)
+        emoji_arabic_with_others_dic=ast.literal_eval(lang_classifier.emoji_arabic_with_others_dic)
+        emoji_english_with_others_dic =ast.literal_eval(lang_classifier.emoji_english_with_others_dic)
+        emoji_ar_en_dic=ast.literal_eval(lang_classifier.emoji_ar_en_dic)
+        emoji_exceptions_dic = ast.literal_eval(lang_classifier.emoji_exceptions_dic)
+        emoji_other_language_dic =ast.literal_eval(lang_classifier.emoji_other_language_dic)
+        emoji_useless_comment_dic=ast.literal_eval(lang_classifier.emoji_useless_comment_dic)
+        pure_arabic_dic = ast.literal_eval(lang_classifier.pure_arabic_dic)
+        pure_english_dic = ast.literal_eval(lang_classifier.pure_english_dic)
+        mixed_lang_dic = ast.literal_eval(lang_classifier.mixed_lang_dic)
+        exceptions_dic = ast.literal_eval(lang_classifier.exceptions_dic)
+        other_language_dic =ast.literal_eval(lang_classifier.other_language_dic)
+        useless_comment_dic=ast.literal_eval(lang_classifier.useless_comment_dic)
+        arabic_with_others_dic=ast.literal_eval(lang_classifier.arabic_with_others_dic)
+        english_with_others_dic =ast.literal_eval(lang_classifier.english_with_others_dic)
+        ar_en_dic=ast.literal_eval(lang_classifier.ar_en_dic)
+        dic = {}
+        if category == 'English':
+            dic = {}
+            print("English")
+            dic = {
+            'emoji_pure_english_dic' :len(emoji_pure_english_dic) ,
+            'pure_english_dic': len(pure_english_dic) ,
+            'emoji_english_with_others_dic':len(emoji_english_with_others_dic) ,
+            'english_with_others_dic': len(english_with_others_dic)
+            }
+            print("dictionay_length_pairs created successfully")
+            return dic
+        if category == 'pure_emoji':
+            dic = {}
+            dic = {
+            'pure_emoji' : len(pure_emoji_dic),
+            }
+            print("dictionay_length_pairs created successfully")
+            return dic
+        if category == 'Arabic':
+            dic = {}
+            dic = {
+            'emoji_pure_arabic_dic' : len(emoji_pure_arabic_dic) ,
+            'arabic_with_others_dic' : len(arabic_with_others_dic) ,
+            'pure_arabic_dic' : len(pure_arabic_dic) ,
+            'emoji_arabic_with_others_dic' : len(emoji_arabic_with_others_dic)
+            }
+            print("dictionay_length_pairs created successfully")
+            return dic
+        if category == 'Mix':
+            dic = {}
+            dic = {
+            'emoji_mixed_lang_dic' : len(emoji_mixed_lang_dic) ,
+            'mixed_lang_dic' :len(mixed_lang_dic) ,
+            'ar_en_dic' : len(ar_en_dic) ,
+            'emoji_ar_en_dic' :len(emoji_ar_en_dic)
+            }
+            print("dictionay_length_pairs created successfully")
+            return dic
+        if category == 'Others':
+            dic = {}
+            dic = {
+            'other_language_dic' : len(other_language_dic) ,
+            'emoji_other_language_dic': len(emoji_other_language_dic)
+            }
+            print("dictionay_length_pairs created successfully")
+            return dic
+        if category == 'useless_and_exceptions':
+            dic = {}
+            dic = {
+            'emoji_exceptions_dic' :   len(emoji_exceptions_dic) ,
+            'emoji_useless_comment_dic' :   len(emoji_useless_comment_dic) ,
+            'useless_comment_dic'  :  len(useless_comment_dic) ,
+            'exceptions_dic' :    len(exceptions_dic),
+            }
+            print("dictionay_length_pairs created successfully")
+            return dic
+
 
     def comments_lang_classifier(self,user,comment_id):
 
@@ -237,7 +364,7 @@ class Langclassifier(models.Model):
                 index += 1
                 single_comment =self.reshaping(single_comment)
                 single_comment = single_comment.lower()
-                single_comment = self.repeative_characters_removal(single_comment)
+                #single_comment = self.repeative_characters_removal(single_comment)
                 single_comment = single_comment.replace("’","")
                 print(str(i)+"  processing comment : ",single_comment)
 
@@ -447,7 +574,19 @@ class Langclassifier(models.Model):
 
 
             print("comments_classifier object created successfully")
+            print("creating dictionay_length_pairs ")
+            dictionay_length_pairs = {
+            'English' : len(emoji_pure_english_dic) + len(pure_english_dic) + len(emoji_english_with_others_dic) + len(english_with_others_dic),
+            'pure_emoji' : len(pure_emoji_dic),
+            'Arabic' : len(emoji_pure_arabic_dic) + len(arabic_with_others_dic) + len(pure_arabic_dic) + len(emoji_arabic_with_others_dic),
 
+            'Mix' : len(emoji_mixed_lang_dic) + len(mixed_lang_dic) + len(ar_en_dic) + len(emoji_ar_en_dic),
+            'Others' : len(other_language_dic) + len(emoji_other_language_dic) ,
+
+            'useless_and_exceptions' : len(emoji_exceptions_dic) + len(emoji_useless_comment_dic) + len(useless_comment_dic) + len(exceptions_dic),
+
+            }
+            print("dictionay_length_pairs created successfully")
             print("redirecting to comment classifier page ....... ")
             total_processed = len(self.pure_arabic_dic) + len(self.pure_english_dic) + len(self.mixed_lang_dic) + len(self.exceptions_dic) + len(self.mixed_lang_dic)+ len(self.other_language_dic)+ len(self.useless_comment_dic)+ len(self.arabic_with_others_dic)+ len(self.english_with_others_dic)+ len(self.ar_en_dic)+ len(self.emoji_comment_dic)
             print(total_processed)
@@ -843,6 +982,32 @@ class Commentclassifier(models.Model):
             length +=   len(ar_en_dic) +  len(english_with_others_dic) +  len(useless_comment_dic) +  len(emoji_arabic_with_others_dic) +  len(pure_english_dic) +  len(pure_arabic_dic) +  len(emoji_ar_en_dic)
             return length
 
+        def get_length(self,lang_classifier_obj):
+            length = 0
+            pure_emoji_dic=ast.literal_eval(lang_classifier_obj.pure_emoji_dic)
+            emoji_pure_arabic_dic = ast.literal_eval(lang_classifier_obj.emoji_pure_arabic_dic)
+            emoji_pure_english_dic = ast.literal_eval(lang_classifier_obj.emoji_pure_english_dic)
+            emoji_mixed_lang_dic = ast.literal_eval(lang_classifier_obj.emoji_mixed_lang_dic)
+            emoji_arabic_with_others_dic=ast.literal_eval(lang_classifier_obj.emoji_arabic_with_others_dic)
+            emoji_english_with_others_dic =ast.literal_eval(lang_classifier_obj.emoji_english_with_others_dic)
+            emoji_ar_en_dic=ast.literal_eval(lang_classifier_obj.emoji_ar_en_dic)
+            emoji_exceptions_dic = ast.literal_eval(lang_classifier_obj.emoji_exceptions_dic)
+            emoji_other_language_dic =ast.literal_eval(lang_classifier_obj.emoji_other_language_dic)
+            emoji_useless_comment_dic=ast.literal_eval(lang_classifier_obj.emoji_useless_comment_dic)
+            pure_arabic_dic = ast.literal_eval(lang_classifier_obj.pure_arabic_dic)
+            pure_english_dic = ast.literal_eval(lang_classifier_obj.pure_english_dic)
+            mixed_lang_dic = ast.literal_eval(lang_classifier_obj.mixed_lang_dic)
+            exceptions_dic = ast.literal_eval(lang_classifier_obj.exceptions_dic)
+            other_language_dic =ast.literal_eval(lang_classifier_obj.other_language_dic)
+            useless_comment_dic=ast.literal_eval(lang_classifier_obj.useless_comment_dic)
+            arabic_with_others_dic=ast.literal_eval(lang_classifier_obj.arabic_with_others_dic)
+            english_with_others_dic =ast.literal_eval(lang_classifier_obj.english_with_others_dic)
+            ar_en_dic=ast.literal_eval(lang_classifier_obj.ar_en_dic)
+            length += len(pure_emoji_dic) +  len(other_language_dic) +  len(arabic_with_others_dic) +  len(exceptions_dic) +  len(mixed_lang_dic) +  len(emoji_mixed_lang_dic)
+            length +=   len(emoji_pure_english_dic) +  len(emoji_pure_arabic_dic) +  len(emoji_useless_comment_dic) +  len(emoji_other_language_dic) +  len(emoji_exceptions_dic) +  len(emoji_english_with_others_dic) +  len(emoji_arabic_with_others_dic)
+            length +=   len(ar_en_dic) +  len(english_with_others_dic) +  len(useless_comment_dic) +  len(emoji_arabic_with_others_dic) +  len(pure_english_dic) +  len(pure_arabic_dic) +  len(emoji_ar_en_dic)
+            return length
+
         def tag_list_setter(self,video_Object):
             predefined_tags_list = list()
             user_tags_list = list()
@@ -893,6 +1058,136 @@ class Commentclassifier(models.Model):
                         dictionary[item]['predefined_pack'] = zipped_predefined_tags
             return dictionary
 
+        def dictionay_length_pairs(self,state,comment_classifier):
+            print("creating dictionay_length_pairs ")
+            if state == 'found':
+
+                pure_emoji_dic=ast.literal_eval(comment_classifier.pure_emoji_dic)
+                emoji_pure_arabic_dic = ast.literal_eval(comment_classifier.emoji_pure_arabic_dic)
+                emoji_pure_english_dic = ast.literal_eval(comment_classifier.emoji_pure_english_dic)
+                emoji_mixed_lang_dic = ast.literal_eval(comment_classifier.emoji_mixed_lang_dic)
+                emoji_arabic_with_others_dic=ast.literal_eval(comment_classifier.emoji_arabic_with_others_dic)
+                emoji_english_with_others_dic =ast.literal_eval(comment_classifier.emoji_english_with_others_dic)
+                emoji_ar_en_dic=ast.literal_eval(comment_classifier.emoji_ar_en_dic)
+                emoji_exceptions_dic = ast.literal_eval(comment_classifier.emoji_exceptions_dic)
+                emoji_other_language_dic =ast.literal_eval(comment_classifier.emoji_other_language_dic)
+                emoji_useless_comment_dic=ast.literal_eval(comment_classifier.emoji_useless_comment_dic)
+                pure_arabic_dic = ast.literal_eval(comment_classifier.pure_arabic_dic)
+                pure_english_dic = ast.literal_eval(comment_classifier.pure_english_dic)
+                mixed_lang_dic = ast.literal_eval(comment_classifier.mixed_lang_dic)
+                exceptions_dic = ast.literal_eval(comment_classifier.exceptions_dic)
+                other_language_dic =ast.literal_eval(comment_classifier.other_language_dic)
+                useless_comment_dic=ast.literal_eval(comment_classifier.useless_comment_dic)
+                arabic_with_others_dic=ast.literal_eval(comment_classifier.arabic_with_others_dic)
+                english_with_others_dic =ast.literal_eval(comment_classifier.english_with_others_dic)
+                ar_en_dic=ast.literal_eval(comment_classifier.ar_en_dic)
+
+                dictionay_length_pairs = {
+                'English' : len(emoji_pure_english_dic) + len(pure_english_dic) + len(emoji_english_with_others_dic) + len(english_with_others_dic),
+                'pure_emoji' : len(pure_emoji_dic),
+                'Arabic' : len(emoji_pure_arabic_dic) + len(arabic_with_others_dic) + len(pure_arabic_dic) + len(emoji_arabic_with_others_dic),
+
+                'Mix' : len(emoji_mixed_lang_dic) + len(mixed_lang_dic) + len(ar_en_dic) + len(emoji_ar_en_dic),
+                'Others' : len(other_language_dic) + len(emoji_other_language_dic) ,
+
+                'useless_and_exceptions' : len(emoji_exceptions_dic) + len(emoji_useless_comment_dic) + len(useless_comment_dic) + len(exceptions_dic),
+                }
+            else:
+                dictionay_length_pairs = {
+                'English': len(comment_classifier.emoji_pure_english_dic) + len(comment_classifier.pure_english_dic) + len(comment_classifier.emoji_english_with_others_dic) + len(comment_classifier.english_with_others_dic),
+                'pure_emoji' : len(comment_classifier.pure_emoji_dic),
+                'Arabic' : len(comment_classifier.emoji_pure_arabic_dic) + len(comment_classifier.arabic_with_others_dic) + len(comment_classifier.pure_arabic_dic) + len(comment_classifier.emoji_arabic_with_others_dic),
+                'Mix' : len(comment_classifier.emoji_mixed_lang_dic) + len(comment_classifier.mixed_lang_dic) + len(comment_classifier.ar_en_dic) + len(comment_classifier.emoji_ar_en_dic),
+                'Others' : len(comment_classifier.other_language_dic) + len(comment_classifier.emoji_other_language_dic) ,
+                'useless_and_exceptions' : len(comment_classifier.emoji_exceptions_dic) + len(comment_classifier.emoji_useless_comment_dic) + len(comment_classifier.useless_comment_dic) + len(comment_classifier.exceptions_dic),
+                }
+            print("dictionay_length_pairs created successfully")
+            return dictionay_length_pairs
+
+        def dictionary_among_one_category(self,category,lang_classifier):
+
+            pure_emoji_dic=ast.literal_eval(lang_classifier.pure_emoji_dic)
+            emoji_pure_arabic_dic = ast.literal_eval(lang_classifier.emoji_pure_arabic_dic)
+            emoji_pure_english_dic = ast.literal_eval(lang_classifier.emoji_pure_english_dic)
+            emoji_mixed_lang_dic = ast.literal_eval(lang_classifier.emoji_mixed_lang_dic)
+            emoji_arabic_with_others_dic=ast.literal_eval(lang_classifier.emoji_arabic_with_others_dic)
+            emoji_english_with_others_dic =ast.literal_eval(lang_classifier.emoji_english_with_others_dic)
+            emoji_ar_en_dic=ast.literal_eval(lang_classifier.emoji_ar_en_dic)
+            emoji_exceptions_dic = ast.literal_eval(lang_classifier.emoji_exceptions_dic)
+            emoji_other_language_dic =ast.literal_eval(lang_classifier.emoji_other_language_dic)
+            emoji_useless_comment_dic=ast.literal_eval(lang_classifier.emoji_useless_comment_dic)
+            pure_arabic_dic = ast.literal_eval(lang_classifier.pure_arabic_dic)
+            pure_english_dic = ast.literal_eval(lang_classifier.pure_english_dic)
+            mixed_lang_dic = ast.literal_eval(lang_classifier.mixed_lang_dic)
+            exceptions_dic = ast.literal_eval(lang_classifier.exceptions_dic)
+            other_language_dic =ast.literal_eval(lang_classifier.other_language_dic)
+            useless_comment_dic=ast.literal_eval(lang_classifier.useless_comment_dic)
+            arabic_with_others_dic=ast.literal_eval(lang_classifier.arabic_with_others_dic)
+            english_with_others_dic =ast.literal_eval(lang_classifier.english_with_others_dic)
+            ar_en_dic=ast.literal_eval(lang_classifier.ar_en_dic)
+
+            if category == 'English':
+                print("English")
+                dic = {
+                'emoji_pure_english_dic' :len(emoji_pure_english_dic) ,
+                'pure_english_dic': len(pure_english_dic) ,
+                'emoji_english_with_others_dic':len(emoji_english_with_others_dic) ,
+                'english_with_others_dic': len(english_with_others_dic)
+                }
+                print("dictionay_length_pairs created successfully")
+                return dic
+            if category == 'pure_emoji':
+                dic = {
+                'pure_emoji' : len(pure_emoji_dic),
+                }
+                print("dictionay_length_pairs created successfully")
+                return dic
+            if category == 'Arabic':
+                dic = {
+                'emoji_pure_arabic_dic' : len(emoji_pure_arabic_dic) ,
+                'arabic_with_others_dic' : len(arabic_with_others_dic) ,
+                'pure_arabic_dic' : len(pure_arabic_dic) ,
+                'emoji_arabic_with_others_dic' : len(emoji_arabic_with_others_dic)
+                }
+                print("dictionay_length_pairs created successfully")
+                return dic
+            if category == 'Mix':
+                dic = {
+                'emoji_mixed_lang_dic' : len(emoji_mixed_lang_dic) ,
+                'mixed_lang_dic' :len(mixed_lang_dic) ,
+                'ar_en_dic' : len(ar_en_dic) ,
+                'emoji_ar_en_dic' :len(emoji_ar_en_dic)
+                }
+                print("dictionay_length_pairs created successfully")
+                return dic
+            if category == 'Others':
+                dic = {
+                'other_language_dic' : len(other_language_dic) ,
+                'emoji_other_language_dic': len(emoji_other_language_dic)
+                }
+                print("dictionay_length_pairs created successfully")
+                return dic
+            if category == 'useless_and_exceptions':
+                dic = {
+                'emoji_exceptions_dic' :   len(emoji_exceptions_dic) ,
+                'emoji_useless_comment_dic' :   len(emoji_useless_comment_dic) ,
+                'useless_comment_dic'  :  len(useless_comment_dic) ,
+                'exceptions_dic' :    len(exceptions_dic),
+                }
+                print("dictionay_length_pairs created successfully")
+                return dic
+
+
+        def dictionary_related_videos(self,dictionary):
+            dic = {}
+            video_titles_linker = 0
+            video_specification_linker = 0
+            for key,item in dictionary.items():
+                if 'video_titles_linker' in item:
+                    video_titles_linker += 1
+                if 'video_specification_linker'in item:
+                    video_specification_linker += 1
+            return video_titles_linker, video_specification_linker
         def comments_classifier(self,user,lang_classifier_obj_id):
             lang_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
             video_classified_obj = get_object_or_404(Videocategoryclassifier,video_Object=lang_classifier_obj.video_Object)
@@ -975,7 +1270,7 @@ class Commentclassifier(models.Model):
 
             video_title = ast.literal_eval(video_classified_obj.video_title)
             video_specification = ast.literal_eval(video_classified_obj.video_specification)
-            
+
             self.emoji_comment_dic = self.comment_classifier_among_video_classfier(emoji_comment_dic,video_title,video_specification)
             self.pure_emoji_dic = self.comment_classifier_among_video_classfier(pure_emoji_dic,video_title,video_specification)
             self.pure_english_dic = self.comment_classifier_among_video_classfier(pure_english_dic,video_title,video_specification)

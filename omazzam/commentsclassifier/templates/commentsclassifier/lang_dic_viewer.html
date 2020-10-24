@@ -1,5 +1,5 @@
 {% load highlight %}
-
+{% load staticfiles %}
 
 
 <div id="header" class="col-12">
@@ -25,6 +25,45 @@
 
 
   {% if dic|length > 0 %}
+  <div class="col-12">
+    <h1 class="text-center"> comments over one category </h1>
+    <canvas id="dictionariesChartPerCatg" width="100%" height="20%"></canvas>
+      <script type="text/javascript" src="{% static 'JS\charts\Chart.min.js'%}"></script>
+    <script type="text/javascript">
+    var ctx = document.getElementById('dictionariesChartPerCatg').getContext('2d');
+    var dictionariesChartPerCatg = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: [{% for key,value in dictionary_among_one_category.items %}
+                '{{key}}',
+            {% endfor %}],
+            datasets: [{
+                label: '# of comments per Category',
+                data: [{% for key, value in dictionary_among_one_category.items %}
+                    {{value}},
+                {% endfor %}],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        }
+    });
+    </script>
+  </div>
   <hr />
   {% if page.has_other_pages %}
   <input type="text" class="currentPage" value="{{page.number}} " hidden/>

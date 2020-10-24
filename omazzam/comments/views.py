@@ -398,7 +398,7 @@ def tagInsertor(request,comment_id):
                     tag = tag.replace(" '","")
                     tag = tag.replace("'","")
                     tag = tag.lower()
-                    tag =repeative_characters_removal(tag)
+                    #tag =repeative_characters_removal(tag)
                     predefined_tags.append(tag)
         else:
             predefined_tags.append("NO-TAGS")
@@ -413,7 +413,7 @@ def tagInsertor(request,comment_id):
                     tag = tag.replace(" '","")
                     tag = tag.replace("'","")
                     tag = tag.lower()
-                    tag =repeative_characters_removal(tag)
+                    #tag =repeative_characters_removal(tag)
                     user_tags.append(tag)
         else:
             user_tags.append("NO-TAGS")

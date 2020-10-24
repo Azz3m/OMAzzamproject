@@ -1,5 +1,5 @@
 {% load highlight %}
-
+{% load staticfiles %}
 
 
 <div id="header" class="col-12">
@@ -8,7 +8,7 @@
 
   <div class="page-header">
     <h1><small class="pull-right">
-      {{ dic|length }} comments</small> <span class="badge badge-success" title="{{ dic|length }}"> {{ dic_name }} </span></h1>
+      {{ dic|length }} comments</small> <span class="badge badge-success" title="{{ dic|length }}"> {{ dic_name }} </span>, with Query :  <span class="badge badge-info" title="query type"> {{ servicetype }} </span></h1>
     </div>
 </div>
 {% else %}
@@ -25,6 +25,111 @@
 
 
   {% if dic|length > 0 %}
+
+  <div class="col-12">
+
+    <!-- Tabs-->
+            <div class="row row-content">
+                <div class="col-12 ">
+                    <h2>Charts</h2>
+                      <script type="text/javascript" src="{% static 'JS\charts\Chart.min.js'%}"></script>
+                    <ul class="nav nav-tabs">
+                      <li class="nav-item">
+                        <a class="nav-link active" href="#dictionariesChartPerCatgTab"
+                         role="tab" data-toggle="tab">dictionaries Per Catg Chart  </a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#relatedVideosTab"
+                         role="tab" data-toggle="tab">Related To Videos Chart </a>
+                      </li>
+
+                    </ul>
+                     <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade show active" id="dictionariesChartPerCatgTab">
+
+                            <canvas id="dictionariesChartPerCatg" width="100%" height="20%"></canvas>
+
+                            <script type="text/javascript">
+                            var ctx = document.getElementById('dictionariesChartPerCatg').getContext('2d');
+                            var dictionariesChartPerCatg = new Chart(ctx, {
+                                type: 'pie',
+                                data: {
+                                    labels: [{% for key,value in dictionary_among_one_category.items %}
+                                        '{{key}}',
+                                    {% endfor %}],
+                                    datasets: [{
+                                        label: '# of comments per Category',
+                                        data: [{% for key, value in dictionary_among_one_category.items %}
+                                            {{value}},
+                                        {% endfor %}],
+                                        backgroundColor: [
+                                            'rgba(255, 99, 132, 0.2)',
+                                            'rgba(54, 162, 235, 0.2)',
+                                            'rgba(255, 206, 86, 0.2)',
+                                            'rgba(75, 192, 192, 0.2)',
+                                            'rgba(153, 102, 255, 0.2)',
+                                            'rgba(255, 159, 64, 0.2)'
+                                        ],
+                                        borderColor: [
+                                            'rgba(255, 99, 132, 1)',
+                                            'rgba(54, 162, 235, 1)',
+                                            'rgba(255, 206, 86, 1)',
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(153, 102, 255, 1)',
+                                            'rgba(255, 159, 64, 1)'
+                                        ],
+                                        borderWidth: 1
+                                    }]
+                                }
+                            });
+
+
+                            </script>
+                        </div>
+
+                        <div role="tabpanel" class="tab-pane fade" id="relatedVideosTab">
+                          <canvas id="relatedVideos" width="100%" height="20%"></canvas>
+                          <script type="text/javascript">
+
+                          var ctx_related = document.getElementById('relatedVideos').getContext('2d');
+                          var relatedVideos = new Chart(ctx_related, {
+                              type: 'bar',
+                              data: {
+                                  labels: ['all comments' , 'related with others' , 'related to this Video'],
+                                  datasets: [{
+                                      label: '# Related comments',
+                                      data: [{{dic|length}} , {{video_titles_linker_total}} , {{video_specification_linker_total}}],
+                                      backgroundColor: [
+                                          'rgba(255, 99, 132, 0.2)',
+                                          'rgba(54, 162, 235, 0.2)',
+                                          'rgba(255, 206, 86, 0.2)',
+                                          'rgba(75, 192, 192, 0.2)',
+                                          'rgba(153, 102, 255, 0.2)',
+                                          'rgba(255, 159, 64, 0.2)'
+                                      ],
+                                      borderColor: [
+                                          'rgba(255, 99, 132, 1)',
+                                          'rgba(54, 162, 235, 1)',
+                                          'rgba(255, 206, 86, 1)',
+                                          'rgba(75, 192, 192, 1)',
+                                          'rgba(153, 102, 255, 1)',
+                                          'rgba(255, 159, 64, 1)'
+                                      ],
+                                      borderWidth: 1
+                                  }]
+                              }
+                          });
+
+                        </script>
+                        </div>
+
+
+                      </div>
+                  </div>
+           </div>
+
+
+  </div>
   <hr />
   {% if page.has_other_pages %}
   <input type="text" class="currentPage" value="{{page.number}} " hidden/>
@@ -38,106 +143,105 @@
         <hr />
           <div class="container" style="border-style: solid;border-width: 1px;">
 
+            <h1 class="text-center badge-success" > Query Result :
+              {% if servicetype == 'relatedWithOthers' %}
+            {{video_titles_linker_total}} Comments
+              {% endif %}
+              {% if servicetype == 'relatedTothisVideo' %}
+            {{video_specification_linker_total}} Comments
+              {% endif %}
 
+              {% if servicetype == 'allComments' %}
+                {{dic|length}} Comments
+              {% endif %}
+
+
+            </h1>
           <div class="row">
             <hr />
 
 
-                  {% for item in page_obj %}
 
 
-                      <div class="col-sm-4">
-                        <div class="card-group">
-                          <div class="card" title="{% if item.12 %}
-                                                        related videos :
-                                                       {% for item in item.12 %}
-                                                         {{ item }}  ,
-                                                       {% endfor %}
-                                                      {% endif %}
-                                                      {% if  item.13 %}
-                                                      {% for item in item.13 %}
-                                                      related video :
-                                                        {{ item }} ,
-                                                      {% endfor %}
-                                                      {% endif %}" >
-                            <a href="{{ item.3  }}"><img src="{{item.2 }}"  /></a>
 
-                            <div class="card-body">
-                              <h5 class="card-title"><a href="{{ item.3  }}">{{item.1 }}</a></h5>
-                              <p class="card-text" title="{{item.5}}">
-                                {% if item.8 and item.9 %}
+  {% for item in page_obj %}
 
-                                  <p class="card-text "title="{{ item.5 }}">{{ item.0|highlightpredefined:item.8|highlightuser:item.9}}</p><br />
-                                  <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
-                                  <table style="position:absolute;right:3px;top:5px;">
-                                    {% if item.8%}
-                                    {% for tag,repeat in item.6 %}
-                                    <thead>
-                                      <tr>
-                                        <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
-                                        <td scope="row">{{repeat }} times</td>
-                                      </tr>
 
-                                    </thead>
+  <div class="col-sm-4">
+    <div class="card-group">
+      <div class="card" title="{% if item.12 %}
+                                  related with other videos :
+                                    {% for item in item.12 %}
+                                      {{ item }}  ,
                                     {% endfor %}
-                                    {% endif %}
-                                    {% if item.9 %}
-                                    {% for tag,repeat in item.6 %}
-                                    <thead>
-                                      <tr>
-                                        <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
-                                        <td scope="row">{{repeat }} times</td>
-                                      </tr>
-
-                                    </thead>
+                                {% endif %}
+                                    {% if  item.13 %}
+                                      related to this video :
+                                      {% for item in item.13 %}
+                                      {{ item }} ,
                                     {% endfor %}
-                                    {% endif %}
-                                  </table>
-                                  {% elif item.8 %}
-
-                                      <p class="card-text " title="{{ item.5 }}">{{ item.0|highlightpredefined:item.8}}</p><br />
-                                      <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
-                                      <table style="position:absolute;right:3px;top:5px;">
-                                        {% for tag,repeat in item.6 %}
-                                        <thead>
-                                          <tr>
-                                            <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
-                                            <td scope="row">{{repeat }} times</td>
-                                          </tr>
-
-                                        </thead>
-                                        {% endfor %}
-                                      </table>
-                                      {%elif item.9 %}
-
-                                          <p class="card-text "title="{{ item.5 }}">{{ item.0|highlightuser:item.9}}</p><br />
-                                          <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
-                                          <table style="position:absolute;right:3px;top:5px;">
-                                            {% for tag,repeat in item.11 %}
-                                            <thead>
-                                              <tr>
-                                                <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
-                                                <td scope="row">{{repeat }} times</td>
-                                              </tr>
-
-                                            </thead>
-                                            {% endfor %}
-                                          </table>
-                            {% else %}
-                                <p class="card-text "title="{{ item.5 }}">{{ item.0|slice:"0:50"}}</p><br />
-                                <p class="card-text"style="position:absolute;right:3px;bottom:5px;" ><small class="text-muted">Last updated {{ item.4 }}</small></p>
-                            {% endif %}
-
-
-
-
-                               </p>
-
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                  {% endfor %}
+                                  {% endif %}" >
+      <a href="{{ item.3  }}"><img src="{{item.2 }}"  /></a>
+        <div class="card-body">
+            <h5 class="card-title"><a href="{{ item.3  }}">{{item.1 }}</a></h5>
+            <p class="card-text" title="{{item.5}}">
+          {% if item.8 and item.9 %}
+            <p class="card-text "title="{{ item.5 }}">{{ item.0|highlightpredefined:item.8|highlightuser:item.9}}<br />
+            <table >
+          {% if item.8%}
+            <tr>
+          {% for tag,repeat in item.6 %}
+            <thead>
+            <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
+            <td scope="row">{{repeat }} times</td>
+            </thead>
+          {% endfor %}
+          {% endif %}
+          {% if item.9 %}
+          {% for tag,repeat in item.6 %}
+            <thead>
+            <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
+            <td scope="row">{{repeat }} times</td>
+            </thead>
+          {% endfor %}
+          {% endif %}
+            </tr>
+            </table>
+            </p>
+            <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
+          {% elif item.8 %}
+            <p class="card-text " title="{{ item.5 }}">{{ item.0|highlightpredefined:item.8}} <br /><table > <tr>  <thead>
+          {% for tag,repeat in item.6 %}
+            <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
+            <td scope="row">{{repeat }} times</td>
+          {% endfor %}
+            </thead>
+            </tr>
+            </table></p>
+            <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
+          {%elif item.9 %}
+            <p class="card-text "title="{{ item.5 }}">{{ item.0|highlightuser:item.9}}<br />
+            <table><tr>  <thead>
+            {% for tag,repeat in item.11 %}
+              <thead>
+              <tr>
+              <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
+              <td scope="row">{{repeat }} times</td>
+            {% endfor %}
+            </tr>
+            </thead>
+            </table>
+            </p>
+            <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
+          {% else %}
+            <p class="card-text "title="{{ item.5 }}">{{ item.0|slice:"0:50"}}</p><br />
+            <p class="card-text"style="position:absolute;right:3px;bottom:5px;" ><small class="text-muted">Last updated {{ item.4 }}</small></p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
 
 
 
@@ -147,15 +251,10 @@
 {% if page.has_other_pages %}
   <hr />  <br />
   <div class="pagination justify-content-center" style="border-style: solid;border-width: 1px;display: flex;overflow-x: auto;">
-
-
-    </div>
-  {% endif %}        <hr />
-      {% else %}
-      <div class="col-12 text-center">
-      <h3> This video hasn't any {{ dic_name }} comments .</h3>
-      </div>
-
-
-
+  </div>
+{% endif %}        <hr />
+    {% else %}
+  <div class="col-12 text-center">
+    <h3> This video hasn't any {{ dic_name }} comments .</h3>
+  </div>
 {% endif %}

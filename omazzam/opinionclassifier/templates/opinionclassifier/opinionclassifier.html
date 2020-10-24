@@ -1,0 +1,611 @@
+{% extends 'base.html'%}
+{% load staticfiles %}
+{% load highlight %}
+{% block content %}
+
+
+<div id="fetcherDiv">
+  <div class="fetcher-loader">
+    {% include 'classification_loader.html' %}
+    <h3 class="text-center">Proccessing the POLARITIES</h3>
+  </div>
+</div>
+<div class="container text-center">
+  <div class="col-12 text-center">
+    <ol class="col-12 text-center breadcrumb">
+      <li class="breadcrumb-item"><a ng-click="clickMe()" href="{% url 'home'%}">Home</a></li>
+        <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'commentsdetail' comment_classifier_obj.comment_objID %}">Comments Detail</a></li>
+         <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'videoclassifer' comment_classifier_obj.comment_objID %}">Classify Video</a></li>
+        <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'langclassify' comment_classifier_obj.comment_objID %}">Language Classifier </a></li>
+      <li class="breadcrumb-item"><a ng-click="clickMe()"href="{% url 'classify' comment_classifier_obj.langcommentsclassifier_objID %}">Comment Classifier </a></li>
+     <li class="breadcrumb-item active"> Opinion Classifier for {{comment_classifier_obj.video_Object}} </li>
+    </ol>
+      <div class="col-12 text-center">
+         <h3>Opinion Classifier for :{{comment_classifier_obj.video_Object.video_title}}  </h3>
+         <h3 id="polarityDescision"class="badge-success">{{polarity_descision}}</h3>
+         <hr>
+
+      </div>
+
+  </div>
+
+
+<hr />
+
+<h3 class="text-center"> Polarity Categories </h3> <br />
+<h4 class="text-center">
+        {{vp}}  very positive  &#128525; , {{vn}}  very negative  &#128545; , {{pos}}  positive  &#128536;
+         {{neg}}  negative  &#128544; , {{n}}  neutral  &#128528;
+</h4>
+<br />
+
+
+</div>
+<div class="page-header col-12">
+    <h1><small class="pull-right">{{ total_processed }} comments</small> Total Proccessed  </h1>
+</div>
+
+<hr />
+
+
+
+        <div class="col-12 text-center">
+
+                  <form method="post">
+                    {% csrf_token %}
+                    <div class="btn-group">
+
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "English" data-toggle="dropdown">
+                           English
+                        </button>
+                        <div class="dropdown-menu">
+                          <button type="submit" id="pure_english_dic" class="btn btn-secondary submit dropdown-item"name="pure_english_dic" value="pure_english_dic">pure_english_comments</button>
+                          <button type="submit" id="emoji_pure_english_dic" class="btn btn-secondary submit dropdown-item"name="emoji_pure_english_dic" value="emoji_pure_english_dic">emoji_pure_english_comments</button>
+                          <button type="submit" id="emoji_english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_english_with_others_dic" value="emoji_english_with_others_dic">emoji_english_with_others_comments</button>
+                          <button type="submit" id="english_with_others_dic" class="btn btn-secondary submit dropdown-item"name="english_with_others_dic" value="english_with_others_dic">english_with_others_comments</button>
+                          <button  type="submit" id="ALL" class="btn btn-secondary submit dropdown-item"name="ALL" value="ALL">ALL</button>
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "Arabic" data-toggle="dropdown">
+                           Arabic
+                        </button>
+                        <div class="dropdown-menu">
+                          <button type="submit" id="pure_arabic_dic" class="btn btn-secondary submit dropdown-item"name="pure_arabic_dic" value="pure_arabic_dic">pure_arabic_comments</button>
+                          <button type="submit" id="arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="arabic_with_others_dic" value="arabic_with_others_dic">arabic_with_others_comments</button>
+                          <button type="submit" id="emoji_arabic_with_others_dic" class="btn btn-secondary submit dropdown-item"name="emoji_arabic_with_others_dic" value="emoji_arabic_with_others_dic">emoji_arabic_with_others_comments</button>
+                          <button type="submit" id="emoji_pure_arabic_dic" class="btn btn-secondary submit dropdown-item"name="emoji_pure_arabic_dic" value="emoji_pure_arabic_dic">emoji_pure_arabic_dic</button>
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "Mix" data-toggle="dropdown">
+                           Mixed Language
+                        </button>
+                        <div class="dropdown-menu">
+                        <button type="submit" id="ar_en_dic" class="btn btn-secondary submit dropdown-item"name="ar_en_dic" value="ar_en_dic">ar_en_comments</button>
+                        <button type="submit" id="emoji_ar_en_dic" class="btn btn-secondary submit dropdown-item"name="emoji_ar_en_dic" value="emoji_ar_en_dic">emoji_ar_en_comments</button>
+                        <button type="submit" id="mixed_lang_dic" class="btn btn-secondary submit dropdown-item"name="mixed_lang_dic" value="mixed_lang_dic">mixed_lang_comments</button>
+
+                        <button type="submit" id="emoji_mixed_lang_dic" class="btn btn-secondary submit dropdown-item"name="emoji_mixed_lang_dic" value="emoji_mixed_lang_dic">emoji_mixed_lang_comments</button>
+
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "pure_emoji" data-toggle="dropdown">
+                           Pure Emoji
+                        </button>
+                        <div class="dropdown-menu">
+                          <button type="submit" id="pure_emoji_dic" class="btn btn-secondary submit dropdown-item"name="pure_emoji_dic dropdown-item" value="pure_emoji_dic">pure_emoji_comments</button>
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdownlist " value= "Others" data-toggle="dropdown">
+                           Other Language
+                        </button>
+                        <div class="dropdown-menu">
+                          <button type="submit" id="other_language_dic" class="btn btn-secondary submit dropdown-item"name="other_language_dic" value="other_language_dic">other_language_dic</button>
+
+                          <button type="submit" id="emoji_other_language_dic" class="btn btn-secondary submit dropdown-item"name="emoji_other_language_dic" value="emoji_other_language_dic">emoji_other_language_comments</button>
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdownlist" value= "useless_and_exceptions" data-toggle="dropdown">
+                           useless_and_exceptions
+                        </button>
+                        <div class="dropdown-menu">
+                          <button type="submit" id="exceptions_dic" class="btn btn-secondary submit dropdown-item"name="exceptions_dic" value="exceptions_dic">exceptions_comments</button>
+                          <button type="submit" id="useless_comment_dic" class="btn btn-secondary submit dropdown-item"name="useless_comment_dic" value="useless_comment_dic">useless_comments</button>
+                          <button type="submit" id="emoji_exceptions_dic" class="btn btn-secondary submit dropdown-item"name="emoji_exceptions_dic" value="emoji_exceptions_dic">emoji_exceptions_comments</button>
+                          <button type="submit" id="emoji_useless_comment_dic" class="btn btn-secondary submit dropdown-item"name="emoji_useless_comment_dic" value="emoji_useless_comment_dic">emoji_useless_comments</button>
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
+
+                  </form>
+        </div>
+        <hr />
+<br />
+<br />
+<hr />
+<div class="col-12" >
+
+  <canvas id="dictionariesChart" width="100%" height="20%"></canvas>
+
+    <script type="text/javascript" src="{% static 'JS\charts\Chart.min.js'%}"></script>
+  <script type="text/javascript">
+  var ctx = document.getElementById('dictionariesChart').getContext('2d');
+  var dictionariesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: ['English', 'Pure_Emoji', 'Arabic', 'Mixed', 'Other_Language', 'useless_and_exceptions'],
+          datasets: [{
+              label: '# of comments',
+              data: [{% for key, value in dictionay_length_pairs.items %}
+                  {{value}},
+              {% endfor %}],
+              backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)',
+                  'rgba(153, 102, 255, 0.2)',
+                  'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(153, 102, 255, 1)',
+                  'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+      }
+  });
+  </script>
+
+</div>
+<div class="col-12">
+
+</div>
+<div id="contents"  style="border-style: solid;border-width: 1px;" class="col-12" >
+
+<h4 class="text-center"> Please select a language to classify the opinions related with </h4>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="polarityDialogProccessor" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="polarityDialogProccessorTitle"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" >
+          {% csrf_token %}
+          <div class="form-group row">
+
+              <div class="col-md-12 ">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-primary servicetype" value="allComments">All comments </button>
+                    <button type="button" class="btn btn-primary servicetype" value="relatedWithOthers">Related with others </button>
+                      <button type="button" class="btn btn-primary servicetype" value="relatedTothisVideo">Related to this video </button>
+                    <span class="caret"></span>
+                  </button>
+                </div>
+              </div>
+
+
+          </div>
+          <div class="form-group row">
+
+              <div class="col-md-12 ">
+                <label for="num_samples">Sample's range : min(<span class="badge badge-dark">2</span>) ,max(<span class="badge badge-dark">2000</span>) .</label>
+                  <input type="range" class="form-control" id="num_samples" min="2" max="2000" name="num_samples" placeholder="number of samples" required/>
+                  <h3  ><span class="badge badge-info" id="num_samples_viewer"></span></h3>
+                  <h6> large number of samples affects the performance but increase the accuracy .</h6>
+              </div>
+
+
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" id="predictor" class="btn btn-secondary">predict the polarities</button>
+      </div>
+    </div>
+  </div>
+</div>
+<hr />
+
+
+<div class="container">
+  <div class="row">
+   <hr /><br />
+  </div>
+  <div class="row recommandations">
+
+
+  </div>
+</div>
+
+
+
+
+
+
+<script type="text/javascript">
+//$('.recommandations').hide();
+var count = 1;
+
+if(count == 1){
+  $(window).scroll(function(){
+if($(window).scrollTop() == $(document).height()-$(window).height()){
+
+     var video_titles_sets =  '{{video_titles_sets}}';
+     while(video_titles_sets.includes("&#39;")){
+       video_titles_sets = video_titles_sets.replace("&#39;","'");
+     }
+
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": '{{csrf_token}}' }
+      });
+      $.ajax(
+      {
+          type:"POST",
+          url: "{% url 'recommandations' comment_classifier_obj.video_Object.id %}",
+          data:{
+
+            video_title : video_titles_sets,
+      },
+      success: function( data )
+      {
+        // payload
+
+      if(data['state'] == 'success'){
+
+
+if (count == 1 ){
+  var videoIds = [];
+    var text = '<div class="header col-12 alert-success"><h1>Related Videos &#128515; :</h1><br /></div>';
+  var url = '';
+   for(i = 0 ; i < data['video_sets'].length ; i++){
+    videoIds[i] =  parseInt(data['video_ids'][i]);
+    console.log(videoIds[i]);
+    if (videoIds[i] != {{comment_classifier_obj.video_Object.id}}){
+      url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment_classifier_obj.comment_objID",videoIds[i]);
+
+      console.log(url);
+      console.log(videoIds);
+
+      text += '<div class="col-lg-3 col-md-4 col-xs-6 thumb">'
+          + ' <div class="embed-responsive embed-responsive-21by9">'
+          +   '  <iframe class="embed-responsive-item" src="'+data['video_waching_urls'][i]+'"></iframe>'
+
+          +  '  </div>'
+            + '<p class="card-title video_title" ng-click="clickMe()" ><a href="'+url+'" >'+data['video_sets'][i]+'</a>  ,CATEGORY : '+data['video_categories'][i]+'</p>'
+          +'</div>';
+      $('.recommandations').append(text);
+      text = '';
+    }
+
+  }
+
+
+}
+
+count += 1;
+
+
+
+}
+
+    },
+
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+      if(count == 1){
+        text = '<div class="container-fluid"><div style="background-color: #009688">';
+        text += '<p class="text-center alert-danger text-center" style="color: #fff;"> &#128531; There is no videos related to this video in our database &#128531;</p>'
+        text += '</div></div>';
+
+        $('.recommandations').append(text);
+        text = '';
+      }
+      count += 1;
+    }
+   });
+
+}  });
+}
+
+  $('#loaderDiv').hide();
+
+
+
+        </script>
+<script type="text/javascript">
+     $('#num_samples').change(function(){
+      var num_samples = $('#num_samples').val();
+
+      $('#num_samples_viewer').text(num_samples.toString());
+
+     });
+      $("#fetcherDiv").hide();
+      /*$('#loaderDiv').hide();*/
+  //  var dic_name = "";
+  //  var category = "";
+    dic_name = "";
+    category = "";
+    outterbutton = "";
+
+
+
+  $('.dropdownlist').on('click', function () {
+    outterbutton = $(this);
+    $(this).css("color", "black").slideUp(50).slideDown(2000);
+
+    category = $(this).val();
+
+    $('.dropdownlist').css("color", "white");
+    $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
+
+
+
+    $('.submit').on('click', function () {
+     dic_name = $(this).val();
+    //  var num_sample = $('#num_samples').val();
+    //  num_samples = parseInt(num_sample)
+      $(this).removeClass("btn-secondary").addClass("btn-warning");
+      $('#polarityDialogProccessorTitle').text(dic_name);
+      $("#polarityDialogProccessor").modal('show');
+
+  });
+});
+
+
+
+    $(".servicetype").click(function(){
+      $(".servicetype").removeClass("btn-warning").addClass("btn-primary");
+      $(this).removeClass("btn-primary").addClass("btn-warning");
+      var servicetype = $(this).val();
+      $(".servicetype").prop('required',false);
+      $(this).prop('required',true);
+      $('#predictor').removeClass("btn-secondary").addClass('btn-primary');
+      $('#predictor').on('click',function(event){
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        var num_sample = $('#num_samples').val();
+
+        num_samples = parseInt(num_sample);
+
+        $("#fetcherDiv").show();
+
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+          });
+        $.ajax(
+        {
+            type:"POST",
+            url: "{% url 'omdictionariesfetcher' comment_classifier_obj.id %}",
+            data:{
+              dic_name : dic_name ,
+              num_samples : num_samples ,
+              category :category,
+              servicetype : servicetype,
+            },
+        success: function( data )
+        {
+          // payload
+
+          dic_name ='' ;
+          category = '' ;
+          servicetype = '';
+          $(".dropdownlist").on('click',function(){
+            category = $(this).val();
+          });
+
+          $(".submit").on('click',function(){
+             dic_name = $(this).val();
+             $(".servicetype").on('click',function(){
+               servicetype = $(this).val();
+             });
+          });
+
+          var url = "{% url 'omdectionaryviewer' lang_classifier_obj_id "+'num_samples'+" "+'dic_name'+" "+'category'+" "+'servicetype'+"%}".replace("dic_name",data.success);
+          url = url.replace("num_samples",data.num_samples);
+          url = url.replace("servicetype",data.servicetype);
+          url = url.replace("category",data.category);
+          url = url.replace("+&#39;","");
+          url = url.replace("&#39;+","");
+          url = url.replace("+&#39;","");
+          url = url.replace("&#39;+","");
+          url = url.replace("+&#39;","");
+          url = url.replace("&#39;+","");
+          url = url.replace("+&#39;","");
+          url = url.replace("&#39;+","");
+          url = url.replace("%20/%20+%20&#39;","");
+
+          $("#polarityDialogProccessor").modal('hide');
+          var nextPageBaseUrl = url + "?page=" ;
+          var prevPageBaseUrl = url + "?&page=" ;
+          var numberOfPages = 0 ;
+          var currentPage = 0 ;
+          $('#contents').html('').load(url,function(){
+          url = " ";
+          currentPageStr = $('.currentPage').val();
+          numberOfPagesStr = $('.numberOfPages').val();
+          $('#polarityDescision').append('{{polarity_descision}}');
+          currentPage = parseInt(currentPageStr);
+          nextPageNum = currentPage + 1 ;
+          nextPageNumStr = nextPageNum.toString();
+          numberOfPages = parseInt(numberOfPagesStr);
+          var pageURL = "" ;
+          nextPageUrl = nextPageBaseUrl + nextPageNumStr ;
+          var temp = "";
+          if(numberOfPages > 1){
+            var text = '<nav style="border-style: dotted;border-width: thick;" aria-label="Page navigation example"><h3 class="justify-content-center">Pages</h3><ul class="pagination">';
+            var active = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+
+
+
+
+            $('.pagination').empty();
+            for(var i = 1 ;i <= numberOfPages;i++){
+
+              pageURL = nextPageBaseUrl + i;
+              if(i == currentPage){
+
+              }else{
+
+              }
+              if(i == numberOfPages){
+                if(i == currentPage){
+                  text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                  text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                }else{
+                  text = '<li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'" aria-label="Last-Page"><span aria-hidden="true">'+i.toString()+'</span>';
+                  text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                }
+                $('.pagination').append(text);
+              }else if(i == 1){
+                if(i == currentPage){
+                  text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                  text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                }else{
+                  text = ' <li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'" aria-label="First-Page">';
+                  text += '<span aria-hidden="true">'+i.toString()+'</span><span class="sr-only">First-Page</span></a></li>';
+                }
+
+                $('.pagination').append(text);
+              }else{
+                if(i == currentPage){
+                  text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                  text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                }else{
+                  text = '<li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'">'+i.toString()+'</a></li> ';
+                }
+
+
+                $('.pagination').append(text);
+              }
+
+
+
+
+            }
+
+
+            }
+            $(document).on("click", "a.urls" , function(e) {
+              $("#fetcherDiv").show();
+              e.stopPropagation();
+              e.preventDefault();
+              temp = $(this).attr('href');
+              $('#contents').empty();
+
+              $('#contents').html('').load(temp,function(){
+                for(var i = 1 ;i <= numberOfPages;i++){
+                  currentPageStr = $('.currentPage').val();
+                  currentPage = parseInt(currentPageStr);
+                  pageURL = nextPageBaseUrl + i;
+                  if(i == currentPage){
+
+                  }else{
+
+                  }
+                  if(i == numberOfPages){
+                    if(i == currentPage){
+                      text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                      text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                    }else{
+                      text = '<li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'" aria-label="Last-Page"><span aria-hidden="true">'+i.toString()+'</span>';
+                      text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                    }
+                    $('.pagination').append(text);
+                  }else if(i == 1){
+                    if(i == currentPage){
+                      text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                      text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                    }else{
+                      text = ' <li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'" aria-label="First-Page">';
+                      text += '<span aria-hidden="true">'+i.toString()+'</span><span class="sr-only">First-Page</span></a></li>';
+                    }
+
+                    $('.pagination').append(text);
+                  }else{
+                    if(i == currentPage){
+                      text = '<li class="page-item active"><span class="page-link">'+currentPage.toString()+'<span class="sr-only">(current)</span></span></li>';
+                      text += '<span class="sr-only">Last-Page</span></a></li></ul></nav>';
+                    }else{
+                      text = '<li class="page-item"><a id="'+i.toString()+'" class="page-link urls" href="'+pageURL+'">'+i.toString()+'</a></li> ';
+                    }
+
+
+                    $('.pagination').append(text);
+                    $("#fetcherDiv").hide();
+                  }
+
+
+
+
+
+                }
+
+                  $("#polarityDialogProccessor").modal('hide');
+              });
+
+
+            });
+
+    $("#fetcherDiv").hide();
+
+
+        });
+
+
+
+
+
+          $('.dropdownlist').removeClass("btn-success").addClass("btn-primary");
+        //  outterbutton.removeClass("btn-primary").addClass("btn-success");
+
+
+      }});
+      });
+});
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+{% endblock %}

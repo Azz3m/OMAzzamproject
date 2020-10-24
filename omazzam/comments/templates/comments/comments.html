@@ -213,7 +213,7 @@
 
               <div class="card-body">
                 <h5 class="card-title"><a href="{{ item.3|slice:"2:-2" }}">{{item.1|slice:"2:-2"}}</a></h5>
-                <p class="card-text">{{ item.0|slice:"2:150" }}</p>
+                <p class="card-text">{{ item.0|slice:"2:-1" }}</p> <!--|slice:"2:150" -->
                 <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-2" }}</small></p>
               </div>
             </div>
@@ -229,7 +229,7 @@
 
                 <div class="card-body">
                 <h5 class="card-title"><a href="{{ item.3|slice:"2:-1" }}">{{item.1|slice:"2:-1"}}</a></h5>
-                <p class="card-text">{{ item.0|slice:"2:150" }}</p>
+                <p class="card-text">{{ item.0|slice:"2:-1" }}</p>
                 <p class="card-text"><small class="text-muted">Last updated {{ item.4|slice:"2:-1" }}</small></p>
                 </div>
               </div>
@@ -247,7 +247,7 @@
 {% if page.has_other_pages %}
 
     <div class="pagination justify-content-center">
-      
+
         {% if page.has_previous %}
         <a href="?&page={{page.previous_page_number}}" ng-click="clickMe()">Previous</a> -
         {% endif %}

@@ -114,7 +114,7 @@ class Videoinformation(models.Model):
                     temp = tags_list
                     for tag in temp:
                         tag = tag.lower()
-                        tag = self.repeative_characters_removal(tag)
+                        #tag = self.repeative_characters_removal(tag)
                         tag_list.append(tag)
                     self.tags = {"predefined":tag_list,"userdefined":["NO-TAGS"]}
                 except:

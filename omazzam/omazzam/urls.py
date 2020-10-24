@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from comments import views
 from accounts import views as account
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('accountgetter/', account.accountgetter, name="accountgetter"),
     path('testapi/', account.testapi, name="testapi"),
     #path('accounts/',include('accounts.urls')),
+    path('opinionclassifier/',include('opinionclassifier.urls')),
     path('comments/',include('comments.urls')),
     path('commentsclassifier/',include('commentsclassifier.urls')),
 ]

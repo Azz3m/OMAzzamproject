@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'livesync',
     'accounts.apps.AccountsConfig',
     'contactus.apps.ContactusConfig',
     'comments.apps.CommentsConfig',
@@ -42,9 +43,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
+    'django_extensions',
 
+]
+GRAPH_MODELS = {
+    'pygraphviz': True,
+    'group_models': True,
+
+}
 MIDDLEWARE = [
+    'livesync.core.middleware.DjangoLiveSyncMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -133,7 +141,7 @@ os.path.join(BASE_DIR, 'omazzam/static/'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
-
+STATIC_TEMP_URL = STATIC_URL + '/temp/'
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'

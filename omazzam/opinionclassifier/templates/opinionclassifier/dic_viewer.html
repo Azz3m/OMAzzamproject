@@ -1,0 +1,390 @@
+{% load highlight %}
+{% load staticfiles %}
+
+
+<div id="header" class="col-12">
+<hr />
+{% if prediction_capability %}
+{% if dic|length > 0 %}
+  <div class="page-header">
+    <h1><small class="pull-right">
+      {{ dic|length }} comments</small> <span class="badge badge-success" title="{{ dic|length }}"> {{ dic_name }} </h1>
+      <h3 class="text-center">Query Type :  <span class="badge badge-info" title="query type"> {{ servicetype }} </span>  , Number 0f Samples :<span class="badge-info">{{ num_samples }} </span>samples , Polarity :<span class="badge-info"> <big>{{polarity_descision}} </big></span> </h3>
+    </div>
+</div>
+{% else %}
+  <div class="page-header">
+    <h1><small class="pull-right">
+      0 comments</small> <span class="badge badge-danger" title="{{ dic|length }}"> {{ dic_name }} </span> </h1>
+    </div>
+{% endif %}
+  {% if dic|length > 0 %}
+
+  <!-- Tabs-->
+          <div class="row row-content">
+            <script type="text/javascript" src="{% static 'JS\charts\Chart.min.js'%}"></script>
+              <div class="col-12 ">
+                  <h2>Charts</h2>
+                  <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                      <a class="nav-link" href="#commentsPolarities"
+                       role="tab" data-toggle="tab"> Polarities chart  </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link active" href="#dictionariesChartPerCatg"
+                       role="tab" data-toggle="tab">dictionaries Chart Per Category</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#commentsAsTimeSeries"
+                       role="tab" data-toggle="tab">comments As a TimeSeries </a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link" href="#relatedVideos"
+                       role="tab" data-toggle="tab">Comments Related To Others </a>
+                    </li>
+
+
+
+
+                  </ul>
+                   <div class="tab-content">
+                      <div role="tabpanel" class="tab-pane fade show active" id="dictionariesChartPerCatg">
+                        <canvas id="dictionariesChartPerCatgCanvas" width="100%" height="20%"></canvas>
+                        <script type="text/javascript">
+                        var ctx = document.getElementById('dictionariesChartPerCatgCanvas').getContext('2d');
+
+
+                        var dictionariesChartPerCatg = new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: [{% for key,value in dictionary_among_one_category.items %}
+                                    '{{key}}',
+                                {% endfor %}],
+                                datasets: [{
+                                    label: '# of comments per Category',
+                                    data: [{% for key, value in dictionary_among_one_category.items %}
+                                        {{value}},
+                                    {% endfor %}],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            }
+                        });
+
+                      </script>
+                      </div>
+
+                      <div role="tabpanel" class="tab-pane fade" id="commentsAsTimeSeries">
+                          <canvas id="commentsAsTimeSeriesCanvas" width="100%" height="30%"></canvas>
+                          <script type="text/javascript">
+                          var ctxTime = document.getElementById('commentsAsTimeSeriesCanvas').getContext('2d');
+                          var commentsAsTimeSeries = new Chart(ctxTime, {
+                              type: 'line',
+                              data: {
+                                  datasets: [{
+                                      data: [{% for comments in comments_over_time_for_one_dic %}
+                                          '{{comments.1}}',
+                                      {% endfor %}],
+                                      label: 'comments Over Time',
+
+                                      // This binds the dataset to the left y axis
+                                      yAxisID: 'comments Over Time'
+                                  }],
+                                  labels: [{% for date in comments_over_time_for_one_dic %}
+                                      '{{date.0}}',
+                                  {% endfor %}]
+                              },
+                              options: {
+                                  scales: {
+                                      yAxes: [{
+                                          id: 'comments Over Time',
+                                          type: 'linear'
+                                      }]
+                                  }
+                              }
+                          });
+                          </script>
+                      </div>
+
+                      <div role="tabpanel" class="tab-pane fade" id="commentsPolarities">
+                        <canvas id="commentsPolaritiesCanvas" width="100%" height="30%"></canvas>
+                        <script type="text/javascript">
+                            var ctxPolarities = document.getElementById('commentsPolaritiesCanvas').getContext('2d');
+                            var commentsPolarities = new Chart(ctxPolarities, {
+                                type: 'bar',
+                                data: {
+                                    labels: [{% for key,value in polarity_dic.items %}
+                                        '{{key}}',
+                                    {% endfor %}],
+                                    datasets: [{
+                                        label: '# of Plarities (({{polarity_descision}}))',
+                                        data: [{% for key, value in polarity_dic.items %}
+                                            {{value}},
+                                        {% endfor %}],
+                                        backgroundColor: [
+                                            'rgba(255, 99, 132, 0.2)',
+                                            'rgba(54, 162, 235, 0.2)',
+                                            'rgba(255, 206, 86, 0.2)',
+                                            'rgba(75, 192, 192, 0.2)',
+                                            'rgba(153, 102, 255, 0.2)',
+                                            'rgba(255, 159, 64, 0.2)'
+                                        ],
+                                        borderColor: [
+                                            'rgba(255, 99, 132, 1)',
+                                            'rgba(54, 162, 235, 1)',
+                                            'rgba(255, 206, 86, 1)',
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(153, 102, 255, 1)',
+                                            'rgba(255, 159, 64, 1)'
+                                        ],
+                                        borderWidth: 1
+                                    }]
+                                }
+                            });
+                        </script>
+
+                      </div>
+                      <div role="tabpanel" class="tab-pane fade" id="relatedVideos">
+                        <canvas id="related_videos_polarities" width="100%" height="30%"></canvas>
+                        <script type="text/javascript">
+                            var ctxRelatedVideos = document.getElementById('related_videos_polarities').getContext('2d');
+                            var relatedVideos = new Chart(ctxRelatedVideos, {
+                                type: 'bar',
+                                data: {
+                                    labels: ['all comments' , 'related with others' , 'related to this Video'],
+                                    datasets: [{
+                                        label: '# Related comments',
+                                        data: [{{dic|length}} , {{video_titles_linker_total}} , {{video_specification_linker_total}}],
+                                        backgroundColor: [
+                                            'rgba(255, 99, 132, 0.2)',
+                                            'rgba(54, 162, 235, 0.2)',
+                                            'rgba(255, 206, 86, 0.2)',
+                                            'rgba(75, 192, 192, 0.2)',
+                                            'rgba(153, 102, 255, 0.2)',
+                                            'rgba(255, 159, 64, 0.2)'
+                                        ],
+                                        borderColor: [
+                                            'rgba(255, 99, 132, 1)',
+                                            'rgba(54, 162, 235, 1)',
+                                            'rgba(255, 206, 86, 1)',
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(153, 102, 255, 1)',
+                                            'rgba(255, 159, 64, 1)'
+                                        ],
+                                        borderWidth: 1
+                                    }]
+                                }
+                            });
+                        </script>
+
+                      </div>
+
+                    </div>
+                </div>
+         </div>
+
+  </div>
+  <hr />
+
+  {% if page.has_other_pages %}
+  <input type="text" class="currentPage" value="{{page.number}} " hidden/>
+  <input type="text" class="numberOfPages" value="{{page.paginator.num_pages}} " hidden/>
+    <div class="pagination justify-content-center" style="border-style: solid;border-width: 1px;display: flex;overflow-x: auto;">
+      </div>
+    {% endif %}
+        <hr />
+
+            <h3 class="text-center" > polarity descision for this Result :<span class="badge-warning"> {{ polarity_descision}} </span>
+
+            </h3>
+            <hr />
+          <div class="row">
+            <hr />
+                  {% for item in page_obj %}
+                      <div class="col-sm-4">
+                        <div class="card-group">
+                          <div class="card" title="{% if item.12 %}
+                                                        related videos :
+                                                       {% for item in item.12 %}
+                                                         {{ item }}  ,
+                                                       {% endfor %}
+                                                      {% endif %}
+                                                      {% if  item.13 %}
+                                                      {% for item in item.13 %}
+                                                      related video :
+                                                        {{ item }} ,
+                                                      {% endfor %}
+                                                      {% endif %}" >
+                            <a href="{{ item.3  }}"><img src="{{item.2 }}"  /></a>
+                            <div class="card-body">
+                              <h5 class="card-title"><a href="{{ item.3  }}"> {{ item.1 }}</a>, polarity :
+                              {% if item.14 == 'ignored' %}
+                              &#128566;
+                              {% endif %}
+                              {% if item.14 == 'very_positive' %}
+                              &#128525;
+                              {% endif %}
+                              {% if item.14 == 'positive' %}
+                              &#128536;
+                              {% endif %}
+                              {% if item.14 == 'neutral' %}
+                              &#128528;
+                              {% endif %}
+                              {% if item.14 == 'very_negative' %}
+                              &#128545;
+                              {% endif %}
+                              {% if item.14 == 'negative' %}
+                              &#128544;
+                              {% endif %}</h5>
+                              <p class="card-text" title="{{item.5}}">
+                                {% if item.8 and item.9 %}
+                                  <p class="card-text trigger"title="{{ item.5 }}">{{ item.0|highlightpredefined:item.8|highlightuser:item.9}}</p><br />
+                                  <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
+                                  <table style="position:absolute;right:3px;top:5px;">
+                                    {% if item.8%}
+                                    {% for tag,repeat in item.6 %}
+                                    <thead>
+                                      <tr>
+                                        <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
+                                        <td scope="row">{{repeat }} times</td>
+                                      </tr>
+                                    </thead>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if item.9 %}
+                                    {% for tag,repeat in item.6 %}
+                                    <thead>
+                                      <tr>
+                                        <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
+                                        <td scope="row">{{repeat }} times</td>
+                                      </tr>
+
+                                    </thead>
+                                    {% endfor %}
+                                    {% endif %}
+                                  </table>
+                                  {% elif item.8 %}
+                                      <p class="card-text trigger" title="{{ item.5 }}">{{ item.0|highlightpredefined:item.8}}</p><br />
+                                      <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
+                                      <table style="position:absolute;right:3px;top:5px;">
+                                        {% for tag,repeat in item.6 %}
+                                        <thead>
+                                          <tr>
+                                            <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
+                                            <td scope="row">{{repeat }} times</td>
+                                          </tr>
+
+                                        </thead>
+                                        {% endfor %}
+                                      </table>
+                                      {%elif item.9 %}
+                                          <p class="card-text trigger"title="{{ item.5 }}">{{ item.0|highlightuser:item.9}}</p><br />
+                                          <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
+                                          <table style="position:absolute;right:3px;top:5px;">
+                                            {% for tag,repeat in item.11 %}
+                                            <thead>
+                                              <tr>
+                                                <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
+                                                <td scope="row">{{repeat }} times</td>
+                                              </tr>
+
+                                            </thead>
+                                            {% endfor %}
+                                          </table>
+                            {% else %}
+                                <p class="card-text trigger"title="{{ item.5 }}">{{ item.0|slice:"0:50"}}</p><br />
+                                <p class="card-text"style="position:absolute;right:3px;bottom:5px;" ><small class="text-muted">Last updated {{ item.4 }}</small></p>
+                            {% endif %}
+                               </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  {% endfor %}
+</div>
+</div>
+{% if page.has_other_pages %}
+  <hr />  <br />
+  <div class="pagination justify-content-center" style="border-style: solid;border-width: 1px;display: flex;overflow-x: auto;">
+    </div>
+  {% endif %}        <hr />
+      {% else %}
+      <div class="col-12 text-center">
+      <h3> This video hasn't any {{ dic_name }} comments .</h3>
+      </div>
+
+{% endif %}
+
+<div class="explanation-box" style="background-color: #D1C4E9;width: 75%;height:35%;overflow: auto; position: fixed;top: 50%;left: 50%;-webkit-transform: translate(-50%, -50%);transform: translate(-50%, -50%);border: 1px solid black;z-index:20000;">
+  <h3>Polarity Explainer :<big class="pull-right" onMouseOver="this.style.cursor='pointer'"id="close">&times;</big></h3>
+
+  <div class="explanation">
+
+  </div>
+</div>
+<script type="text/javascript">
+$('.explanation').empty();
+$('.explanation-box').hide();
+$('#close').click(
+  function(){
+    $('.explanation').empty();
+    $('.explanation-box').hide();
+  }
+);
+
+$( ".trigger" ).click(
+
+  function() {
+     $("#fetcherDiv").show();
+      var text = $(this).text();
+      $('.explanation').empty();
+      $('.explanation-box').hide();
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+          });
+        $.ajax(
+        {
+            type:"POST",
+            url: "{% url 'explain' %}",
+            data:{
+                     text : text,
+        },
+        success: function( data )
+        {
+        // payload
+        //alert(data.success);
+        //$('.').html();
+
+        $("#fetcherDiv").hide();
+        $('.explanation-box').show();
+        $('.explanation').html(data.success);
+
+      }
+    });
+  }
+);
+
+</script>
+{% else %}
+<hr />
+<div class="page-header">
+  <h1 class="text-center"> <span class="badge badge-danger" title="Under Developing "> {{ status }} </span></h1>
+  </div>
+  <hr />
+{% endif %}
