@@ -14,7 +14,11 @@ from django.conf.urls.static import static
 import ast
 import datetime
 import collections
-
+import re, string
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.corpus import stopwords
+from nltk.tag import pos_tag
+from nltk.tokenize import word_tokenize
 METHODS = {
     'textblob': {
         'class': "TextBlobExplainer",
@@ -56,6 +60,35 @@ def tokenizer(text: str) -> str:
     return tokenized_text
 
 
+def remove_noise(text, stop_words = ()):
+
+
+
+    for token, tag in pos_tag(text):
+        token = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+#]|[!*\(\),]|'\
+                       '(?:%[0-9a-fA-F][0-9a-fA-F]))+','', token)
+        token = re.sub("(@[A-Za-z0-9_]+)","", token)
+
+        if tag.startswith("NN"):
+            pos = 'n'
+        elif tag.startswith('VB'):
+            pos = 'v'
+        else:
+            pos = 'a'
+
+        lemmatizer = WordNetLemmatizer()
+        nlp = spacy.blank('en')
+        nlp.add_pipe(nlp.create_pipe('sentencizer'))  # Very basic NLP pipeline in spaCy
+        doc = nlp(token)
+        token = lemmatizer.lemmatize(token, pos)
+
+        if len(token) > 0 and token not in string.punctuation and token.lower() not in stop_words:
+            tokenized_text = ' '.join(token.text for token in doc)
+    return tokenized_text
+
+
+
+
 def explainer_class(method:str, filename: str) -> Any:
     "Instantiate class using its string name"
     classname = METHODS[method]['class']
@@ -86,6 +119,7 @@ class VaderExplainer:
     def predict(self, texts: List[str]) -> np.array([float, ...]):
         probs = []
         for text in texts:
+
             # First, offset the float score from the range [-1, 1] to a range [0, 1]
             offset = (self.score(text) + 1) / 2.
             # Convert float score in [0, 1] to an integer value in the range [1, 5]
@@ -140,7 +174,7 @@ def explainer(
 # Create your models here.
 
 
-class Englishproccessing(models.Model):
+class EnglishProcessing(models.Model):
 
 
 
@@ -151,7 +185,9 @@ class Englishproccessing(models.Model):
         path_to_file = METHODS['vader']['file']
 
         # Run explainer function
+
         text = tokenizer(text)  # Tokenize text using spaCy before explaining
+        
 
         exp = explainer('vader', path_to_file, text, int(num_samples))
 

@@ -19,14 +19,14 @@
    <br />
 
    <div class="offset-2 col-10 col-md-9">
-   <form method="POST" id="myForm" action="{% url 'home'%}">
+   <form method="POST" id="myForm">
        {% csrf_token %}
        <div class="form-group row">
          <div class="input-group">
-           <input type="text" class="form-control" placeholder="Search for video in Youtube" name="videoSearch">
+           <input type="text" id="videoID" class="form-control" placeholder="Search for video in Youtube" name="videoSearch">
 
            <div class="input-group-append">
-             <button class="btn btn-secondary" type="submit" onclick="showLoader();"  id="submit">
+             <button class="btn btn-secondary" type="submit"   id="submit">
                <i class="fa fa-search"></i>
              </button>
            </div>
@@ -38,36 +38,264 @@
 
 
    </div>
-   <div  class="offset-2 col-10 col-md-9">
+   <div  class="offset-2 col-10 col-md-9 error">
 
-     {% if error %}
-     <h3 class="alert alert-danger">{{ error }}</h3>
-     {% endif %}
-     {% if state %}
-     <h3 class="alert alert-success">{{ state }}</h3>
-     {% endif %}
+
+
+
+
 
    </div>
+   <div class="modal fade" id="videoChecker" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered" role="document">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h5 class="modal-title" id="modalTitle"></h5>
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+         </div>
+         <div class="modal-body">
+           <form method="post" >
+             {% csrf_token %}
+             <div class="form-group row">
+
+                 <div class="col-md-12 videoName">
+
+                   <div class="col-md-12 thumb">
+                       <div class="embed-responsive embed-responsive-21by9">
+                       <iframe class="embed-responsive-item videoWatchingURL" title="" src=""></iframe>
+
+                       </div>
+                       <p class="card-title video_title" ng-click="clickMe()" ><a class="commentsDetailURL" href="" ></a>  </p>
+                       </div>
+                 </div>
+
+
+             </div>
+
+
+           </form>
+         </div>
+         <div class="modal-footer">
+           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+           <button type="button" class="btn btn-primary  update" value="Update">Update </button>
+           <button type="button" class="btn btn-primary continue " value="Continue ">Continue with prefeched comments</button>
+
+         </div>
+       </div>
+     </div>
+   </div>
+
 
 </div>
 <br />
 <br />
+  {% if user.is_authenticated %}
+<div class="container">
+  <div class="row recommandations text-center">
 
 
+</div>
+<script type="text/javascript">
+var count = 1;
+
+
+  $(window).scroll(function(){
+if($(window).scrollTop() == $(document).height()-$(window).height()){
+    var username = "{{user}}";
+  if(count == 1){
+
+
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": '{{csrf_token}}' }
+      });
+      $.ajax(
+      {
+          type:"POST",
+          url: "{% url 'usersearch' %}",
+          data:{
+        username : username ,
+
+      },
+      success: function( data )
+      {
+
+        // payload
+if (count == 1 ){
+      if(data.state == 'success'){
+
+  var text = '<div class="header col-12 alert-success"><h1>Usersearch Videos &#128515; :</h1><br /></div>';
+
+
+  var videoIds = [];
+  var url = '';
+   for(i = 0 ; i < data['video_title_list'].length ; i++)
+   {
+         url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment.id",data['video_id_list'][i]);
+         text += '<div class="col-lg-3 col-md-4 col-xs-6 thumb">'
+             + ' <div class="embed-responsive embed-responsive-21by9">'
+             +   '  <iframe class="embed-responsive-item" title="'+data['video_title_list'][i]+'" src="'+data['video_url_list'][i]+'"></iframe>'
+
+             +  '  </div>'
+             + '<p class="card-title video_title" ng-click="clickMe()" ><a href="'+url+'" >'+data['video_title_list'][i]+'</a>  </p>'
+             +'</div>';
+         $('.recommandations').append(text);
+         text = '';
+
+  }
+
+}
+else{
+
+}
+
+
+
+
+
+}
+count += 1;
+    },
+
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+      if(count == 1){
+        text = '<div class="container-fluid"><div style="background-color: #009688">';
+        text += '<p class="text-center alert-danger text-center" style="color: #fff;"> &#128531; it seems you did nott have any video in database &#128531;</p>'
+        text += '</div></div>';
+
+        $('.recommandations').append(text);
+        text = '';
+      }
+      count += 1;
+    }
+   });
+}
+}  });
+
+
+
+        </script>
+</div>
+{% endif %}
 
 <script type="text/javascript">
 $('.fetcherloader').hide();
-function showLoader() {
+
+$('#submit').click(function(){
   $('.fetcherloader').show();
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
+  var video_ID_parameter = $('#videoID').val();
+  $.ajaxSetup({
+      headers: { "X-CSRFToken": '{{csrf_token}}' }
+    });
+    $.ajax(
+    {
+        type:"POST",
+        url: "{% url 'comment_object_checker' %}",
+        data:{
+      videoSearch : video_ID_parameter ,
+
+    },
+    success: function( data )
+    {
+    if (data.state == 'success'){
       $('.fetcherloader').hide();
+      var text='';
+      url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment.id",data['comment_id']);
+       $(".commentsDetailURL").attr("href", url);
+        $(".videoWatchingURL").attr("src", data['watching_url']);
+        $(".commentsDetailURL").append(data['video_title']);
+      text=""
+      $('#modalTitle').text("we found video in our database : ");
+      $('#videoChecker').modal('show');
+      $('.update').click(function(){
+        $('.fetcherloader').show();
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+          });
+        $.ajax(
+        {
+            type:"POST",
+            url: "{% url 'comment_object_recreater' %}",
+            data:{
+            videoSearch : video_ID_parameter ,
+
+        },
+        success: function( data )
+        {
+          // payload
+          $.ajaxSetup({
+              headers: { "X-CSRFToken": '{{csrf_token}}' }
+            });
+            $.ajax(
+            {
+                type:"POST",
+                url: "{% url 'home' %}",
+                data:{
+              videoSearch : video_ID_parameter ,
+
+            },success: function( data )
+            {
+
+              if (data.state == "success"){
+              var comment_id = parseInt(data['comment_id']);
+
+              url = "http://127.0.0.1:8000/comments/commentsdetail/"+comment_id+""
+              window.location = url;
+              $('.fetcherloader').hide();
+              }else{
+              $('.error').html("<h3 class='alert alert-danger error'>"+data['error']+"</h3>")
+              $('.fetcherloader').hide();
+              $('#videoChecker').modal('hide');
+              }
+
+          }
+          });
+
+      }
+      });
+      });
+      $('.continue').click(function(){
+        $('.fetcherloader').show();
+        var comment_id = parseInt(data['comment_id']);
+
+        url = "http://127.0.0.1:8000/comments/commentsdetail/"+comment_id+""
+        window.location = url;
+      });
+
+    }else{
+      $.ajaxSetup({
+          headers: { "X-CSRFToken": '{{csrf_token}}' }
+        });
+        $.ajax(
+        {
+            type:"POST",
+            url: "{% url 'home' %}",
+            data:{
+          videoSearch : video_ID_parameter ,
+
+        },success: function( data )
+        {
+          // payload
+          if (data.state == "success"){
+          var comment_id = parseInt(data['comment_id']);
+
+          url = "http://127.0.0.1:8000/comments/commentsdetail/"+comment_id+""
+          window.location = url;
+      $('.fetcherloader').hide();
+    }else{
+      $('.error').html("<h3 class='alert alert-danger error'>"+data['error']+"</h3>")
+      $('.fetcherloader').hide();
+      $('#videoChecker').modal('hide');
     }
-  };
-  xhttp.open("GET", "{% url 'home' %}",False);
-  xhttp.send();
-}
+      }
+      });
+    }
+
+  }
+ });
+});
 </script>
 
 {% endblock %}

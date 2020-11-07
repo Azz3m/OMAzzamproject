@@ -5,12 +5,44 @@ from django.http import JsonResponse,HttpResponse
 from django.core.paginator import Paginator
 from itertools import chain
 import json
+from commentsclassifier.models import Commentclassifier
 from .models import Comment,Videoinformation,Usersearcher,video_data_url_builder,comments_data_url_builder,Videocategoryclassifier
 import re
 import ast
 
 
 # Create your views here.
+def comment_object_checker(request):
+    if request.method == 'POST':
+        if request.POST['videoSearch']:
+            video_ID_parameter = request.POST['videoSearch']
+
+            if Videoinformation.objects.filter(video_ID=video_ID_parameter).exists():
+                video_object = get_object_or_404(Videoinformation, video_ID=video_ID_parameter)
+                if Comment.objects.filter(video_object_id=video_object.id).exists():
+                    comments_object = get_object_or_404(Comment,video_object_id=video_object.id)
+                    video_title =  video_object.video_title
+                    comment_id = comments_object.id
+                    watching_url = "https://www.youtube.com/embed/" + video_ID_parameter
+                    return JsonResponse({'state':'success','video_title':video_title,'video_ID_parameter':video_ID_parameter,'comment_id':comment_id,"watching_url":watching_url})
+            else:
+                return JsonResponse({'state':'notFound'})
+
+    return JsonResponse({'state':"fail"})
+
+def comment_object_recreater(request):
+    if request.method == 'POST':
+        if request.POST['videoSearch']:
+            video_ID_parameter = request.POST['videoSearch']
+            if Videoinformation.objects.filter(video_ID=video_ID_parameter).exists():
+                video_object = get_object_or_404(Videoinformation, video_ID=video_ID_parameter)
+                entry= Videoinformation.objects.get(video_ID = video_ID_parameter)
+                entry.delete()
+
+                return JsonResponse({'state':'success'})
+
+    return JsonResponse({'state':"fail"})
+
 def home(request):
         state_for_loader = 'none'
         if request.method == 'POST':
@@ -33,7 +65,9 @@ def home(request):
                         comments_object = get_object_or_404(Comment,video_object_id=video_object.id)
                         print("we found in datatbase this a comment object ")
 
-                        return redirect("/comments/commentsdetail/"+str(comments_object.id))
+                        comment_id = comments_object.id
+                        print(comment_id)
+                        return JsonResponse({'state':'success','comment_id':comment_id})
                     else:
                         try:
 
@@ -64,9 +98,11 @@ def home(request):
                             user_search.user_search_object_creator(user,video_object,comments_object,video_detail_url,comment_url)
                             user_search.save()
                             print("*************** 5 user_search created successfuly *************************")
-                            return redirect("/comments/commentsdetail/"+str(comments_object.id))
+                            comment_id = comments_object.id
+                            print(comment_id)
+                            return JsonResponse({'state':'success','comment_id':comment_id})
                         except:
-                            return render(request, 'comments/home.html',{'error':'no internet connection'})
+                            return JsonResponse({'state':'fail','error':"some thing went wrong : maybe video hasn't any comment ,check it and  try again"})
 
                 else:
                     try:
@@ -76,7 +112,7 @@ def home(request):
                         video_object = Videoinformation()
                         status ,video_object = video_object.video_object_creator(user,video_detail_url,video_ID_parameter)
                         if status == True:
-                            return render(request, 'comments/home.html',{'error': "eighter the video ID is incorrect or hasn't any comment ,and try again "})
+                            return JsonResponse({'state':'fail','error': "eighter the video ID is incorrect check it and try again "})
 
                         else:
 
@@ -90,7 +126,7 @@ def home(request):
                             comments_object = Comment()
                             comments_status,comments_object = comments_object.comment_object_creator(user,user_api,video_object,comment_url,next_token)
                             if comments_status == False:
-                                return render(request, 'comments/home.html',{'error': "This video hasn't had any comment yet ,select another one or add comment on it in order to continue "})
+                                return JsonResponse({'state':'fail','error': "This video hasn't had any comment yet ,select another one or add comment on it in order to continue "})
                             else:
 
                                 comments_object.save()
@@ -106,13 +142,16 @@ def home(request):
                                 user_search.user_search_object_creator(user,video_object,comments_object,video_detail_url,comment_url)
                                 user_search.save()
                                 print("*************** 5 user_search created successfuly *************************")
-                                return redirect("/comments/commentsdetail/"+str(comments_object.id))
+                                comment_id = comments_object.id
+                                print(comment_id)
+                                return JsonResponse({'state':'success','comment_id':comment_id})
                     except:
-                        return render(request, 'comments/home.html',{'error':'no internet connection'})
+                        print("some thing went wrong : maybe video hasn't any comment ,check it and  try again ")
+                        return JsonResponse({'state':'fail','error':"some thing went wrong : maybe video hasn't any comment ,check it and  try again"})
 
 
             else:
-                return render(request, 'comments/home.html',{'error':"please put a valid youtube's URL or ID"})
+                return JsonResponse({'state':'fail','error':"please put a valid youtube's video ID"})
         else :
             return render(request, 'comments/home.html')
 
@@ -205,6 +244,11 @@ def videoclassifed(request,video_id):
                     specification_list = video_specification.split(',')
                     video_classified.video_specification = specification_list
                     video_classified.save()
+                    try:
+                        entry= Commentclassifier.objects.get(video_ObjectID = video_id)
+                        entry.delete()
+                    except:
+                        pass
                     return JsonResponse({'success':"successfuly updated"})
         except Videocategoryclassifier.DoesNotExist:
 
@@ -220,6 +264,11 @@ def videoclassifed(request,video_id):
                     video_classified = Videocategoryclassifier()
                     video_classified = video_classified.videocategoryclassifier_creator(user,video_Object,title_list,video_domain,specification_list)
                     video_classified.save()
+                    try:
+                        entry= Commentclassifier.objects.get(video_ObjectID = video_id)
+                        entry.delete()
+                    except:
+                        pass
                     return JsonResponse({'success':"successfuly classified"})
 
     except Videoinformation.DoesNotExist:
@@ -277,9 +326,9 @@ def recommandations(request,video_id):
 
 
 
-        return JsonResponse({'state':"successfuly proccessed"})
+        return JsonResponse({'state':"successfuly Processed"})
     except Videoinformation.DoesNotExist:
-        return JsonResponse({'state':"fail to proccess"})
+        return JsonResponse({'state':"fail to Process"})
 
 #comment Detail View
 def commentsdetail(request,comment_id):
@@ -426,3 +475,51 @@ def tagInsertor(request,comment_id):
     else:
         print("fail")
         return JsonResponse({'fail':'error'})
+
+def commentsclassifierdeleter(request,video_id):
+    try:
+        entry= Commentclassifier.objects.get(video_ObjectID = video_id)
+        entry.delete()
+        print(True)
+        return JsonResponse({'state':"success"})
+    except:
+        print(False)
+        return JsonResponse({'state':"fail"})
+
+def commentsclassifierchecker(request,video_id):
+    try:
+        comments_classifier = get_object_or_404(Commentclassifier , video_ObjectID = video_id)
+        print(True)
+        language_classifier_id = comments_classifier.langcommentsclassifier_objID
+        return JsonResponse({'state':"success",'comments_classifier':language_classifier_id})
+    except:
+        print(False)
+        return JsonResponse({'state':"fail"})
+
+
+def usersearch(request):
+    if request.method == 'POST':
+        if request.POST['username']:
+            username = request.POST['username']
+
+            try:
+                usersearch = Usersearcher.objects.all().order_by('user')
+                video_url_list = list()
+                video_id_list = list()
+                video_title_list = list()
+                for search in usersearch:
+                    if username == search.user.username:
+
+                        video_url_list.append(search.watching_url)
+                        video_title_list.append(search.video_title)
+                        video_id_list.append(search.comment_object_id)
+
+
+                return JsonResponse({'state':"success","video_url_list":video_url_list,"video_title_list":video_title_list,'video_id_list':video_id_list})
+            except:
+
+                pass
+        else:
+            return JsonResponse({'state':"fail"})
+    else:
+        return JsonResponse({'state':"fail"})

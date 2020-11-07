@@ -6,6 +6,34 @@
 <hr />
 {% if prediction_capability %}
 {% if dic|length > 0 %}
+<div class="col-12 text-center">
+   <h3 class="text-center">Videos Tags as Classified in Video Classifier   </h3>
+   <hr>
+
+   <h5><span class="badge badge-pill badge-secondary" >Video Specification Tag</span>
+<span class="badge badge-pill badge-success" >Video's primary tags</span></h5>
+
+{% if video_classified_specifiaction_tag %}
+  {% for tag in video_classified_specifiaction_tag %}
+  <span  class="badge badge-pill badge-secondary" >{{tag|safe}}</span>
+  {% endfor %}
+{% else %}
+<h5><span class="badge badge-pill badge-danger" >&#128531;This video has no specifications tags please return to Video Classifier in order  process tag classifications process &#128531;</span>></h5>
+
+{% endif %}
+{% if video_classified_titles_tag %}
+  {% for tag in video_classified_titles_tag %}
+  <span  class="badge badge-pill badge-success" >{{tag|safe}}</span>
+  {% endfor %}
+{% else %}
+
+<h5><span class="badge badge-pill badge-danger" >&#128531;This video has no titles tags please return to Video Classifier in order  process tag classifications process &#128531;</span>></h5>
+
+{% endif %}
+
+
+</div>
+<hr />
   <div class="page-header">
     <h1><small class="pull-right">
       {{ dic|length }} comments</small> <span class="badge badge-success" title="{{ dic|length }}"> {{ dic_name }} </h1>
@@ -217,116 +245,135 @@
           <div class="row">
             <hr />
                   {% for item in page_obj %}
-                      <div class="col-sm-4">
-                        <div class="card-group">
-                          <div class="card" title="{% if item.12 %}
-                                                        related videos :
-                                                       {% for item in item.12 %}
-                                                         {{ item }}  ,
-                                                       {% endfor %}
-                                                      {% endif %}
-                                                      {% if  item.13 %}
-                                                      {% for item in item.13 %}
-                                                      related video :
-                                                        {{ item }} ,
-                                                      {% endfor %}
-                                                      {% endif %}" >
-                            <a href="{{ item.3  }}"><img src="{{item.2 }}"  /></a>
-                            <div class="card-body">
-                              <h5 class="card-title"><a href="{{ item.3  }}"> {{ item.1 }}</a>, polarity :
-                              {% if item.14 == 'ignored' %}
+
+
+
+
+
+                    <div class="col-sm-4">
+                      <div class="card-group">
+                        <div class="card" title="{% if item.13 and item.12 %}
+
+                                                  {% if item.12 %}
+                                                  related videos :
+                                                      {% for item in item.12%}
+                                                        {{ item }}  ,
+                                                        {% endfor %}
+                                                  {% endif %}
+                                                  {% if item.13 %}
+                                                  ** This Video :
+                                                      {% for item in item.13%}
+                                                        {{ item }}  ,
+                                                        {% endfor %}
+                                                  {% endif %}
+                                                  {% elif  item.12 %}
+                                                        related To This video :
+                                                            {% for item in item.12%}
+                                                              {{ item }}  ,
+                                                              {% endfor %}
+                                                    {% elif item.13 %}
+                                                    related videos :
+                                                        {% for item in item.13%}
+                                                          {{ item }}  ,
+                                                          {% endfor %}
+                                                    {% endif %}
+                                                    " >
+                        <a href="{{ item.3  }}"><img src="{{item.2 }}"  /></a>
+                          <div class="card-body">
+                              <h5 class="card-title"><a href="{{ item.3  }}">{{item.1 }}</a>, polarity :
+                              {% if item.18 == 'ignored' %}
                               &#128566;
                               {% endif %}
-                              {% if item.14 == 'very_positive' %}
+                              {% if item.18 == 'very_positive' %}
                               &#128525;
                               {% endif %}
-                              {% if item.14 == 'positive' %}
+                              {% if item.18 == 'positive' %}
                               &#128536;
                               {% endif %}
-                              {% if item.14 == 'neutral' %}
+                              {% if item.18 == 'neutral' %}
                               &#128528;
                               {% endif %}
-                              {% if item.14 == 'very_negative' %}
+                              {% if item.18 == 'very_negative' %}
                               &#128545;
                               {% endif %}
-                              {% if item.14 == 'negative' %}
+                              {% if item.18 == 'negative' %}
                               &#128544;
                               {% endif %}</h5>
                               <p class="card-text" title="{{item.5}}">
-                                {% if item.8 and item.9 %}
-                                  <p class="card-text trigger"title="{{ item.5 }}">{{ item.0|highlightpredefined:item.8|highlightuser:item.9}}</p><br />
-                                  <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
-                                  <table style="position:absolute;right:3px;top:5px;">
-                                    {% if item.8%}
-                                    {% for tag,repeat in item.6 %}
+
+                            {% if item.14 and item.15 %}
+
+                              <p class="card-text trigger" onMouseOver="this.style.cursor='pointer'" title="{{ item.5 }}">{{ item.0|safe|highlighttitle:item.14|highlightspecification:item.15}}<br />
+                              <table >
+                                  <tr>
+                              {% if item.14%} <!-- predefined -->
+
+                                  {% for tag,repeat in item.16 %}<!-- predefined -->
                                     <thead>
-                                      <tr>
-                                        <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
-                                        <td scope="row">{{repeat }} times</td>
-                                      </tr>
+                                    <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
+                                    <td scope="row">{{repeat }} times</td>
                                     </thead>
-                                    {% endfor %}
-                                    {% endif %}
-                                    {% if item.9 %}
-                                    {% for tag,repeat in item.6 %}
-                                    <thead>
-                                      <tr>
-                                        <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
-                                        <td scope="row">{{repeat }} times</td>
-                                      </tr>
+                                  {% endfor %}
 
-                                    </thead>
-                                    {% endfor %}
-                                    {% endif %}
-                                  </table>
-                                  {% elif item.8 %}
-                                      <p class="card-text trigger" title="{{ item.5 }}">{{ item.0|highlightpredefined:item.8}}</p><br />
-                                      <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
-                                      <table style="position:absolute;right:3px;top:5px;">
-                                        {% for tag,repeat in item.6 %}
-                                        <thead>
-                                          <tr>
-                                            <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
-                                            <td scope="row">{{repeat }} times</td>
-                                          </tr>
+                              {% endif %}
+                              {% if item.15 %}
+                                {% for tag,repeat in item.17 %}<!-- userdefined -->
+                                  <thead>
+                                  <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
+                                  <td scope="row">{{repeat }} times</td>
+                                  </thead>
+                                {% endfor %}
+                              {% endif %}
+                              </tr>
+                              </table>
+                              </p>
+                              <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
+                            {% elif item.14 %}
+                              <p class="card-text trigger" onMouseOver="this.style.cursor='pointer'" title="{{ item.5 }}">{{ item.0|safe|highlighttitle:item.14}} <br /><table > <tr>  <thead>
+                                {% for tag,repeat in item.16 %}<!-- predefined -->
+                                  <thead>
+                                  <td><span class="badge badge-pill badge-success" >{{tag}}</span> </td>
+                                  <td scope="row">{{repeat }} times</td>
+                                  </thead>
+                                {% endfor %}
+                              </thead>
+                              </tr>
+                              </table></p>
+                              <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
+                            {%elif item.15 %}
+                              <p class="card-text trigger" onMouseOver="this.style.cursor='pointer'" title="{{ item.5 }}">{{ item.0|safe|highlightspecification:item.15}}<br />
+                              <table><tr>  <thead>
+                                {% for tag,repeat in item.17 %}<!-- userdefined -->
 
-                                        </thead>
-                                        {% endfor %}
-                                      </table>
-                                      {%elif item.9 %}
-                                          <p class="card-text trigger"title="{{ item.5 }}">{{ item.0|highlightuser:item.9}}</p><br />
-                                          <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
-                                          <table style="position:absolute;right:3px;top:5px;">
-                                            {% for tag,repeat in item.11 %}
-                                            <thead>
-                                              <tr>
-                                                <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
-                                                <td scope="row">{{repeat }} times</td>
-                                              </tr>
+                                  <td><span class="badge badge-pill badge-secondary" >{{tag}}</span> </td>
+                                  <td scope="row">{{repeat }} times</td>
 
-                                            </thead>
-                                            {% endfor %}
-                                          </table>
+                                {% endfor %}
+                              </tr>
+                              </thead>
+                              </table>
+                              </p>
+                              <p class="card-text" style="position:absolute;right:3px;bottom:5px;"><small class="text-muted">Last updated {{ item.4 }}</small></p>
                             {% else %}
-                                <p class="card-text trigger"title="{{ item.5 }}">{{ item.0|slice:"0:50"}}</p><br />
-                                <p class="card-text"style="position:absolute;right:3px;bottom:5px;" ><small class="text-muted">Last updated {{ item.4 }}</small></p>
+                              <p class="card-text trigger" onMouseOver="this.style.cursor='pointer'" title="{{ item.5 }}">{{ item.0|safe|slice:"0:50"}}</p><br />
+                              <p class="card-text"style="position:absolute;right:3px;bottom:5px;" ><small class="text-muted">Last updated {{ item.4 }}</small></p>
                             {% endif %}
-                               </p>
-                            </div>
                           </div>
                         </div>
                       </div>
+                    </div>
                   {% endfor %}
+
 </div>
-</div>
-{% if page.has_other_pages %}
-  <hr />  <br />
-  <div class="pagination justify-content-center" style="border-style: solid;border-width: 1px;display: flex;overflow-x: auto;">
-    </div>
-  {% endif %}        <hr />
+
+            {% if page.has_other_pages %}
+              <hr />  <br />
+              <div class="pagination justify-content-center" style="border-style: solid;border-width: 1px;display: flex;overflow-x: auto;">
+                </div>
+              {% endif %}        <hr />
       {% else %}
       <div class="col-12 text-center">
-      <h3> This video hasn't any {{ dic_name }} comments .</h3>
+      <h3> This video hasn't any {{ dic_name }} comments related to this Query {{servicetype}}.</h3>
       </div>
 
 {% endif %}
@@ -335,6 +382,9 @@
   <h3>Polarity Explainer :<big class="pull-right" onMouseOver="this.style.cursor='pointer'"id="close">&times;</big></h3>
 
   <div class="explanation">
+
+  </div>
+</div>
 
   </div>
 </div>

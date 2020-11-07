@@ -14,13 +14,13 @@
 
 {{comment_classifier_obj.video_Object.video_title}}
              <form method="post" action="{% url 'opinionclassifier' comment_classifier_obj.id %}">
-                 <strong>&#128515; Proccess completed ,classify the comments based on Opinions &#128515; </strong><br />
+                 <strong>&#128515; Process completed ,classify the comments based on Opinions &#128515; </strong><br />
                 {% csrf_token %}
                  <button  type="submit" class="btn btn-outline-primary btn-sm "  ng-click="clickMe()">Opinion Classifier</button>
                </form>
     </div>
     <div class="page-header">
-        <h1><small class="pull-right">{{ total_processed }} comments</small> Total Proccessed  </h1>
+        <h1><small class="pull-right">{{ total_processed }} comments</small> Total Processed  </h1>
     </div>
   </div>
    <div class="col-12 text-center">
@@ -57,7 +57,7 @@
 
    </div>
    <div class="page-header">
-       <h1><small class="pull-right">{{ total_processed }} comments</small> Total Proccessed  </h1>
+       <h1><small class="pull-right">{{ total_processed }} comments</small> Total Processed  </h1>
    </div>
  </div>
 
@@ -195,7 +195,7 @@
 
 
         </div>
-        <div class="modal fade" id="classifingProccessor" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal fade" id="classifingProcessor" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
               <div class="modal-header">
@@ -231,7 +231,15 @@
             </div>
           </div>
         </div>
+        <div class="container">
+          <div class="row">
+           <hr /><br />
+          </div>
+          <div class="row recommandations">
 
+
+          </div>
+        </div>
         <script type="text/javascript">
               $("#fetcherDiv").hide();
               /*$('#loaderDiv').hide();*/
@@ -255,7 +263,7 @@
 
                 $(this).removeClass("btn-secondary").addClass("btn-warning");
                 $('#classifingType').text(dic_name);
-                $("#classifingProccessor").modal('show');
+                $("#classifingProcessor").modal('show');
                 $(".servicetype").click(function(){
                   $(".servicetype").removeClass("btn-warning").addClass("btn-primary");
                   $(this).removeClass("btn-primary").addClass("btn-warning");
@@ -313,7 +321,7 @@
                       var prevPageBaseUrl = url + "?&page=" ;
                       var numberOfPages = 0 ;
                       var currentPage = 0 ;
-                      $("#classifingProccessor").modal('hide');
+                      $("#classifingProcessor").modal('hide');
 
                       $('#contents').html('').load(url,function(){
                       currentPageStr = $('.currentPage').val();
@@ -468,7 +476,99 @@
 
         </script>
 
+        <script type="text/javascript">
+        //$('.recommandations').hide();
+        var count = 1;
+        var temp ="";
+        if(count == 1){
+          $(window).scroll(function(){
+        if($(window).scrollTop() == $(document).height()-$(window).height()){
 
+            var video_title =  '{{video_titles_sets}}';
+
+            while(video_title.includes("&#39;")){
+
+              video_title = video_title.replace("&#39;","");
+              video_title = video_title.replace("]","");
+              video_title = video_title.replace("[","");
+              video_title = video_title.replace(" ","");
+            }
+
+
+            $.ajaxSetup({
+                headers: { "X-CSRFToken": '{{csrf_token}}' }
+              });
+              $.ajax(
+              {
+                  type:"POST",
+                  url: "{% url 'recommandations' comment_classifier_obj.comment_objID %}",
+                  data:{
+
+                    video_title : video_title,
+              },
+              success: function( data )
+              {
+                // payload
+
+              if(data['state'] == 'success'){
+
+          var text = '<div class="header col-12 alert-success"><h1>Related Videos &#128515; :</h1><br /></div>';
+        if (count == 1 ){
+          var videoIds = [];
+          var url = '';
+           for(i = 0 ; i < data['video_sets'].length ; i++)
+           {    videoIds[i] =  parseInt(data['video_ids'][i]);
+               console.log(videoIds[i]);
+               if (videoIds[i] != {{comment_classifier_obj.comment_objID}}){
+                 url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment.id",videoIds[i]);
+
+                 console.log(url);
+                 console.log(videoIds);
+
+                 text += '<div class="col-lg-3 col-md-4 col-xs-6 thumb">'
+                     + ' <div class="embed-responsive embed-responsive-21by9">'
+                     +   '  <iframe class="embed-responsive-item" src="'+data['video_waching_urls'][i]+'"></iframe>'
+
+                     +  '  </div>'
+                       + '<p class="card-title video_title" ng-click="clickMe()" ><a href="'+url+'" >'+data['video_sets'][i]+'</a>  ,CATEGORY : '+data['video_categories'][i]+'</p>'
+                     +'</div>';
+                 $('.recommandations').append(text);
+                 text = '';
+               }
+               else{
+                 console.log('not found');
+               }
+          }
+        }
+
+        count += 1;
+
+
+
+        }
+
+            },
+
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+              if(count == 1){
+                text = '<div class="container-fluid"><div style="background-color: #009688">';
+                text += '<p class="text-center alert-danger text-center" style="color: #fff;"> &#128531; There is no videos related to this video in our database &#128531;</p>'
+                text += '</div></div>';
+
+                $('.recommandations').append(text);
+                text = '';
+              }
+              count += 1;
+            }
+           });
+
+        }  });
+        }
+
+
+
+                </script>
 
 
 

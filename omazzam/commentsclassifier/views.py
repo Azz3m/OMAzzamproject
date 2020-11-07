@@ -121,6 +121,8 @@ def commentsclassifier(request,lang_classifier_obj_id):
         comment_classifier_obj = get_object_or_404(Commentclassifier,langcommentsclassifier_objID=lang_classifier_obj_id)
         dictionary = ast.literal_eval(comment_classifier_obj.pure_english_dic)
         video_Object = comment_classifier_obj.video_Object
+        video_classified_obj = get_object_or_404(Videocategoryclassifier,video_Object=video_Object)
+        video_titles_sets = ast.literal_eval(video_classified_obj.video_title)
         tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.tag_list_setter(video_Object)
         dictionary = comment_classifier_obj.dic_tag_pack_viewer(dictionary)
         language_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
@@ -131,6 +133,7 @@ def commentsclassifier(request,lang_classifier_obj_id):
         "total_processed":total_processed,
         "lang_classifier_obj_id":lang_classifier_obj_id,
         "video_Object":video_Object,
+        "video_titles_sets" :video_titles_sets,
         "tags_indicator":tags_indicator,
         "predefined_tags_list":predefined_tags_list,
         "user_tags_list":user_tags_list,
@@ -150,11 +153,14 @@ def commentsclassifier(request,lang_classifier_obj_id):
         language_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
         total_processed = comment_classifier_obj.get_length(language_classifier_obj)
         dictionay_length_pairs = comment_classifier_obj.dictionay_length_pairs('create',comment_classifier_obj)
+        video_classified_obj = get_object_or_404(Videocategoryclassifier,video_Object=video_Object)
+        video_titles_sets = ast.literal_eval(video_classified_obj.video_title)
         context = {
         "dictionay_length_pairs":dictionay_length_pairs,
         "total_processed":total_processed,
         "lang_classifier_obj_id":lang_classifier_obj_id,
         "video_Object":video_Object,
+        "video_titles_sets" :video_titles_sets,
         "tags_indicator":tags_indicator,
         "predefined_tags_list":predefined_tags_list,
         "user_tags_list":user_tags_list,
@@ -231,6 +237,7 @@ def langdectionaryviewer(request,comment_id,dic_name ,category):
                 if 'video_titles_linker' in item:
                     video_titles_linker.append(item['video_titles_linker'])
                 else:
+
                     video_titles_linker.append(False)
                 if 'video_specification_linker' in item:
                     video_specification_linker.append(item['video_specification_linker'])
@@ -346,46 +353,53 @@ def dectionaryviewer(request,lang_classifier_obj_id,dic_name,category,servicetyp
     if Commentclassifier.objects.filter(langcommentsclassifier_objID=lang_classifier_obj_id).exists():
         comment_classifier_obj = get_object_or_404(Commentclassifier,langcommentsclassifier_objID=lang_classifier_obj_id)
         dictionary_name = dic_name
-        print(dictionary_name)
+
         dictionary_among_one_category = comment_classifier_obj.dictionary_among_one_category(category,comment_classifier_obj)
-        status,dictionary,video_Object,tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.dictionary_viewer(comment_classifier_obj,dictionary_name)
-        print(status)
-        print(len(dictionary))
+        status,dictionary,video_object,tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.dictionary_viewer(comment_classifier_obj,dictionary_name)
+        video_classified_obj = get_object_or_404(Videocategoryclassifier,video_Object=video_object)
+        video_classified_titles_tag = ast.literal_eval(video_classified_obj.video_title)
+        video_classified_specifiaction_tag = ast.literal_eval(video_classified_obj.video_specification)
+
         if status == True:
-            video_titles_sets = list()
+
+            video_titles_linker = list()
             video_specification_linker = list()
-            if servicetype == 'allComments':
-                for item in dictionary:
-                    if 'video_specification_linker' in dictionary[item]:
-                        for id in dictionary[item]['video_specification_linker']:
-                            temp = get_object_or_404(Videocategoryclassifier,pk=id)
-                            video_specification_linker.append(temp.video_Object.video_title)
-                            dictionary[item]['video_specification_linker'] = video_specification_linker
-                        video_specification_linker = list()
-                    if 'video_titles_linker' in dictionary[item]:
-                        for id in dictionary[item]['video_titles_linker']:
-                            temp = get_object_or_404(Videocategoryclassifier,pk=id)
-                            video_titles_sets.append(temp.video_Object.video_title)
-                            dictionary[item]['video_titles_linker'] = video_titles_sets
-                        video_titles_sets = list()
-            elif servicetype == 'relatedWithOthers':
-                video_specification_linker = list()
-                for item in dictionary:
-                    if 'video_titles_linker' in dictionary[item]:
-                        for id in dictionary[item]['video_titles_linker']:
-                            temp = get_object_or_404(Videocategoryclassifier,pk=id)
-                            video_titles_sets.append(temp.video_Object.video_title)
-                            dictionary[item]['video_titles_linker'] = video_titles_sets
-                        video_titles_sets = list()
+            video_titles_sets = list()
+
+            for item in dictionary:
+                if 'video_specification_linker' in dictionary[item]:
+                    for id in dictionary[item]['video_specification_linker']:
+                        temp = get_object_or_404(Videocategoryclassifier,pk=id)
+                        video_specification_linker.append(temp.video_Object.video_title)
+                        dictionary[item]['video_specification_linker'] = video_specification_linker
+                    video_specification_linker = list()
+                if 'video_titles_linker' in dictionary[item]:
+                    for id in dictionary[item]['video_titles_linker']:
+                        temp = get_object_or_404(Videocategoryclassifier,pk=id)
+                        video_titles_sets.append(temp.video_Object.video_title)
+                        dictionary[item]['video_titles_linker'] = video_titles_sets
+                    video_titles_sets = list()
+
+            related_vid_dic = {}
+            if servicetype == "relatedTothisVideo":
+                for key, item in dictionary.items():
+                    if 'video_specification_linker' in item:
+                        related_vid_dic[str(key)] = item
+
+            elif servicetype == "relatedWithOthers":
+                for key, item in dictionary.items():
+                    if 'video_titles_linker' in item:
+                        related_vid_dic[str(key)] = item
+
             else:
-                video_titles_sets = list()
-                for item in dictionary:
-                    if 'video_specification_linker' in dictionary[item]:
-                        for id in dictionary[item]['video_specification_linker']:
-                            temp = get_object_or_404(Videocategoryclassifier,pk=id)
-                            video_specification_linker.append(temp.video_Object.video_title)
-                            dictionary[item]['video_specification_linker'] = video_specification_linker
-                        video_specification_linker = list()
+                print('allComments')
+                pass
+
+
+            if len(related_vid_dic) > 0 :
+                dictionary = related_vid_dic
+            else:
+                pass
 
 
             video_titles_linker_total, video_specification_linker_total = comment_classifier_obj.dictionary_related_videos(dictionary)
@@ -402,122 +416,72 @@ def dectionaryviewer(request,lang_classifier_obj_id,dic_name,category,servicetyp
             userdefined = list()
             userdefined_pack = list()
             user_tag_repeat = list()
-
-            video_titles_linker = list()
             video_specification_linker = list()
+            video_titles_linker = list()
+            video_title_tags = list()
+            video_specification_tags = list()
+            video_specification_tags_packs = list()
+            video_title_tags_packs =list()
+            video_titles = list()
+            video_specification = list()
+            title_tag_pack = list()
+            specification_tag_pack = list()
+            temp_title_tag = list()
+            temp_repeat = list()
+            temp_specification_tag = list()
+
 
             for key,item in dictionary.items():
-                if servicetype == 'allComments':
+                texts.append(item['single_comment'])
+                authors.append(item['author'])
+                images.append(item['img'])
+                channelsURL.append(item['url'])
+                dates.append(item['date'])
+                indexes.append(item['i'])
 
-                    texts.append(item['single_comment'])
-                    authors.append(item['author'])
-                    images.append(item['img'])
-                    channelsURL.append(item['url'])
-                    dates.append(item['date'])
-                    indexes.append(item['i'])
 
-                    if 'predefined_pack' in item:
-                        predefined_pack.append(item['predefined_pack'])
-                        predefined_tag_repeat.append(item['predefined_tag_repeat'])
-                        predefined.append(item['predefined'])
-                    else:
-                        predefined_pack.append(False)
-                        predefined_tag_repeat.append(False)
-                        predefined.append(False)
+                if 'predefined_pack' in item:
+                    predefined_pack.append(item['predefined_pack'])
+                    predefined_tag_repeat.append(item['predefined_tag_repeat'])
+                    predefined.append(item['predefined'])
+                else:
+                    predefined_pack.append(False)
+                    predefined_tag_repeat.append(False)
+                    predefined.append(False)
 
-                    if 'userdefined' in item:
-                        userdefined.append(item['userdefined'])
-                        user_tag_repeat.append(item['user_tag_repeat'])
-                        userdefined_pack.append(item['userdefined_pack'])
-                    else:
-                        userdefined.append(False)
-                        user_tag_repeat.append(False)
-                        userdefined_pack.append(False)
+                if 'userdefined' in item:
+                    userdefined.append(item['userdefined'])
+                    user_tag_repeat.append(item['user_tag_repeat'])
+                    userdefined_pack.append(item['userdefined_pack'])
+                else:
+                    userdefined.append(False)
+                    user_tag_repeat.append(False)
+                    userdefined_pack.append(False)
 
-                    if 'video_titles_linker' in item:
-                        video_titles_linker.append(item['video_titles_linker'])
-                    else:
-                        video_titles_linker.append(False)
-                    if 'video_specification_linker' in item:
-                        video_specification_linker.append(item['video_specification_linker'])
-                    else:
-                        video_specification_linker.append(False)
+                if 'video_titles_linker' in item:
+                    video_titles_linker.append(item['video_titles_linker'])
+                    video_titles.append(item['video_title'])
+                    temp_title_tag = item['video_title']
+                    temp_repeat = item['video_title_repeat']
 
-                if servicetype == 'relatedTothisVideo':
-                    if 'video_specification_linker' in item:
+                    title_tag_pack.append(zip(temp_title_tag,temp_repeat))
 
-                        texts.append(item['single_comment'])
-                        authors.append(item['author'])
-                        images.append(item['img'])
-                        channelsURL.append(item['url'])
-                        dates.append(item['date'])
-                        indexes.append(item['i'])
+                else:
+                    title_tag_pack.append(False)
+                    video_titles_linker.append(False)
+                    video_titles.append(False)
 
-                        if 'predefined_pack' in item:
-                            predefined_pack.append(item['predefined_pack'])
-                            predefined_tag_repeat.append(item['predefined_tag_repeat'])
-                            predefined.append(item['predefined'])
-                        else:
-                            predefined_pack.append(False)
-                            predefined_tag_repeat.append(False)
-                            predefined.append(False)
+                if 'video_specification_linker' in item:
+                    video_specification_linker.append(item['video_specification_linker'])
+                    video_specification.append(item['video_specification'])
+                    temp_specification_tag = item['video_specification']
+                    temp_repeat = item['video_specification_repeat']
+                    specification_tag_pack.append(zip(temp_specification_tag,temp_repeat))
 
-                        if 'userdefined' in item:
-                            userdefined.append(item['userdefined'])
-                            user_tag_repeat.append(item['user_tag_repeat'])
-                            userdefined_pack.append(item['userdefined_pack'])
-                        else:
-                            userdefined.append(False)
-                            user_tag_repeat.append(False)
-                            userdefined_pack.append(False)
-
-                        if 'video_titles_linker' in item:
-                            video_titles_linker.append(item['video_titles_linker'])
-                        else:
-                            video_titles_linker.append(False)
-                        if 'video_specification_linker' in item:
-                            video_specification_linker.append(item['video_specification_linker'])
-                        else:
-                            video_specification_linker.append(False)
-                    else:
-                        pass
-                if servicetype == 'relatedWithOthers':
-                    if 'video_titles_linker' in item:
-                        texts.append(item['single_comment'])
-                        authors.append(item['author'])
-                        images.append(item['img'])
-                        channelsURL.append(item['url'])
-                        dates.append(item['date'])
-                        indexes.append(item['i'])
-
-                        if 'predefined_pack' in item:
-                            predefined_pack.append(item['predefined_pack'])
-                            predefined_tag_repeat.append(item['predefined_tag_repeat'])
-                            predefined.append(item['predefined'])
-                        else:
-                            predefined_pack.append(False)
-                            predefined_tag_repeat.append(False)
-                            predefined.append(False)
-
-                        if 'userdefined' in item:
-                            userdefined.append(item['userdefined'])
-                            user_tag_repeat.append(item['user_tag_repeat'])
-                            userdefined_pack.append(item['userdefined_pack'])
-                        else:
-                            userdefined.append(False)
-                            user_tag_repeat.append(False)
-                            userdefined_pack.append(False)
-
-                        if 'video_titles_linker' in item:
-                            video_titles_linker.append(item['video_titles_linker'])
-                        else:
-                            video_titles_linker.append(False)
-                        if 'video_specification_linker' in item:
-                            video_specification_linker.append(item['video_specification_linker'])
-                        else:
-                            video_specification_linker.append(False)
-                    else:
-                        pass
+                else:
+                    specification_tag_pack.append(False)
+                    video_specification_linker.append(False)
+                    video_specification.append(False)
 
 
             paginator = Paginator(texts, 1000)
@@ -577,22 +541,30 @@ def dectionaryviewer(request,lang_classifier_obj_id,dic_name,category,servicetyp
             video_specification_linker = paginator15.get_page(page)
 
 
-            print(len(texts))
-            page_obj = zip(texts,authors,images,channelsURL,dates,indexes,predefined_pack,predefined_tag_repeat,predefined,userdefined,user_tag_repeat,userdefined_pack,video_titles_linker,video_specification_linker)
+            paginator16 = Paginator(title_tag_pack, 1000)
+            page = request.GET.get('page')
+            title_tag_pack = paginator16.get_page(page)
+
+            paginator17 = Paginator(specification_tag_pack, 1000)
+            page = request.GET.get('page')
+            specification_tag_pack = paginator17.get_page(page)
+
+            paginator18 = Paginator(video_titles, 1000)
+            page = request.GET.get('page')
+            video_titles = paginator18.get_page(page)
+
+            paginator19 = Paginator(video_specification, 1000)
+            page = request.GET.get('page')
+            video_specification = paginator19.get_page(page)
+
+
+
+
+            page_obj = zip(texts,authors,images,channelsURL,dates,indexes,predefined_pack,predefined_tag_repeat,predefined,userdefined,user_tag_repeat,userdefined_pack,video_titles_linker,video_specification_linker,video_titles,video_specification,title_tag_pack,specification_tag_pack)
             texts = list()
             for key,item in dictionary.items():
-                if servicetype == 'allComments':
-                    texts.append(item['single_comment'])
-                elif servicetype == 'relatedWithOthers':
-                    if 'video_titles_linker' in item:
-                        texts.append(item['single_comment'])
-                    else:
-                        pass
-                else:
-                    if 'video_specification_linker' in item:
-                        texts.append(item['single_comment'])
-                    else:
-                        pass
+                texts.append(item['single_comment'])
+
 
 
 
@@ -604,13 +576,15 @@ def dectionaryviewer(request,lang_classifier_obj_id,dic_name,category,servicetyp
             'servicetype':servicetype,
             'dictionary_among_one_category': dictionary_among_one_category,
             "lang_classifier_obj_id":lang_classifier_obj_id,
-            "video_Object":video_Object,
+            "video_Object":video_object,
             "tags_indicator":tags_indicator,
             "predefined_tags_list":predefined_tags_list,
             "user_tags_list":user_tags_list,
             "comment_classifier_obj":comment_classifier_obj,
             'video_titles_linker_total':video_titles_linker_total,
             'video_specification_linker_total':video_specification_linker_total,
+            'video_classified_titles_tag' :video_classified_titles_tag ,
+            'video_classified_specifiaction_tag': video_classified_specifiaction_tag,
             "dic":dictionary,
             'dic_name':dic_name,
             'page_obj': page_obj,

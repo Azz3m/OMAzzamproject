@@ -5,8 +5,8 @@ import re
 register = template.Library()
 
 
-@register.filter(name='highlightpredefined')
-def highlightpredefined(text, search):
+@register.filter(name='highlighttitle')
+def highlighttitle(text, search):
 
     for i in search:
         highlighted = re.sub(i, '<big><span class="badge badge-pill badge-success">{}</span></big>'.format(i), text, flags=re.IGNORECASE)
@@ -14,10 +14,10 @@ def highlightpredefined(text, search):
     return mark_safe(text)
 
 
-@register.filter(name='highlightuser')
-def highlightuser(text, search):
+@register.filter(name='highlightspecification')
+def highlightspecification(text, search):
 
     for i in search:
-        highlighted = re.sub(i, '<big><span class="badge badge-pill badge-secondary" style="fontSize:16px;" >{}</span></big>'.format(i), text, flags=re.IGNORECASE)
+        highlighted = re.sub(i, '<big><span class="badge badge-pill badge-secondary">{}</span></big>'.format(i), text, flags=re.IGNORECASE)
         text = highlighted
     return mark_safe(text)

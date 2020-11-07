@@ -5,6 +5,7 @@ dist
 *.pyc
 local_settings.py
 db.sqlite3
+OMAzzamdb.sqlite3
 /media
 /static
 __pycache__/

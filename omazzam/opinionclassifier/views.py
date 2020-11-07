@@ -1,14 +1,15 @@
 from django.shortcuts import render,get_object_or_404
-from opinionclassifier.models import Englishproccessing
+from opinionclassifier.models import EnglishProcessing
 import os
 import ast
 from django.core.paginator import Paginator
 from commentsclassifier.models import Langclassifier,Commentclassifier,Videocategoryclassifier
 from django.http import JsonResponse
 from django.contrib.staticfiles.storage import staticfiles_storage
+
 # Create your views here.
 def opinionclassifier(request,commentsclassifier_id):
-    english_proccessing = Englishproccessing()
+    english_Processing = EnglishProcessing()
 
     index = 0
     if Commentclassifier.objects.filter(id=commentsclassifier_id).exists():
@@ -22,7 +23,8 @@ def opinionclassifier(request,commentsclassifier_id):
         video_Object = comment_classifier_obj.video_Object
         video_classified = get_object_or_404(Videocategoryclassifier,video_Object=video_Object)
         video_titles_sets = video_classified.video_title
-        print(video_titles_sets)
+
+
 
         status,dictionary,video_Object,tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.dictionary_viewer(comment_classifier_obj,'pure_english_dic')
         #comment_classifier_obj.save()
@@ -54,8 +56,8 @@ def omcommentclassifierdictionariesfetcher(request,comment_classifier_obj_id):
             category = request.POST['category']
             servicetype = request.POST['servicetype']
             if dictionary_name == "ALL" :
-                english_proccessing = Englishproccessing()
-                dic, dictionaries =  english_proccessing.dictionaries_among_one_category(category,comment_classifier_obj)
+                english_Processing = EnglishProcessing()
+                dic, dictionaries =  english_Processing.dictionaries_among_one_category(category,comment_classifier_obj)
                 return JsonResponse({'success':'ALL','dictionary_length':len(dictionaries),'num_samples':num_samples,"category":category,'servicetype':servicetype})
             else:
                 status,dictionary_length = comment_classifier_obj.dictionary_fetcher(dictionary_name,comment_classifier_obj)
@@ -75,8 +77,8 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
         prediction_capability = False
         comment_classifier_obj = get_object_or_404(Commentclassifier,langcommentsclassifier_objID=lang_classifier_obj_id)
 
-        english_proccessing = Englishproccessing()
-        dic, dictionaries =  english_proccessing.dictionaries_among_one_category(category,comment_classifier_obj)
+        english_Processing = EnglishProcessing()
+        dic, dictionaries =  english_Processing.dictionaries_among_one_category(category,comment_classifier_obj)
         dictionary_name = dic_name
         dictionaries_list = ['pure_english_dic','emoji_pure_english_dic','emoji_english_with_others_dic','english_with_others_dic','ALL']
 
@@ -85,10 +87,18 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
             prediction_capability = True
             if dictionary_name == 'ALL':
                 status,dictionary,video_Object,tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.dictionary_viewer(comment_classifier_obj,'pure_english_dic')
+                video_classified = get_object_or_404(Videocategoryclassifier,video_Object=video_Object)
+                video_titles_sets = video_classified.video_title
+                video_classified_titles_tag = ast.literal_eval(video_classified.video_title)
+                video_classified_specifiaction_tag = ast.literal_eval(video_classified.video_specification)
                 dictionary = dictionaries
             else:
 
                 status,dictionary,video_Object,tags_indicator,predefined_tags_list,user_tags_list = comment_classifier_obj.dictionary_viewer(comment_classifier_obj,dictionary_name)
+                video_classified = get_object_or_404(Videocategoryclassifier,video_Object=video_Object)
+                video_titles_sets = video_classified.video_title
+                video_classified_titles_tag = ast.literal_eval(video_classified.video_title)
+                video_classified_specifiaction_tag = ast.literal_eval(video_classified.video_specification)
 
             if status == True:
                 video_titles_linker_total, video_specification_linker_total = comment_classifier_obj.dictionary_related_videos(dictionary)
@@ -124,9 +134,13 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
                     print('allComments')
                     pass
 
-
-                if len(related_vid_dic) > 0 :
+                if len(related_vid_dic) == 0 and servicetype == "relatedWithOthers":
                     dictionary = related_vid_dic
+                elif len(related_vid_dic) == 0 and servicetype == "relatedTothisVideo":
+                    dictionary = related_vid_dic
+                elif len(related_vid_dic) > 0 :
+                    dictionary = related_vid_dic
+
                 else:
                     pass
                 texts = list()
@@ -144,6 +158,8 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
                 polarities = list()
                 video_titles_linker = list()
                 video_specification_linker = list()
+                video_specification = list()
+                video_titles = list()
                 polarity_dic = {}
                 vp = 0
                 vn = 0
@@ -152,15 +168,17 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
                 n = 0
                 ig = 0
                 index = 0
-                english_proccessing = Englishproccessing()
-                dictionary_among_one_category = english_proccessing.dictionary_among_one_category(category,comment_classifier_obj)
-                comments_over_time_for_one_dic = english_proccessing.comments_over_time_for_one_dic(dictionary)
+                english_Processing = EnglishProcessing()
+                dictionary_among_one_category = english_Processing.dictionary_among_one_category(category,comment_classifier_obj)
+                comments_over_time_for_one_dic = english_Processing.comments_over_time_for_one_dic(dictionary)
 
                 for comment in dictionary:
 
                     if len(dictionary[comment]['single_comment'])>0:
+                        text = dictionary[comment]['single_comment']
+
                         texts.append(dictionary[comment]['single_comment'])
-                        polarity = english_proccessing.main(dictionary[comment]['single_comment'],num_samples)
+                        polarity = english_Processing.main(text,num_samples)
                         index += 1
                         print(index , dictionary[comment]['single_comment'])
                         if polarity == 0:
@@ -193,6 +211,35 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
                         polarity_dic['ignored'] = ig
                         pass
 
+                video_titles_linker_total, video_specification_linker_total = comment_classifier_obj.dictionary_related_videos(dictionary)
+
+                texts = list()
+                authors = list()
+                images = list()
+                channelsURL = list()
+                dates = list()
+                indexes = list()
+                predefined = list()
+                predefined_pack = list()
+                predefined_tag_repeat = list()
+                userdefined = list()
+                userdefined_pack = list()
+                user_tag_repeat = list()
+                video_specification_linker = list()
+                video_titles_linker = list()
+                video_title_tags = list()
+                video_specification_tags = list()
+                video_specification_tags_packs = list()
+                video_title_tags_packs =list()
+                video_titles = list()
+                video_specification = list()
+                title_tag_pack = list()
+                specification_tag_pack = list()
+                temp_title_tag = list()
+                temp_repeat = list()
+                temp_specification_tag = list()
+
+
                 for key,item in dictionary.items():
                     texts.append(item['single_comment'])
                     authors.append(item['author'])
@@ -222,27 +269,43 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
 
                     if 'video_titles_linker' in item:
                         video_titles_linker.append(item['video_titles_linker'])
+                        video_titles.append(item['video_title'])
+                        temp_title_tag = item['video_title']
+                        temp_repeat = item['video_title_repeat']
+
+                        title_tag_pack.append(zip(temp_title_tag,temp_repeat))
+
                     else:
+                        title_tag_pack.append(False)
                         video_titles_linker.append(False)
+                        video_titles.append(False)
+
                     if 'video_specification_linker' in item:
                         video_specification_linker.append(item['video_specification_linker'])
+                        video_specification.append(item['video_specification'])
+                        temp_specification_tag = item['video_specification']
+                        temp_repeat = item['video_specification_repeat']
+                        specification_tag_pack.append(zip(temp_specification_tag,temp_repeat))
+
                     else:
+                        specification_tag_pack.append(False)
                         video_specification_linker.append(False)
+                        video_specification.append(False)
 
 
                 paginator = Paginator(texts, 1000)
                 page = request.GET.get('page')
                 texts = paginator.get_page(page)
 
-                paginator1000 = Paginator(authors, 1000)
-                page1000 = request.GET.get('page')
-                authors = paginator1000.get_page(page1000)
+                paginator2 = Paginator(authors, 1000)
+                page2 = request.GET.get('page')
+                authors = paginator2.get_page(page2)
 
                 paginator3 = Paginator(images, 1000)
                 page3 = request.GET.get('page')
                 images = paginator3.get_page(page3)
 
-                paginator4 = Paginator(channelsURL,1000)
+                paginator4 = Paginator(channelsURL, 1000)
                 page4 = request.GET.get('page')
                 channelsURL = paginator4.get_page(page4)
 
@@ -270,9 +333,9 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
                 page = request.GET.get('page')
                 userdefined_pack = paginator11.get_page(page)
 
-                paginator11000 = Paginator(user_tag_repeat, 1000)
+                paginator12 = Paginator(user_tag_repeat, 1000)
                 page = request.GET.get('page')
-                user_tag_repeat = paginator11000.get_page(page)
+                user_tag_repeat = paginator12.get_page(page)
 
                 paginator13 = Paginator(userdefined, 1000)
                 page = request.GET.get('page')
@@ -286,12 +349,30 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
                 page = request.GET.get('page')
                 video_specification_linker = paginator15.get_page(page)
 
-                paginator16 = Paginator(polarities, 1000)
+
+                paginator16 = Paginator(title_tag_pack, 1000)
                 page = request.GET.get('page')
-                polarities = paginator16.get_page(page)
+                title_tag_pack = paginator16.get_page(page)
+
+                paginator17 = Paginator(specification_tag_pack, 1000)
+                page = request.GET.get('page')
+                specification_tag_pack = paginator17.get_page(page)
+
+                paginator18 = Paginator(video_titles, 1000)
+                page = request.GET.get('page')
+                video_titles = paginator18.get_page(page)
+
+                paginator19 = Paginator(video_specification, 1000)
+                page = request.GET.get('page')
+                video_specification = paginator19.get_page(page)
+
+                paginator19 = Paginator(polarities, 1000)
+                page = request.GET.get('page')
+                polarities = paginator19.get_page(page)
 
 
-                page_obj = zip(texts,authors,images,channelsURL,dates,indexes,predefined_pack,predefined_tag_repeat,predefined,userdefined,user_tag_repeat,userdefined_pack,video_titles_linker,video_specification_linker,polarities)
+
+                page_obj = zip(texts,authors,images,channelsURL,dates,indexes,predefined_pack,predefined_tag_repeat,predefined,userdefined,user_tag_repeat,userdefined_pack,video_titles_linker,video_specification_linker,video_titles,video_specification,title_tag_pack,specification_tag_pack,polarities)
                 texts = list()
                 for key,item in dictionary.items():
                     texts.append(item['single_comment'])
@@ -301,11 +382,11 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
                 paginator7 = Paginator(texts, 1000)
                 page = request.GET.get('page')
                 texts = paginator7.get_page(page)
-                polarity_descision = english_proccessing.polarity_decision_for_one_dic(polarity_dic)
+                polarity_descision = english_Processing.polarity_decision_for_one_dic(polarity_dic)
                 if polarity_descision == "None":
                     context = {
 
-                    "status" : "There is no Comments in this dic ."
+                    "status" : "There is no Comments in according to this query."+servicetype + ""
                     }
                 else:
 
@@ -322,6 +403,8 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
                     "predefined_tags_list":predefined_tags_list,
                     "user_tags_list":user_tags_list,
                     "comment_classifier_obj":comment_classifier_obj,
+                    'video_classified_titles_tag' : video_classified_titles_tag ,
+                    'video_classified_specifiaction_tag':video_classified_specifiaction_tag,
                     "polarity_dic" :polarity_dic,
                     'polarity_descision' : polarity_descision ,
                     'video_titles_linker_total':video_titles_linker_total,
@@ -352,10 +435,10 @@ def omdectionaryviewer(request,lang_classifier_obj_id,num_samples,dic_name,categ
 
 def explain(request):
     text=""
-    english_proccessing = Englishproccessing()
+    english_Processing = EnglishProcessing()
     text = request.POST['text']
     print(text)
-    exp = english_proccessing.explanation_plotter(text)
+    exp = english_Processing.explanation_plotter(text)
     html = exp.as_html()
 
     return JsonResponse({'success':html})

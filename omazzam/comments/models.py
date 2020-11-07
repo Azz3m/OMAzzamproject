@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-#
 from django.utils import timezone
 import urllib.parse,urllib.error,urllib.request
 import json
@@ -157,7 +156,6 @@ class Videocategoryclassifier(models.Model):
         classified_video_object = self
         return classified_video_object
 
-
     def __str__(self):
         return " username: " +self.user.username + " /// video_title: " + self.video_Object.video_title + " /// video_category: " + self.video_Object.video_category
 
@@ -213,11 +211,12 @@ class Comment(models.Model):
             i = 0
             if 'nextPageToken' not in comments_processing_recieved:
                 print('*****************   4  *************************** 4     *******************  \n')
-                print('******** there is NO token , the fetch proccess is statring *************** ')
+                print('******** there is NO token , the fetch Process is statring *************** ')
                 for items in comments_processing_recieved.get('items'):
                     i += 1
                     #making lists of video's comments informations
                     clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textOriginal')
+                    clear_comment = clear_comment.rstrip()
                     clear_comment = clear_comment.lower()
                     clear_comment = clear_comment.replace("'","&rsquo;")
                     clear_comment = clear_comment.replace('"'," ")
@@ -256,13 +255,14 @@ class Comment(models.Model):
 
             else:
                 index = 1
-                print('there is token(s) with code +  (   '+ comments_processing_recieved.get('nextPageToken')[0:6] +'  )......., fetching proccess is statring .....')
+                print('there is token(s) with code +  (   '+ comments_processing_recieved.get('nextPageToken')[0:6] +'  )......., fetching Process is statring .....')
                 print('*****************  4   ******************************** 4  ********************* \n')
                 while 'nextPageToken' in comments_processing_recieved:
                     for items in comments_processing_recieved.get('items'):
                         i += 1
                         #making lists of video's comments informations
                         clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textOriginal')
+                        clear_comment = clear_comment.rstrip()
                         clear_comment = clear_comment.lower()
                         clear_comment = clear_comment.replace("'","&rsquo;")
                         clear_comment = clear_comment.replace('"'," ")
@@ -293,6 +293,7 @@ class Comment(models.Model):
                         #making lists of video's comments informations
                         clear_comment = items.get('snippet').get('topLevelComment').get('snippet').get('textOriginal')
                         clear_comment = clear_comment.lower()
+                        clear_comment = clear_comment.rstrip()
                         clear_comment = clear_comment.replace("'","&rsquo;")
                         clear_comment = clear_comment.replace('"'," ")
                         clear_comment = clear_comment.replace(","," ")

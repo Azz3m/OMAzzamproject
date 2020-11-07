@@ -4,7 +4,7 @@ from django.utils import timezone
 from .models import Contactus
 
 # Create your views here.
-@login_required(login_url="/accounts/signup")
+
 def contactus(request):
     if request.method == 'POST':
         if request.POST['firstname'] and request.POST['lastname'] and request.POST['areacode'] and request.POST['telnum'] and request.POST['emailid'] and request.POST['feedback']:
@@ -16,8 +16,11 @@ def contactus(request):
             contactus.email = request.POST['emailid']
             contactus.body = request.POST['feedback']
             contactus.pub_date = timezone.datetime.now()
-            contactus.contact = request.user
-            contactus.save()
+            try:
+                contactus.contact = request.user
+                contactus.save()
+            except:
+                return render(request, 'contactus/contactus.html', {'error':'Please Signup or login in order to send us a feedback'})
             return render(request, 'contactus/contactus.html',  {'state':'Feedback has been sent successfuly.'})
         else:
             return render(request, 'contactus/contactus.html', {'error':'all the fields are required.'})

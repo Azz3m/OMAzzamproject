@@ -3,7 +3,7 @@
 {% block content %}
 <div id="fetcherDiv">
   <div class="fetcher-loader">
-    {% include 'proccessingloader.html' %}
+    {% include 'Processingloader.html' %}
   </div>
 </div>
 
@@ -30,13 +30,13 @@
 
 {{video_Object.video_title}}
               <form method="post" action="{% url 'classify' lang_classifier.id %}">
-                  <strong>&#128515; Proccess completed ,classify the comments based on Tags &#128515; </strong><br />
+                  <strong>&#128515; Process completed ,classify the comments based on Tags &#128515; </strong><br />
                  {% csrf_token %}
                   <button  type="submit" class="btn btn-outline-primary btn-sm "  ng-click="clickMe()">Comments Classifier</button>
                 </form>
      </div>
      <div class="page-header">
-         <h1><small class="pull-right">{{ total_processed }} comments</small> Total Proccessed  </h1>
+         <h1><small class="pull-right">{{ total_processed }} comments</small> Total Processed  </h1>
      </div>
    </div>
 

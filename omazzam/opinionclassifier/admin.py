@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import Englishproccessing 
+from .models import EnglishProcessing 
 # Register your models here.
-admin.site.register(Englishproccessing)
+admin.site.register(EnglishProcessing)

@@ -7,7 +7,7 @@
 <div id="fetcherDiv">
   <div class="fetcher-loader">
     {% include 'classification_loader.html' %}
-    <h3 class="text-center">Proccessing the POLARITIES</h3>
+    <h3 class="text-center">Processing the POLARITIES</h3>
   </div>
 </div>
 <div class="container text-center">
@@ -42,7 +42,7 @@
 
 </div>
 <div class="page-header col-12">
-    <h1><small class="pull-right">{{ total_processed }} comments</small> Total Proccessed  </h1>
+    <h1><small class="pull-right">{{ total_processed }} comments</small> Total Processed  </h1>
 </div>
 
 <hr />
@@ -190,11 +190,11 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="polarityDialogProccessor" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="polarityDialogProcessor" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="polarityDialogProccessorTitle"></h5>
+        <h5 class="modal-title" id="polarityDialogProcessorTitle"></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -258,15 +258,21 @@
 <script type="text/javascript">
 //$('.recommandations').hide();
 var count = 1;
-
+var temp ="";
 if(count == 1){
   $(window).scroll(function(){
 if($(window).scrollTop() == $(document).height()-$(window).height()){
 
-     var video_titles_sets =  '{{video_titles_sets}}';
-     while(video_titles_sets.includes("&#39;")){
-       video_titles_sets = video_titles_sets.replace("&#39;","'");
-     }
+    var video_title =  '{{video_titles_sets}}';
+
+    while(video_title.includes("&#39;")){
+
+      video_title = video_title.replace("&#39;","");
+      video_title = video_title.replace("]","");
+      video_title = video_title.replace("[","");
+      video_title = video_title.replace(" ","");
+    }
+
 
     $.ajaxSetup({
         headers: { "X-CSRFToken": '{{csrf_token}}' }
@@ -274,10 +280,10 @@ if($(window).scrollTop() == $(document).height()-$(window).height()){
       $.ajax(
       {
           type:"POST",
-          url: "{% url 'recommandations' comment_classifier_obj.video_Object.id %}",
+          url: "{% url 'recommandations' comment_classifier_obj.comment_objID %}",
           data:{
 
-            video_title : video_titles_sets,
+            video_title : video_title,
       },
       success: function( data )
       {
@@ -285,34 +291,33 @@ if($(window).scrollTop() == $(document).height()-$(window).height()){
 
       if(data['state'] == 'success'){
 
-
+  var text = '<div class="header col-12 alert-success"><h1>Related Videos &#128515; :</h1><br /></div>';
 if (count == 1 ){
   var videoIds = [];
-    var text = '<div class="header col-12 alert-success"><h1>Related Videos &#128515; :</h1><br /></div>';
   var url = '';
-   for(i = 0 ; i < data['video_sets'].length ; i++){
-    videoIds[i] =  parseInt(data['video_ids'][i]);
-    console.log(videoIds[i]);
-    if (videoIds[i] != {{comment_classifier_obj.video_Object.id}}){
-      url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment_classifier_obj.comment_objID",videoIds[i]);
+   for(i = 0 ; i < data['video_sets'].length ; i++)
+   {    videoIds[i] =  parseInt(data['video_ids'][i]);
+       console.log(videoIds[i]);
+       if (videoIds[i] != {{comment_classifier_obj.comment_objID}}){
+         url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment.id",videoIds[i]);
 
-      console.log(url);
-      console.log(videoIds);
+         console.log(url);
+         console.log(videoIds);
 
-      text += '<div class="col-lg-3 col-md-4 col-xs-6 thumb">'
-          + ' <div class="embed-responsive embed-responsive-21by9">'
-          +   '  <iframe class="embed-responsive-item" src="'+data['video_waching_urls'][i]+'"></iframe>'
+         text += '<div class="col-lg-3 col-md-4 col-xs-6 thumb">'
+             + ' <div class="embed-responsive embed-responsive-21by9">'
+             +   '  <iframe class="embed-responsive-item" src="'+data['video_waching_urls'][i]+'"></iframe>'
 
-          +  '  </div>'
-            + '<p class="card-title video_title" ng-click="clickMe()" ><a href="'+url+'" >'+data['video_sets'][i]+'</a>  ,CATEGORY : '+data['video_categories'][i]+'</p>'
-          +'</div>';
-      $('.recommandations').append(text);
-      text = '';
-    }
-
+             +  '  </div>'
+               + '<p class="card-title video_title" ng-click="clickMe()" ><a href="'+url+'" >'+data['video_sets'][i]+'</a>  ,CATEGORY : '+data['video_categories'][i]+'</p>'
+             +'</div>';
+         $('.recommandations').append(text);
+         text = '';
+       }
+       else{
+         console.log('not found');
+       }
   }
-
-
 }
 
 count += 1;
@@ -339,8 +344,6 @@ count += 1;
 
 }  });
 }
-
-  $('#loaderDiv').hide();
 
 
 
@@ -378,8 +381,8 @@ count += 1;
     //  var num_sample = $('#num_samples').val();
     //  num_samples = parseInt(num_sample)
       $(this).removeClass("btn-secondary").addClass("btn-warning");
-      $('#polarityDialogProccessorTitle').text(dic_name);
-      $("#polarityDialogProccessor").modal('show');
+      $('#polarityDialogProcessorTitle').text(dic_name);
+      $("#polarityDialogProcessor").modal('show');
 
   });
 });
@@ -447,7 +450,7 @@ count += 1;
           url = url.replace("&#39;+","");
           url = url.replace("%20/%20+%20&#39;","");
 
-          $("#polarityDialogProccessor").modal('hide');
+          $("#polarityDialogProcessor").modal('hide');
           var nextPageBaseUrl = url + "?page=" ;
           var prevPageBaseUrl = url + "?&page=" ;
           var numberOfPages = 0 ;
@@ -573,7 +576,7 @@ count += 1;
 
                 }
 
-                  $("#polarityDialogProccessor").modal('hide');
+                  $("#polarityDialogProcessor").modal('hide');
               });
 
 

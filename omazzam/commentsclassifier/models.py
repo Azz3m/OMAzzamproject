@@ -293,7 +293,7 @@ class Langclassifier(models.Model):
     def comments_lang_classifier(self,user,comment_id):
 
         #vaibles to hold the data
-        #print("setting up variables for comments_classifier proccess  .....")
+        #print("setting up variables for comments_classifier Process  .....")
         total_processed = 0
         emoji_comment_dic = {}
         pure_emoji_dic={}
@@ -772,14 +772,16 @@ class Commentclassifier(models.Model):
         r = re.compile(r'\b%s\b' % "is", re.I)
     #begin comments_classifier
 
-        def video_titles_linker(self,tag,video_titles_sets):
+        def video_titles_linker(self,tag,video_titles_sets,video_id):
             video_list = list()
 
 
             for video in video_titles_sets:
                 if tag in ast.literal_eval(video.video_title):
-                    #temp =  Videocategoryclassifier.objects.get(pk=video.id)
-                    video_list.append(video.id)
+                    if video_id == video.id:
+                        pass
+                    else:
+                        video_list.append(video.id)
                 else:
                     pass
 
@@ -789,14 +791,17 @@ class Commentclassifier(models.Model):
             return video_list
 
 
-        def video_specifications_comment_linker(self,tag,video_specification_sets):
+        def video_specifications_comment_linker(self,tag,video_specification_sets,video_id):
             video_list = list()
 
 
             for video in video_specification_sets:
                 if tag in ast.literal_eval(video.video_specification):
-                    temp = get_object_or_404(Videocategoryclassifier,pk=video.id)
-                    video_list.append(video.id)
+                    if video_id == video.id:
+                        #temp = get_object_or_404(Videocategoryclassifier,pk=video.id)
+                        video_list.append(video.id)
+                    else:
+                        pass
 
                 else:
                     pass
@@ -806,7 +811,7 @@ class Commentclassifier(models.Model):
 
             return video_list
 
-        def comment_classifier_among_video_classfier(self,dic,video_title,video_specification):
+        def comment_classifier_among_video_classfier(self,dic,video_title,video_specification,video_id):
             video_titles_sets = Videocategoryclassifier.objects.all().order_by('video_title')
             video_specification_sets = Videocategoryclassifier.objects.all().order_by('video_specification')
             tags_list = list()
@@ -827,7 +832,7 @@ class Commentclassifier(models.Model):
                     tags_list = list()
                     for tag in video_specification:
                         if tag in single_comment:
-                            dic[item]['video_specification_linker'] = self.video_specifications_comment_linker(tag,video_specification_sets)
+                            dic[item]['video_specification_linker'] = self.video_specifications_comment_linker(tag,video_specification_sets,video_id)
                             total_comments_tags += 1
                             tags_list.append(tag)
                             dic[item]['video_specification'] = tags_list
@@ -856,7 +861,7 @@ class Commentclassifier(models.Model):
                     for tag in video_title:
                         if tag in single_comment:
 
-                            dic[item]['video_titles_linker'] = self.video_titles_linker(tag,video_titles_sets)
+                            dic[item]['video_titles_linker'] = self.video_titles_linker(tag,video_titles_sets,video_id)
 
 
                             total_comments_tags += 1
@@ -1188,6 +1193,7 @@ class Commentclassifier(models.Model):
                 if 'video_specification_linker'in item:
                     video_specification_linker += 1
             return video_titles_linker, video_specification_linker
+
         def comments_classifier(self,user,lang_classifier_obj_id):
             lang_classifier_obj = get_object_or_404(Langclassifier,pk=lang_classifier_obj_id)
             video_classified_obj = get_object_or_404(Videocategoryclassifier,video_Object=lang_classifier_obj.video_Object)
@@ -1270,27 +1276,27 @@ class Commentclassifier(models.Model):
 
             video_title = ast.literal_eval(video_classified_obj.video_title)
             video_specification = ast.literal_eval(video_classified_obj.video_specification)
-
-            self.emoji_comment_dic = self.comment_classifier_among_video_classfier(emoji_comment_dic,video_title,video_specification)
-            self.pure_emoji_dic = self.comment_classifier_among_video_classfier(pure_emoji_dic,video_title,video_specification)
-            self.pure_english_dic = self.comment_classifier_among_video_classfier(pure_english_dic,video_title,video_specification)
-            self.pure_arabic_dic = self.comment_classifier_among_video_classfier(pure_arabic_dic,video_title,video_specification)
-            self.mixed_lang_dic = self.comment_classifier_among_video_classfier(mixed_lang_dic,video_title,video_specification)
-            self.emoji_pure_arabic_dic = self.comment_classifier_among_video_classfier(emoji_pure_arabic_dic,video_title,video_specification)
-            self.emoji_pure_english_dic =self.comment_classifier_among_video_classfier(emoji_pure_english_dic,video_title,video_specification)
-            self.emoji_mixed_lang_dic = self.comment_classifier_among_video_classfier(emoji_mixed_lang_dic,video_title,video_specification)
-            self.emoji_arabic_with_others_dic = self.comment_classifier_among_video_classfier(emoji_arabic_with_others_dic,video_title,video_specification)
-            self.emoji_english_with_others_dic = self.comment_classifier_among_video_classfier(emoji_english_with_others_dic,video_title,video_specification)
-            self.emoji_ar_en_dic = self.comment_classifier_among_video_classfier(emoji_ar_en_dic,video_title,video_specification)
-            self.emoji_exceptions_dic = self.comment_classifier_among_video_classfier(emoji_exceptions_dic,video_title,video_specification)
-            self.emoji_other_language_dic = self.comment_classifier_among_video_classfier(emoji_other_language_dic,video_title,video_specification)
-            self.emoji_useless_comment_dic= self.comment_classifier_among_video_classfier(emoji_useless_comment_dic,video_title,video_specification)
-            self.exceptions_dic = self.comment_classifier_among_video_classfier(exceptions_dic,video_title,video_specification)
-            self.other_language_dic = self.comment_classifier_among_video_classfier(other_language_dic,video_title,video_specification)
-            self.useless_comment_dic= self.comment_classifier_among_video_classfier(useless_comment_dic,video_title,video_specification)
-            self.arabic_with_others_dic= self.comment_classifier_among_video_classfier(arabic_with_others_dic,video_title,video_specification)
-            self.english_with_others_dic = self.comment_classifier_among_video_classfier(english_with_others_dic,video_title,video_specification)
-            self.ar_en_dic = self.comment_classifier_among_video_classfier(ar_en_dic,video_title,video_specification)
+            video_id = self.video_ObjectID
+            self.emoji_comment_dic = self.comment_classifier_among_video_classfier(emoji_comment_dic,video_title,video_specification,video_id)
+            self.pure_emoji_dic = self.comment_classifier_among_video_classfier(pure_emoji_dic,video_title,video_specification,video_id)
+            self.pure_english_dic = self.comment_classifier_among_video_classfier(pure_english_dic,video_title,video_specification,video_id)
+            self.pure_arabic_dic = self.comment_classifier_among_video_classfier(pure_arabic_dic,video_title,video_specification,video_id)
+            self.mixed_lang_dic = self.comment_classifier_among_video_classfier(mixed_lang_dic,video_title,video_specification,video_id)
+            self.emoji_pure_arabic_dic = self.comment_classifier_among_video_classfier(emoji_pure_arabic_dic,video_title,video_specification,video_id)
+            self.emoji_pure_english_dic =self.comment_classifier_among_video_classfier(emoji_pure_english_dic,video_title,video_specification,video_id)
+            self.emoji_mixed_lang_dic = self.comment_classifier_among_video_classfier(emoji_mixed_lang_dic,video_title,video_specification,video_id)
+            self.emoji_arabic_with_others_dic = self.comment_classifier_among_video_classfier(emoji_arabic_with_others_dic,video_title,video_specification,video_id)
+            self.emoji_english_with_others_dic = self.comment_classifier_among_video_classfier(emoji_english_with_others_dic,video_title,video_specification,video_id)
+            self.emoji_ar_en_dic = self.comment_classifier_among_video_classfier(emoji_ar_en_dic,video_title,video_specification,video_id)
+            self.emoji_exceptions_dic = self.comment_classifier_among_video_classfier(emoji_exceptions_dic,video_title,video_specification,video_id)
+            self.emoji_other_language_dic = self.comment_classifier_among_video_classfier(emoji_other_language_dic,video_title,video_specification,video_id)
+            self.emoji_useless_comment_dic= self.comment_classifier_among_video_classfier(emoji_useless_comment_dic,video_title,video_specification,video_id)
+            self.exceptions_dic = self.comment_classifier_among_video_classfier(exceptions_dic,video_title,video_specification,video_id)
+            self.other_language_dic = self.comment_classifier_among_video_classfier(other_language_dic,video_title,video_specification,video_id)
+            self.useless_comment_dic= self.comment_classifier_among_video_classfier(useless_comment_dic,video_title,video_specification,video_id)
+            self.arabic_with_others_dic= self.comment_classifier_among_video_classfier(arabic_with_others_dic,video_title,video_specification,video_id)
+            self.english_with_others_dic = self.comment_classifier_among_video_classfier(english_with_others_dic,video_title,video_specification,video_id)
+            self.ar_en_dic = self.comment_classifier_among_video_classfier(ar_en_dic,video_title,video_specification,video_id)
 
             comment_classifier = self
 

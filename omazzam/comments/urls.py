@@ -10,6 +10,11 @@ urlpatterns = [
     path('videoclassifer/<int:comment_id>/', cm.videoclassifer, name="videoclassifer"),
     path('videoclassifed/<int:video_id>/', cm.videoclassifed, name="videoclassifed"),
     path('recommandations/<int:video_id>/', cm.recommandations, name="recommandations"),
+    path('commentsclassifierdeleter/<int:video_id>/', cm.commentsclassifierdeleter, name="commentsclassifierdeleter"),
+    path('commentsclassifierchecker/<int:video_id>/', cm.commentsclassifierchecker, name="commentsclassifierchecker"),
+    path('usersearch/', cm.usersearch, name="usersearch"),
+    path('comment_object_checker/', cm.comment_object_checker, name="comment_object_checker"),
+    path('comment_object_recreater/', cm.comment_object_recreater, name="comment_object_recreater"),
 
-
+    #path('comment_object_updater/<int:comment_id>/', cm.comment_object_updater, name="comment_object_updater"),
     ]

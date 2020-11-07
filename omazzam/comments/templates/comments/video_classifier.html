@@ -53,7 +53,7 @@
 <!--  if video classified object is found   -->
 {% csrf_token %}
 <div class="caption"><h1><i class="fa fa-video-camera" aria-hidden="true"></i> Classify The Video :</h1>
-  <div id="status">
+  <div id="status" class="text-center">
 
 </div>
 </div>
@@ -80,10 +80,26 @@
     <div class="form-group row">
   <div class="input-group">
     <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
-        <h3><span  class="badge badge-pill badge-secondary" >Video's title </span></h3>
-        <textarea id="video_name" name="video_title">{% for keyword in video_title%}
-          {{ keyword }},
-          {% endfor %}
+        <h3><span  class="badge badge-pill badge-secondary" >Video's primary tags </span></h3>
+        <textarea id="video_name" name="video_title">
+          {% if video_classifier_indicator %}
+              {% if video_title %}
+                {% for keyword in video_title %}
+                  {{ keyword }},
+                  {% endfor %}
+              {% endif %}
+          {% else %}
+          {% if user_tags_list %}
+              {% for tag in user_tags_list %}
+              {{tag}},
+              {% endfor %}
+          {% endif %}
+          {% if predefined_tags_list %}
+              {% for tag in predefined_tags_list %}
+              {{tag}},
+              {% endfor %}
+          {% endif %}
+          {% endif %}
         </textarea>
     </div>
   </div>
@@ -91,11 +107,27 @@
         <div class="form-group row">
       <div class="input-group">
         <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
-            <h3><span  class="badge badge-pill badge-secondary" >Video's specification </span></h3>
+            <h3><span  class="badge badge-pill badge-secondary" >Video's specification tags </span></h3>
             <textarea id="specification" name="video_specification">
-{% for keyword in video_specification%}
-  {{ keyword }},
-  {% endfor %}
+              {% if video_classifier_indicator %}
+                  {% if video_specification %}
+                  {% for keyword in video_specification%}
+                    {{ keyword }},
+                    {% endfor %}
+                  {% endif %}
+              {% else %}
+              {% if user_tags_list %}
+                  {% for tag in user_tags_list %}
+                  {{tag}},
+                  {% endfor %}
+              {% endif %}
+              {% if predefined_tags_list %}
+                  {% for tag in predefined_tags_list %}
+                  {{tag}},
+                  {% endfor %}
+              {% endif %}
+              {% endif %}
+
             </textarea>
         </div>
       </div>
@@ -145,7 +177,17 @@
               <div class="input-group">
                 <div style="padding :0 7px 0 5px;max-width:900px;margin:auto">
                     <h3><span  class="badge badge-pill badge-secondary" >Video's title </span></h3>
-                    <textarea id="video_name" name="video_title">{{video.video_title}}</textarea>
+                    <textarea id="video_name" name="video_title">
+                              {% if user_tags_list %}
+                                {% for tag in user_tags_list %}
+                                {{tag}},
+                                {% endfor %}
+                            {% endif %}
+                            {% if predefined_tags_list %}
+                                {% for tag in predefined_tags_list %}
+                            {{tag}},
+                                {% endfor %}
+                            {% endif %}</textarea>
                 </div>
               </div>
             </div>
@@ -199,6 +241,61 @@
 
 <script type="text/javascript">
 //$('.recommandations').hide();
+$(document).ready(function(){
+
+  var url_checker = '{% url 'commentsclassifierchecker' video.id%}';
+  $.ajaxSetup({
+      headers: { "X-CSRFToken": '{{csrf_token}}' }
+    });
+    $.ajax(
+    {
+        type:"POST",
+        url: url_checker,
+        data:{
+
+          video_id : {{video.id}},
+    },
+    success: function( data )
+    {
+      if(data.state == 'success'){
+      var url_deleter =   '{% url 'commentsclassifierdeleter' video.id%}';
+      $('#status').append(' <hr /><br /><div class="text-center row"><h3 class="badge badge-pill badge-info"> Comment Classifier Object Found </h3></div>');
+      $('.deleter').on('click',function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+          });
+        $.ajax({
+          type:"POST",
+          url: url_deleter,
+          data:{
+
+            video_id : {{video.id}},
+        },success: function( data ){
+          if(data.state == 'success'){
+              alert("Comments classifier deleted successfuly redirect to comments classifier page .... .");
+              var lang_classifier_obj_id = data.comments_classifier;
+              var comments_classifier_url = "{% url 'classify' ";
+              var comments_classifier_url2 = "lang_classifier_obj_id %}";
+              comments_classifier_url2 = comments_classifier_url2.replace("lang_classifier_obj_id",lang_classifier_obj_id);
+              alert(comments_classifier_url2);
+               url = "http://127.0.0.1:8000/commentsclassifier/classify/lang_classifier_obj_id".replace("lang_classifier_obj_id",lang_classifier_obj_id);
+              commentsclassifier_url = comments_classifier_url + comments_classifier_url;
+               window.location = data.url;
+          }else{
+            alert("Comments classifier deleted successfuly redirect to comments classifier page .... .");
+          }
+
+        }
+
+      });
+
+    });
+  }
+  }
+});
+});
 var count = 1;
 
 if(count == 1){
@@ -206,6 +303,7 @@ if(count == 1){
 if($(window).scrollTop() == $(document).height()-$(window).height()){
     var video_title;
     video_title = $('#video_name').val();
+    console.log(video_title);
 
     $.ajaxSetup({
         headers: { "X-CSRFToken": '{{csrf_token}}' }
@@ -232,7 +330,7 @@ if (count == 1 ){
    {    videoIds[i] =  parseInt(data['video_ids'][i]);
        console.log(videoIds[i]);
        if (videoIds[i] != {{video.id}}){
-         url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment_classifier_obj.comment_objID",videoIds[i]);
+         url = "http://127.0.0.1:8000/comments/commentsdetail/comment.id".replace("comment.id",videoIds[i]);
 
          console.log(url);
          console.log(videoIds);
@@ -306,9 +404,14 @@ count += 1;
         $("#status").empty();
 
         if('state' in data){
-            $("#status").append( '<h3 class="alert alert-success">'+data['state']+'</h3>');
+            $("#status").append( '<h3 class="alert alert-danger">'+data['state']+'</h3>');
+
+
         } else{
-            $("#status").append( '<h3 class="alert alert-success">'+data['success']+'</h3>');
+          text = '<h3 class="alert text-center alert-success">'+data['success']+'</h3>' ;
+
+            $("#status").append(text);
+
 
         }
 
